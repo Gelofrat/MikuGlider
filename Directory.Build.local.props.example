@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <GameRoot Condition="'$(GameRoot)' == ''">C:\Path\To\Mycopunk</GameRoot>
+  </PropertyGroup>
+</Project>
