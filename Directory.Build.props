@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <MikuGliderRepositoryRoot>$(MSBuildThisFileDirectory)</MikuGliderRepositoryRoot>
+    <GameRoot Condition="'$(GameRoot)' == '' and '$(MYCOPUNK_GAME_ROOT)' != ''">$(MYCOPUNK_GAME_ROOT)</GameRoot>
+  </PropertyGroup>
+  <Import Project="$(MikuGliderRepositoryRoot)Directory.Build.local.props" Condition="Exists('$(MikuGliderRepositoryRoot)Directory.Build.local.props')" />
+  <PropertyGroup Condition="'$(GameRoot)' != ''">
+    <MikuGliderGameRoot>$([System.IO.Path]::Combine('$(MikuGliderRepositoryRoot)', '$(GameRoot)'))</MikuGliderGameRoot>
+    <MikuGliderGameRoot>$([System.IO.Path]::GetFullPath('$(MikuGliderGameRoot)'))</MikuGliderGameRoot>
+  </PropertyGroup>
+</Project>

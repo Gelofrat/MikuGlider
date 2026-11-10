@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>MikuGlider</AssemblyName>
+    <RootNamespace>MikuGlider</RootNamespace>
+    <Version>0.12.0</Version>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Authors>MikuGlider contributors</Authors>
+    <Company>MikuGlider</Company>
+    <PathMap>$(MSBuildProjectDirectory)=/_/MikuGlider</PathMap>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <ManagedRoot>$(MikuGliderGameRoot)\Mycopunk_Data\Managed</ManagedRoot>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src\**\*.cs" />
+    <EmbeddedResource Include="assets\MikuGlider.mikumesh" LogicalName="MikuGlider.Model" />
+    <EmbeddedResource Include="assets\textures\body-albedo.png" LogicalName="MikuGlider.Texture.BodyAlbedo" />
+    <EmbeddedResource Include="assets\textures\body-specular.png" LogicalName="MikuGlider.Texture.BodySpecular" />
+    <EmbeddedResource Include="assets\textures\face-albedo.png" LogicalName="MikuGlider.Texture.FaceAlbedo" />
+    <EmbeddedResource Include="assets\textures\face-specular.png" LogicalName="MikuGlider.Texture.FaceSpecular" />
+    <EmbeddedResource Include="assets\MikuGlider.mikuhair" LogicalName="MikuGlider.Hair" />
+    <EmbeddedResource Include="assets\textures\icon.png" LogicalName="MikuGlider.Texture.Icon" />
+    <EmbeddedResource Include="assets\definition.json" LogicalName="MikuGlider.Definition" />
+    <EmbeddedResource Include="assets\v2\MikuGliderV2.mikumesh" LogicalName="MikuGliderV2.Model" />
+    <EmbeddedResource Include="assets\v2\MikuGliderV2.mikuhair" LogicalName="MikuGliderV2.Hair" />
+    <EmbeddedResource Include="assets\v2\definition.json" LogicalName="MikuGliderV2.Definition" />
+    <EmbeddedResource Include="assets\v3\MikuGliderV3.mikumesh" LogicalName="MikuGliderV3.Model" />
+    <EmbeddedResource Include="assets\v3\MikuGliderV3.mikuhair" LogicalName="MikuGliderV3.Hair" />
+    <EmbeddedResource Include="assets\v3\textures\body-albedo.png" LogicalName="MikuGliderV3.Texture.BodyAlbedo" />
+    <EmbeddedResource Include="assets\v3\textures\body-specular.png" LogicalName="MikuGliderV3.Texture.BodySpecular" />
+    <EmbeddedResource Include="assets\v3\textures\face-albedo.png" LogicalName="MikuGliderV3.Texture.FaceAlbedo" />
+    <EmbeddedResource Include="assets\v3\textures\face-specular.png" LogicalName="MikuGliderV3.Texture.FaceSpecular" />
+    <EmbeddedResource Include="assets\v3\textures\icon.png" LogicalName="MikuGliderV3.Texture.Icon" />
+    <EmbeddedResource Include="assets\v3\definition.json" LogicalName="MikuGliderV3.Definition" />
+    <EmbeddedResource Include="assets\v2\textures\body-albedo.png" LogicalName="MikuGliderV2.Texture.BodyAlbedo" />
+    <EmbeddedResource Include="assets\v2\textures\body-specular.png" LogicalName="MikuGliderV2.Texture.BodySpecular" />
+    <EmbeddedResource Include="assets\v2\textures\face-albedo.png" LogicalName="MikuGliderV2.Texture.FaceAlbedo" />
+    <EmbeddedResource Include="assets\v2\textures\face-specular.png" LogicalName="MikuGliderV2.Texture.FaceSpecular" />
+    <EmbeddedResource Include="assets\v2\textures\icon.png" LogicalName="MikuGliderV2.Texture.Icon" />
+    <Reference Include="BepInEx"><HintPath>$(MikuGliderGameRoot)\BepInEx\core\BepInEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(MikuGliderGameRoot)\BepInEx\core\0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp"><HintPath>$(ManagedRoot)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(ManagedRoot)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedRoot)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.AnimationModule"><HintPath>$(ManagedRoot)\UnityEngine.AnimationModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Animancer"><HintPath>$(ManagedRoot)\Animancer.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.InputSystem"><HintPath>$(ManagedRoot)\Unity.InputSystem.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(ManagedRoot)\UnityEngine.PhysicsModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UI"><HintPath>$(ManagedRoot)\UnityEngine.UI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UIModule"><HintPath>$(ManagedRoot)\UnityEngine.UIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule"><HintPath>$(ManagedRoot)\UnityEngine.JSONSerializeModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Netcode.Runtime"><HintPath>$(ManagedRoot)\Unity.Netcode.Runtime.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Collections"><HintPath>$(ManagedRoot)\Unity.Collections.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <Target Name="CheckGameReferences" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="'$(GameRoot)' == ''" Text="Set GameRoot in Directory.Build.local.props, MYCOPUNK_GAME_ROOT, or -p:GameRoot=... . See Directory.Build.local.props.example." />
+    <Error Condition="'$(GameRoot)' != '' and !Exists('$(ManagedRoot)\Assembly-CSharp.dll')" Text="GameRoot must contain Mycopunk_Data\Managed\Assembly-CSharp.dll: $(MikuGliderGameRoot)" />
+    <Error Condition="'$(GameRoot)' != '' and !Exists('$(MikuGliderGameRoot)\BepInEx\core\BepInEx.dll')" Text="GameRoot must contain BepInEx\core\BepInEx.dll." />
+    <Error Condition="'$(GameRoot)' != '' and !Exists('$(MikuGliderGameRoot)\BepInEx\core\0Harmony.dll')" Text="GameRoot must contain BepInEx\core\0Harmony.dll." />
+  </Target>
+  <Target Name="Install" DependsOnTargets="Build">
+    <Error Condition="!Exists('$(MikuGliderGameRoot)\BepInEx\plugins')" Text="Install BepInEx first. The existing BepInEx/plugins directory is required." />
+    <Error Condition="Exists('$(MikuGliderGameRoot)\BepInEx\plugins\MikuGlider\MikuGlider.dll')" Text="Remove the previous BepInEx/plugins/MikuGlider/MikuGlider.dll before installing to avoid loading the plugin twice." />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MikuGliderGameRoot)\BepInEx\plugins\MikuGlider.dll" />
+  </Target>
+</Project>

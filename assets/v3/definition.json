@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "torsoHoldPosition": {
+    "x": 0,
+    "y": -1.4,
+    "z": 0.65
+  },
+  "torsoHoldRotation": {
+    "x": -17.43,
+    "y": 180,
+    "z": 0
+  },
+  "legsHoldPosition": {
+    "x": 0,
+    "y": 0.13,
+    "z": 0.61
+  },
+  "legsHoldRotation": {
+    "x": 180,
+    "y": 0,
+    "z": 0
+  },
+  "coatEnvelope": true
+}
