@@ -62,9 +62,11 @@ internal sealed class SkinAppearanceController
         if (!player.IsLocalPlayer) return;
         Transform root = player.Animator.FirstPersonRoot;
         if (root == null || root.childCount < 3) return;
-        bool correct = skin != null && skin.Definition.CorrectFirstPersonWrists;
         for (int side = 0; side < 2; side++)
         {
+            bool correct = skin != null && (side == 0
+                ? skin.Definition.CorrectFirstPersonLeftWrist
+                : skin.Definition.CorrectFirstPersonRightWrist);
             var renderer = root.GetChild(side + 1).GetComponent<SkinnedMeshRenderer>();
             Mesh source = skin?.Assets.GetMesh(side == 0 ? "arm-left" : "arm-right");
             FirstPersonWristVisual.Attach(renderer, correct ? source : null);

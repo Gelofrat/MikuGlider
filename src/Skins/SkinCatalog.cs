@@ -14,7 +14,7 @@ internal static class SkinCatalog
             rarity: Rarity.Exotic,
             resourcePrefix: "MikuGlider",
             poseSkirt: true,
-            correctFirstPersonWrists: false),
+            correctFirstPersonLeftWrist: true),
         new SkinVariantDefinition(
             numericId: 0x4D494B56,
             key: "MikuGliderV2",
@@ -22,7 +22,8 @@ internal static class SkinCatalog
             rarity: Rarity.Exotic,
             resourcePrefix: "MikuGliderV2",
             poseSkirt: true,
-            correctFirstPersonWrists: true),
+            correctFirstPersonLeftWrist: true,
+            correctFirstPersonRightWrist: true),
         new SkinVariantDefinition(
             numericId: 0x4D494B57,
             key: "MikuGliderV3",
@@ -30,7 +31,7 @@ internal static class SkinCatalog
             rarity: Rarity.Exotic,
             resourcePrefix: "MikuGliderV3",
             poseSkirt: true,
-            correctFirstPersonWrists: false)
+            correctFirstPersonLeftWrist: true)
     });
 }
 
@@ -44,12 +45,14 @@ internal sealed class SkinVariantDefinition
     internal string TextureResourcePrefix { get; }
     internal bool AnimatedHair { get; }
     internal bool PoseSkirt { get; }
-    internal bool CorrectFirstPersonWrists { get; }
+    internal bool CorrectFirstPersonLeftWrist { get; }
+    internal bool CorrectFirstPersonRightWrist { get; }
     internal UpgradeID UpgradeId => new UpgradeID(NumericId, MikuGliderPlugin.Guid);
 
     internal SkinVariantDefinition(int numericId, string key, string displayName, Rarity rarity,
         string resourcePrefix, bool animatedHair = true, bool poseSkirt = false,
-        string textureResourcePrefix = null, bool correctFirstPersonWrists = false)
+        string textureResourcePrefix = null, bool correctFirstPersonLeftWrist = false,
+        bool correctFirstPersonRightWrist = false)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("A skin key is required.", nameof(key));
@@ -66,6 +69,7 @@ internal sealed class SkinVariantDefinition
         TextureResourcePrefix = textureResourcePrefix ?? resourcePrefix;
         AnimatedHair = animatedHair;
         PoseSkirt = poseSkirt;
-        CorrectFirstPersonWrists = correctFirstPersonWrists;
+        CorrectFirstPersonLeftWrist = correctFirstPersonLeftWrist;
+        CorrectFirstPersonRightWrist = correctFirstPersonRightWrist;
     }
 }
