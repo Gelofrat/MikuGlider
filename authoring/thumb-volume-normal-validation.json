@@ -1,0 +1,49 @@
+{
+  "clockwiseNormals": true,
+  "hardEdges": true,
+  "unchangedSurface": true,
+  "meshes": [
+    {
+      "variant": "v1",
+      "shape": "MikuManual:Cycler thumb grip",
+      "pairs": 81,
+      "maximumNormalDeltaSeam": 0.0
+    },
+    {
+      "variant": "v1",
+      "shape": "MikuManual:Shotgun thumb grip",
+      "pairs": 81,
+      "maximumNormalDeltaSeam": 0.0
+    },
+    {
+      "variant": "v1",
+      "shape": "MikuManual:Plate thumb opposition",
+      "pairs": 81,
+      "maximumNormalDeltaSeam": 0.0
+    },
+    {
+      "variant": "v2",
+      "shape": "MikuManual:Cycler thumb grip",
+      "pairs": 178,
+      "maximumNormalDeltaSeam": 0.0
+    },
+    {
+      "variant": "v2",
+      "shape": "MikuManual:Shotgun thumb grip",
+      "pairs": 178,
+      "maximumNormalDeltaSeam": 0.0
+    },
+    {
+      "variant": "v3",
+      "shape": "MikuManual:Cycler thumb grip",
+      "pairs": 18,
+      "maximumNormalDeltaSeam": 0.0
+    },
+    {
+      "variant": "v3",
+      "shape": "MikuManual:Shotgun thumb grip",
+      "pairs": 18,
+      "maximumNormalDeltaSeam": 0.0
+    }
+  ]
+}

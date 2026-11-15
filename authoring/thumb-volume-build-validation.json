@@ -1,0 +1,197 @@
+{
+  "version": "0.12.29",
+  "checkpoint": "checkpoint/grip-transition-0.12.28 (8572dd6)",
+  "assets": {
+    "v1": {
+      "sha256": "bb5f9511fe61c79f615e79a52f1a03bbe0afbe23dd2fc7e1170878a022a7b41f",
+      "correctionsSha256": "48f192255bf17d2361670960d171d52d3b060158e541ccea651677c5a09077f6",
+      "payloadReplaysExactly": true,
+      "uvTopologyBindposesAndOtherChunksUnchanged": true,
+      "targetRoundtripMaxError": {
+        "cycler": 1.1920928955078125e-07,
+        "shotgun": 1.1920928955078125e-07,
+        "plate": 1.1920928955078125e-07
+      }
+    },
+    "v2": {
+      "sha256": "e57361bfa3de3f9c5c2591ca7c4ead6765da8c8d0b7fb306261fd86205463e1d",
+      "correctionsSha256": "d4fa11baf79f84b1ee4b738eed94c586576cbeabf283525526d1dfbc07e75676",
+      "payloadReplaysExactly": true,
+      "uvTopologyBindposesAndOtherChunksUnchanged": true,
+      "targetRoundtripMaxError": {
+        "cycler": 7.636845111846924e-08,
+        "shotgun": 8.568167686462402e-08
+      }
+    },
+    "v3": {
+      "sha256": "7fecf7dd7d16b0b70a48a5ae77d321497dfc29e2f6c2dc956d93b18b92d0e988",
+      "correctionsSha256": "de76694331f453ea41a64417179ed4fcaec2f0e3ddb6a7a7f3657d175169e0ad",
+      "payloadReplaysExactly": true,
+      "uvTopologyBindposesAndOtherChunksUnchanged": true,
+      "targetRoundtripMaxError": {
+        "cycler": 7.636845111846924e-08,
+        "shotgun": 8.568167686462402e-08
+      }
+    }
+  },
+  "unitySuites": [
+    {
+      "variant": "v1",
+      "report": "simulation/Reports/20261116-021533-arms-playable/report.json",
+      "completedUtc": "2026-11-15T23:16:01.9674902Z",
+      "passed": true,
+      "configurations": 333,
+      "frames": 52098
+    },
+    {
+      "variant": "v2",
+      "report": "simulation/Reports/20261116-022123-arms-playable/report.json",
+      "completedUtc": "2026-11-15T23:21:54.6180126Z",
+      "passed": true,
+      "configurations": 333,
+      "frames": 52098
+    },
+    {
+      "variant": "v3",
+      "report": "simulation/Reports/20261116-022247-arms-playable/report.json",
+      "completedUtc": "2026-11-15T23:23:15.2143896Z",
+      "passed": true,
+      "configurations": 333,
+      "frames": 52098
+    }
+  ],
+  "bakes": [
+    {
+      "variant": "v1",
+      "clips": 56,
+      "frames": 2993,
+      "meshFrames": 818,
+      "maxLocal": 4.231929779052734e-06,
+      "maxRotation": 0.0,
+      "maxShape": 0.0,
+      "maxMesh": 2.1285142793203704e-05,
+      "passed": true
+    },
+    {
+      "variant": "v2",
+      "clips": 56,
+      "frames": 2993,
+      "meshFrames": 818,
+      "maxLocal": 1.0371208190917969e-05,
+      "maxRotation": 0.0,
+      "maxShape": 0.0,
+      "maxMesh": 1.0830905011971481e-05,
+      "passed": true
+    },
+    {
+      "variant": "v3",
+      "clips": 56,
+      "frames": 2993,
+      "meshFrames": 818,
+      "maxLocal": 4.231929779052734e-06,
+      "maxRotation": 0.0,
+      "maxShape": 0.0,
+      "maxMesh": 1.972187055798713e-05,
+      "passed": true
+    }
+  ],
+  "runtime": [
+    {
+      "variant": "v1",
+      "residentShapes": 3,
+      "allocatedBytes": 0,
+      "changingAllocatedBytes": 0,
+      "medianMilliseconds": 0.0006332120000000001,
+      "medianChangingMillisecondsIncludingDriverWrite": 0.002460133
+    },
+    {
+      "variant": "v2",
+      "residentShapes": 2,
+      "allocatedBytes": 0,
+      "changingAllocatedBytes": 0,
+      "medianMilliseconds": 0.000588149,
+      "medianChangingMillisecondsIncludingDriverWrite": 0.002194486
+    },
+    {
+      "variant": "v3",
+      "residentShapes": 2,
+      "allocatedBytes": 0,
+      "changingAllocatedBytes": 0,
+      "medianMilliseconds": 0.0007353240000000001,
+      "medianChangingMillisecondsIncludingDriverWrite": 0.002104057
+    }
+  ],
+  "recoil": {
+    "cases": 72,
+    "maximumHandOffsetBefore": 0.0686988756,
+    "maximumBoneOffsetAfter": 0.0
+  },
+  "normalValidation": {
+    "clockwiseNormals": true,
+    "hardEdges": true,
+    "unchangedSurface": true,
+    "meshes": [
+      {
+        "variant": "v1",
+        "shape": "MikuManual:Cycler thumb grip",
+        "pairs": 81,
+        "maximumNormalDeltaSeam": 0.0
+      },
+      {
+        "variant": "v1",
+        "shape": "MikuManual:Shotgun thumb grip",
+        "pairs": 81,
+        "maximumNormalDeltaSeam": 0.0
+      },
+      {
+        "variant": "v1",
+        "shape": "MikuManual:Plate thumb opposition",
+        "pairs": 81,
+        "maximumNormalDeltaSeam": 0.0
+      },
+      {
+        "variant": "v2",
+        "shape": "MikuManual:Cycler thumb grip",
+        "pairs": 178,
+        "maximumNormalDeltaSeam": 0.0
+      },
+      {
+        "variant": "v2",
+        "shape": "MikuManual:Shotgun thumb grip",
+        "pairs": 178,
+        "maximumNormalDeltaSeam": 0.0
+      },
+      {
+        "variant": "v3",
+        "shape": "MikuManual:Cycler thumb grip",
+        "pairs": 18,
+        "maximumNormalDeltaSeam": 0.0
+      },
+      {
+        "variant": "v3",
+        "shape": "MikuManual:Shotgun thumb grip",
+        "pairs": 18,
+        "maximumNormalDeltaSeam": 0.0
+      }
+    ]
+  },
+  "dllSha256": "ec69adb96435bb2259d3455b4e0b183a9456309d2496cc133a232b70abd8065f",
+  "build": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "limitations": [
+    "The dense animation files are composed review bakes, not replacements for native additive game clips.",
+    "The transition fix was verified using captured native states and the actual Animancer runtime in Unity; no new in-game recording after installation yet.",
+    "Triangle-area checks do not prove absence of all hand/weapon intersections.",
+    "CPU timing is an editor microbenchmark, not an in-game FPS or GPU measurement."
+  ],
+  "installation": {
+    "version": "0.12.29",
+    "sha256": "ec69adb96435bb2259d3455b4e0b183a9456309d2496cc133a232b70abd8065f",
+    "verifiedUtc": "2026-11-15T23:26:22.318589+00:00",
+    "backup": "scratch/backups/pre-0.12.29/MikuGlider.dll",
+    "backupSha256": "8d8c0d351aecbdbfe1e479b1e37890365c5a4451944761a7312de827d2827e83",
+    "embeddedModelsAndCorrectionsMatch": true
+  }
+}

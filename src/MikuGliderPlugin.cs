@@ -9,7 +9,7 @@ namespace MikuGlider;
 public sealed class MikuGliderPlugin : BaseUnityPlugin
 {
     public const string Guid = "horse.mycopunk.mikuglider";
-    public const string Version = "0.12.28";
+    public const string Version = "0.12.29";
 
     internal static ModRuntime Runtime { get; private set; }
 

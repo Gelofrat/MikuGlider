@@ -39,7 +39,7 @@ namespace Horse.MikuPhysicsLab.Editor
                         var q=data["rotations"][index]["rotation"];
                         arm.bones[index].localRotation=new Quaternion((float)q["x"],(float)q["y"],(float)q["z"],(float)q["w"]);
                     }
-                    Require(arm.sharedMesh.blendShapeCount==2 && arm.bones.Length==37, "Unexpected skinning layout");
+                    Require(arm.sharedMesh.blendShapeCount==(variant=="v1"?3:2) && arm.bones.Length==37, "Unexpected skinning layout");
                     update(); Require(arm.GetBlendShapeWeight(0)==100, "Cycler grip did not activate");
                     Quaternion closed=arm.bones[25].localRotation;
                     arm.bones[25].localRotation=closed*Quaternion.AngleAxis(65,Vector3.forward);
@@ -85,6 +85,24 @@ namespace Horse.MikuPhysicsLab.Editor
                     UnityEngine.Object.DestroyImmediate(shotgun);weapon.SetParent(root,true);
                     arm.bones[24].localRotation=originalThumb[0];arm.bones[25].localRotation=originalThumb[1];arm.bones[26].localRotation=originalThumb[2];
                     update();Require(arm.GetBlendShapeWeight(0)==100 && arm.GetBlendShapeWeight(1)==0,"Shotgun correction leaked after swap");
+                    weapon.SetParent(actor.Root.transform,true);
+                    var plate=new GameObject("Native weapon YAPlateLauncher");plate.transform.SetParent(root,false);
+                    var plateData=JObject.Parse(File.ReadAllText(Path.Combine(Path.GetDirectoryName(review),"thumb-refinement",variant+"-clip-313-final.png.pose.json")));
+                    foreach(int index in new[]{24,25,26})
+                    {
+                        var q=plateData["rotations"][index]["rotation"];
+                        arm.bones[index].localRotation=new Quaternion((float)q["x"],(float)q["y"],(float)q["z"],(float)q["w"]);
+                    }
+                    update();Require(arm.GetBlendShapeWeight(0)==0 && arm.GetBlendShapeWeight(1)==0,"Other weapon corrections leaked into Plate Launcher");
+                    if(variant=="v1")
+                    {
+                        Require(arm.GetBlendShapeWeight(2)==100,"Plate opposition did not activate");
+                        arm.bones[26].localRotation*=Quaternion.AngleAxis(65,Vector3.forward);
+                        update();Require(arm.GetBlendShapeWeight(2)==0,"Plate inspection curl did not release");
+                    }
+                    UnityEngine.Object.DestroyImmediate(plate);weapon.SetParent(root,true);
+                    arm.bones[24].localRotation=originalThumb[0];arm.bones[25].localRotation=originalThumb[1];arm.bones[26].localRotation=originalThumb[2];
+                    update();Require(arm.GetBlendShapeWeight(0)==100 && (variant!="v1" || arm.GetBlendShapeWeight(2)==0),"Plate correction leaked after swap");
                     for(int i=0;i<1000;i++)update();
                     var samples=new double[7];var timer=new System.Diagnostics.Stopwatch();
                     long allocated=GC.GetAllocatedBytesForCurrentThread();
@@ -111,7 +129,7 @@ namespace Horse.MikuPhysicsLab.Editor
                         shapes=arm.sharedMesh.blendShapeCount,allocatedBytes=allocated,millisecondsPerUpdate=samples,
                         changingAllocatedBytes=changingAllocated,changingMillisecondsIncludingDriverWrite=changingSamples,
                         activation=true,openHandRelease=true,distalCurlRelease=true,smoothTransition=true,weaponIsolation=true,disableReset=true,
-                        shotgunIsolation=true,shotgunOpenRelease=true,shotgunTransition=true});
+                        shotgunIsolation=true,shotgunOpenRelease=true,shotgunTransition=true,plateIsolation=true,plateOpenRelease=true});
                 }
                 finally {actor.Dispose();UnityEngine.Object.DestroyImmediate(actor.Root);}
             }

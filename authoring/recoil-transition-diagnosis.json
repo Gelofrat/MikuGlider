@@ -1,0 +1,330 @@
+{
+  "version": "0.12.29",
+  "capturedVersion": "0.12.28",
+  "finding": "Shotgun Recoil2 remains on additive layer 2 after switching to MiniCannon, with zero thumb corrective weights. Its final pose continues to offset the hand until another shot replaces it. Gun.Enable imports base animation settings but does not clear recoil.",
+  "fix": "After ImportAnimationSet, stop the current recoil layer for the local first-person Miku character. AnimancerLayer.Stop clears CurrentState and weight, allowing the next shot to restart.",
+  "evidence": [
+    {
+      "capture": "20261115-222813-397-a78620",
+      "samples": [
+        {
+          "sample": 95,
+          "weapon": "loc_WeaponRoot | Mag1Root | MagRoot | Lever Action Shotgun",
+          "animations": [
+            {
+              "rig": "player",
+              "layer": 0,
+              "clip": "Idle",
+              "time": 0.12725357711315155,
+              "weight": 1.0,
+              "speed": 0.10000000149011612,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 1,
+              "clip": "Aim",
+              "time": 0.006418230943381786,
+              "weight": 1.0,
+              "speed": 0.004999999888241291,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 2,
+              "clip": "Recoil2",
+              "time": 0.738422155380249,
+              "weight": 1.0,
+              "speed": 0.9400035738945007,
+              "playing": true
+            }
+          ],
+          "leftCorrectiveWeights": [
+            [
+              0.0,
+              100.0
+            ]
+          ]
+        },
+        {
+          "sample": 111,
+          "weapon": "loc_WeaponRoot | Mag1Root | MagRoot | MiniCannon",
+          "animations": [
+            {
+              "rig": "player",
+              "layer": 0,
+              "clip": "Idle",
+              "time": 0.0013332117814570665,
+              "weight": 0.01259727030992508,
+              "speed": 0.11999999731779099,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 1,
+              "clip": "Aim",
+              "time": 0.009074239991605282,
+              "weight": 1.0,
+              "speed": 0.004999999888241291,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 2,
+              "clip": "Recoil2",
+              "time": 1.2377538681030273,
+              "weight": 1.0,
+              "speed": 0.9400035738945007,
+              "playing": true
+            }
+          ],
+          "leftCorrectiveWeights": [
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "sample": 155,
+          "weapon": "loc_WeaponRoot | Mag1Root | MagRoot | MiniCannon",
+          "animations": [
+            {
+              "rig": "player",
+              "layer": 0,
+              "clip": "Idle",
+              "time": 0.1779232919216156,
+              "weight": 1.0,
+              "speed": 0.11999999731779099,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 1,
+              "clip": "Aim",
+              "time": 0.016432160511612892,
+              "weight": 1.0,
+              "speed": 0.004999999888241291,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 2,
+              "clip": "Recoil2",
+              "time": 2.6210479736328125,
+              "weight": 1.0,
+              "speed": 0.9400035738945007,
+              "playing": true
+            }
+          ],
+          "leftCorrectiveWeights": [
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "sample": 185,
+          "weapon": "loc_WeaponRoot | Mag1Root | MagRoot | MiniCannon",
+          "animations": [
+            {
+              "rig": "player",
+              "layer": 0,
+              "clip": "Idle",
+              "time": 0.2976513206958771,
+              "weight": 1.0,
+              "speed": 0.11999999731779099,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 1,
+              "clip": "Aim",
+              "time": 0.021420828998088837,
+              "weight": 1.0,
+              "speed": 0.004999999888241291,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 2,
+              "clip": "Recoil1",
+              "time": 0.6771581768989563,
+              "weight": 1.0,
+              "speed": 0.9827495217323303,
+              "playing": true
+            }
+          ],
+          "leftCorrectiveWeights": [
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "capture": "20261115-222929-692-dd578b",
+      "samples": [
+        {
+          "sample": 95,
+          "weapon": "loc_WeaponRoot | Mag1Root | MagRoot | Lever Action Shotgun",
+          "animations": [
+            {
+              "rig": "player",
+              "layer": 0,
+              "clip": "Idle",
+              "time": 0.030498329550027847,
+              "weight": 1.0,
+              "speed": 0.10000000149011612,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 1,
+              "clip": "Aim",
+              "time": 0.0015804654685780406,
+              "weight": 1.0,
+              "speed": 0.004999999888241291,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 2,
+              "clip": "Recoil1",
+              "time": 0.10628563910722733,
+              "weight": 1.0,
+              "speed": 0.9400035738945007,
+              "playing": true
+            }
+          ],
+          "leftCorrectiveWeights": [
+            [
+              0.0,
+              100.0
+            ]
+          ]
+        },
+        {
+          "sample": 111,
+          "weapon": "loc_WeaponRoot | Mag1Root | MagRoot | MiniCannon",
+          "animations": [
+            {
+              "rig": "player",
+              "layer": 0,
+              "clip": "Idle",
+              "time": 0.023504771292209625,
+              "weight": 0.8640028238296509,
+              "speed": 0.11999999731779099,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 1,
+              "clip": "Aim",
+              "time": 0.004199234303086996,
+              "weight": 1.0,
+              "speed": 0.004999999888241291,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 2,
+              "clip": "Recoil1",
+              "time": 0.5986160635948181,
+              "weight": 1.0,
+              "speed": 0.9400035738945007,
+              "playing": true
+            }
+          ],
+          "leftCorrectiveWeights": [
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "sample": 155,
+          "weapon": "loc_WeaponRoot | Mag1Root | MagRoot | MiniCannon",
+          "animations": [
+            {
+              "rig": "player",
+              "layer": 0,
+              "clip": "Stow",
+              "time": 0.0003333289932925254,
+              "weight": 0.379696249961853,
+              "speed": 0.009999999776482582,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 1,
+              "clip": "Aim",
+              "time": 0.011546985246241093,
+              "weight": 1.0,
+              "speed": 0.004999999888241291,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 2,
+              "clip": "Recoil2",
+              "time": 0.6479364037513733,
+              "weight": 1.0,
+              "speed": 1.0666687488555908,
+              "playing": true
+            }
+          ],
+          "leftCorrectiveWeights": [
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "sample": 185,
+          "weapon": "loc_WeaponRoot | Mag1Root | MagRoot | Lever Action Shotgun",
+          "animations": [
+            {
+              "rig": "player",
+              "layer": 0,
+              "clip": "Idle",
+              "time": 0.09071791917085648,
+              "weight": 1.0,
+              "speed": 0.10000000149011612,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 1,
+              "clip": "Aim",
+              "time": 0.0045914738439023495,
+              "weight": 1.0,
+              "speed": 0.004999999888241291,
+              "playing": true
+            },
+            {
+              "rig": "player",
+              "layer": 2,
+              "clip": "Recoil1",
+              "time": 0.29002127051353455,
+              "weight": 1.0,
+              "speed": 0.9400035738945007,
+              "playing": true
+            }
+          ],
+          "leftCorrectiveWeights": [
+            [
+              0.0,
+              100.0
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

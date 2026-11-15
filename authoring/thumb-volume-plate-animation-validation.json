@@ -1,0 +1,106 @@
+[
+  {
+    "variant": "v1",
+    "clips": 16,
+    "frames": 945,
+    "newDegenerateTriangleFrames": 0,
+    "minimumTriangleAreaRatio": 0.20578444389174536,
+    "maximumWorldDisplacement": 0.015472845302956449,
+    "maximumActivationStepAt60Hz": 0.01993438410543935,
+    "baseline": "Current base mesh with corrective disabled",
+    "activationByClip": {
+      "clip-312": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "maximumStep": 0.0
+      },
+      "clip-313": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-314": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-315": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-316": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-317": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-320": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-322": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-323": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-324": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-325": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-326": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-plate-launcher-reload": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-plate-launcher-inspect": {
+        "minimum": 0.9047432704455847,
+        "maximum": 1.0,
+        "maximumStep": 0.01993438410543935
+      },
+      "weapon-plate-launcher-fire-1": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-plate-launcher-fire-1-aim": {
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "maximumStep": 0.0
+      }
+    },
+    "smallestAreaSample": {
+      "clip": "weapon-plate-launcher-inspect",
+      "frame": 132,
+      "activation": 1.0,
+      "triangle": [
+        2683,
+        2678,
+        2690
+      ],
+      "beforeDoubleArea": 4.759034886344547e-06,
+      "afterDoubleArea": 9.793353475478282e-07
+    }
+  }
+]

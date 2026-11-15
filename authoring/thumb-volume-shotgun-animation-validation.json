@@ -1,0 +1,419 @@
+[
+  {
+    "variant": "v1",
+    "clips": 23,
+    "frames": 1152,
+    "newDegenerateTriangleFrames": 0,
+    "minimumTriangleAreaRatio": 0.14243506192539132,
+    "maximumWorldDisplacement": 0.008648979287476245,
+    "maximumActivationStepAt60Hz": 0.9094615702470622,
+    "baseline": "Current base mesh with corrective disabled",
+    "activationByClip": {
+      "clip-360": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-361": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-362": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-365": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-367": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-368": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-369": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-370": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-371": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-372": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-374": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-375": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-376": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-377": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-378": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-reload": {
+        "minimum": 0.06339646602102567,
+        "maximum": 1.0,
+        "maximumStep": 0.3311797322268121
+      },
+      "weapon-bounce-shotgun-inspect": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.9094615702470622
+      },
+      "weapon-bounce-shotgun-fire-1": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-1-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-2": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-2-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-3": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-3-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      }
+    },
+    "smallestAreaSample": {
+      "clip": "weapon-bounce-shotgun-inspect",
+      "frame": 180,
+      "activation": 0.9802743519003774,
+      "triangle": [
+        2614,
+        2613,
+        2604
+      ],
+      "beforeDoubleArea": 4.1063180496694777e-07,
+      "afterDoubleArea": 5.8488366569002414e-08
+    }
+  },
+  {
+    "variant": "v2",
+    "clips": 23,
+    "frames": 1152,
+    "newDegenerateTriangleFrames": 0,
+    "minimumTriangleAreaRatio": 0.12430934227685644,
+    "maximumWorldDisplacement": 0.008300457419642046,
+    "maximumActivationStepAt60Hz": 0.9094615702470622,
+    "baseline": "Current base mesh with corrective disabled",
+    "activationByClip": {
+      "clip-360": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-361": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-362": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-365": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-367": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-368": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-369": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-370": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-371": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-372": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-374": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-375": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-376": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-377": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-378": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-reload": {
+        "minimum": 0.06339646602102567,
+        "maximum": 1.0,
+        "maximumStep": 0.3311797322268121
+      },
+      "weapon-bounce-shotgun-inspect": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.9094615702470622
+      },
+      "weapon-bounce-shotgun-fire-1": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-1-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-2": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-2-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-3": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-3-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      }
+    },
+    "smallestAreaSample": {
+      "clip": "weapon-bounce-shotgun-reload",
+      "frame": 87,
+      "activation": 0.999424820368741,
+      "triangle": [
+        3927,
+        3924,
+        3926
+      ],
+      "beforeDoubleArea": 1.6535906173638907e-06,
+      "afterDoubleArea": 2.0555676203968625e-07
+    }
+  },
+  {
+    "variant": "v3",
+    "clips": 23,
+    "frames": 1152,
+    "newDegenerateTriangleFrames": 0,
+    "minimumTriangleAreaRatio": 0.13472129989438308,
+    "maximumWorldDisplacement": 0.008294003264342322,
+    "maximumActivationStepAt60Hz": 0.9094615702470622,
+    "baseline": "Current base mesh with corrective disabled",
+    "activationByClip": {
+      "clip-360": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-361": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-362": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-365": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-367": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-368": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-369": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-370": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-371": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-372": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-374": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-375": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-376": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-377": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-378": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-reload": {
+        "minimum": 0.06339646602102567,
+        "maximum": 1.0,
+        "maximumStep": 0.3311797322268121
+      },
+      "weapon-bounce-shotgun-inspect": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.9094615702470622
+      },
+      "weapon-bounce-shotgun-fire-1": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-1-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-2": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-2-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-3": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-bounce-shotgun-fire-3-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      }
+    },
+    "smallestAreaSample": {
+      "clip": "weapon-bounce-shotgun-reload",
+      "frame": 69,
+      "activation": 0.3728699138178694,
+      "triangle": [
+        724,
+        706,
+        2314
+      ],
+      "beforeDoubleArea": 4.4967017456499504e-07,
+      "afterDoubleArea": 6.058015044113029e-08
+    }
+  }
+]

@@ -82,7 +82,7 @@ namespace Horse.MikuPhysicsLab.Editor
                         var bindings=new List<EditorCurveBinding>();var curves=new List<AnimationCurve>();
                         for(int i=0;i<bones.Count;i++)for(int ch=0;ch<10;ch++)
                         { bindings.Add(EditorCurveBinding.FloatCurve(paths[i],typeof(Transform),Properties[ch]));curves.Add(Curve(values,offset*stride+i*10+ch,stride,count,duration)); }
-                        for(int i=0;i<2;i++)
+                        for(int i=0;i<data["shapeNames"].Count();i++)
                         { bindings.Add(EditorCurveBinding.FloatCurve("left",typeof(SkinnedMeshRenderer),"blendShape."+(string)data["shapeNames"][i]));curves.Add(Curve(values,offset*stride+shapeStart+i,stride,count,duration)); }
                         AnimationUtility.SetEditorCurves(clip,bindings.ToArray(),curves.ToArray());
                         clip.EnsureQuaternionContinuity();var settings=AnimationUtility.GetAnimationClipSettings(clip);settings.loopTime=false;AnimationUtility.SetAnimationClipSettings(clip,settings);
@@ -97,7 +97,7 @@ namespace Horse.MikuPhysicsLab.Editor
                                 var t=bones[i];int at=start+i*10;var p=new Vector3(values[at],values[at+1],values[at+2]);var q=new Quaternion(values[at+3],values[at+4],values[at+5],values[at+6]);var s=new Vector3(values[at+7],values[at+8],values[at+9]);
                                 maxLocal=Math.Max(maxLocal,Math.Max(Vector3.Distance(t.localPosition,p),Vector3.Distance(t.localScale,s)));maxRotation=Math.Max(maxRotation,Quaternion.Angle(t.localRotation,q));
                             }
-                            for(int i=0;i<2;i++)maxShape=Math.Max(maxShape,Mathf.Abs(skinners[0].GetBlendShapeWeight(i)-values[start+shapeStart+i]));
+                            for(int i=0;i<data["shapeNames"].Count();i++)maxShape=Math.Max(maxShape,Mathf.Abs(skinners[0].GetBlendShapeWeight(i)-values[start+shapeStart+i]));
                             frames++;
                             // Full skeleton/shape curves are checked every sample. Skinning is
                             // compared against the live procedural implementation every fourth

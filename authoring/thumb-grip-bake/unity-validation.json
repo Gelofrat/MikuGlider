@@ -1,20 +1,20 @@
 [
   {
     "variant": "v1",
-    "clips": 40,
-    "frames": 2048,
-    "meshFrames": 561,
+    "clips": 56,
+    "frames": 2993,
+    "meshFrames": 818,
     "maxLocal": 4.2319297790527344E-06,
     "maxRotation": 0.0,
     "maxShape": 0.0,
-    "maxMesh": 1.3628176930069458E-05,
+    "maxMesh": 2.1285142793203704E-05,
     "passed": true
   },
   {
     "variant": "v2",
-    "clips": 40,
-    "frames": 2048,
-    "meshFrames": 561,
+    "clips": 56,
+    "frames": 2993,
+    "meshFrames": 818,
     "maxLocal": 1.0371208190917969E-05,
     "maxRotation": 0.0,
     "maxShape": 0.0,
@@ -23,13 +23,13 @@
   },
   {
     "variant": "v3",
-    "clips": 40,
-    "frames": 2048,
-    "meshFrames": 561,
+    "clips": 56,
+    "frames": 2993,
+    "meshFrames": 818,
     "maxLocal": 4.2319297790527344E-06,
     "maxRotation": 0.0,
     "maxShape": 0.0,
-    "maxMesh": 1.9247776435804553E-05,
+    "maxMesh": 1.9721870557987131E-05,
     "passed": true
   }
 ]

@@ -9,7 +9,7 @@ import numpy as np
 from mathutils import Matrix,Quaternion,Vector
 R=Path(__file__).resolve().parents[1];B=runpy.run_path(str(R/'authoring/build_first_person_hand_review.py'));M=B['model'];C=B['C'];CI=B['CI']
 F=R/'simulation/Reports/cycler-thumb-review/native-clips';catalog=json.loads((F/'clips.json').read_text());native=np.fromfile(F/'clip-bones.bin','<f4').reshape(catalog['frames'],56,4,4)
-clips=[c for c in catalog['clips'] if c['label'].startswith(('SMG ','Shotgun ')) or c['key'].startswith(('weapon-smg-','weapon-bounce-shotgun-'))]
+clips=[c for c in catalog['clips'] if c['label'].startswith(('SMG ','Shotgun ','Plate')) or c['key'].startswith(('weapon-smg-','weapon-bounce-shotgun-','weapon-plate-launcher-'))]
 reference=json.loads((R/'references/glider-first-person.json').read_text())['renderers'];OUT=R/'authoring/thumb-grip-bake';OUT.mkdir(exist_ok=True)
 
 def activation(pose,bones):
@@ -37,7 +37,7 @@ def bake():
  # Discard only this generator's abandoned fake-user actions from earlier runs.
  for old in list(bpy.data.actions):
   if old.use_fake_user and old.users==1 and ('native poses + wrist helpers' in old.name or 'baked thumb corrective weights' in old.name):bpy.data.actions.remove(old)
- scenes=[];manifest={'version':'0.12.28','sampleRate':60,'scope':'composed review clips; not a drop-in replacement for native additive clips','clips':[],'variants':{},'validation':{}}
+ scenes=[];manifest={'version':'0.12.29','sampleRate':60,'scope':'composed review clips; not a drop-in replacement for native additive clips','clips':[],'variants':{},'validation':{}}
  cursor=1;offset=0;timeline=[]
  for clip in clips:
   frames=cursor+np.linspace(0,clip['duration']*60,clip['count']);timeline.extend(frames);manifest['clips'].append(dict(clip,bakeOffset=offset,startFrame=float(cursor),endFrame=float(frames[-1])));offset+=clip['count'];cursor=int(math.ceil(frames[-1]))+12
@@ -45,7 +45,7 @@ def bake():
  for var,path in M['PATHS'].items():
   scene=bpy.data.scenes.new(var+' - BAKED 60 Hz');scenes.append(scene);bpy.context.window.scene=scene;scene.render.fps=60;scene.frame_end=cursor;scene.render.resolution_x=1280;scene.render.resolution_y=720
   for clip in manifest['clips']:scene.timeline_markers.new(clip['key'],frame=int(clip['startFrame']))
-  profile=json.loads(((R/path).parent/'corrections.json').read_text());poses=next(x for x in profile['meshes'] if x['key']=='arm-left wrist transition')['poses'];shapes=np.zeros((offset,2));sideinfo=[];unity=[];rigs=[]
+  profile=json.loads(((R/path).parent/'corrections.json').read_text());poses=next(x for x in profile['meshes'] if x['key']=='arm-left wrist transition')['poses'];shapes=np.zeros((offset,len(poses)));sideinfo=[];unity=[];rigs=[]
   for sideidx,side in enumerate(['left','right']):
    _,v,b,ss=M['read'](M['chunks']((R/path).read_bytes())['arm-'+side]);helpers=side=='left' or var=='v2';obj,rig,names=B['create_arm'](scene,var,side,v,b,ss,reference[sideidx],helpers,True);obj.name=var+' baked '+side;rig.name=obj.name+' rig';rig.show_in_front=False;rig.data.display_type='STICK';rig.scale.x=-1;rigs.append(rig)
    parents=[x['parentBoneIndex'] if x['parentBoneIndex'] is not None else -1 for x in reference[sideidx]['bones']]+([-1]*9 if helpers else []);count=len(names);basis=np.empty((offset,count,10));localunity=np.empty_like(basis);worldlist=[];previous=[None]*count;rest=[pb.bone.matrix_local.copy() for pb in rig.pose.bones];sample=0
@@ -54,10 +54,10 @@ def bake():
     for pose in poses:
      key=obj.shape_key_add(name=pose['name']);points=v['p'].copy();points[pose['vertices']]+=np.array([[d['x'],d['y'],d['z']] for d in pose['deltas']]);key.data.foreach_set('co',(points@C[:3,:3].T).ravel())
    for clip in clips:
-    which=0 if clip['label'].startswith('SMG ') or clip['key'].startswith('weapon-smg-') else 1
+    which=0 if clip['label'].startswith('SMG ') or clip['key'].startswith('weapon-smg-') else 1 if clip['label'].startswith('Shotgun ') or clip['key'].startswith('weapon-bounce-shotgun-') else 2
     for f in range(clip['offset'],clip['offset']+clip['count']):
      bones=native[f,sideidx*28:sideidx*28+28].astype(float)
-     if side=='left':shapes[sample,which]=activation(poses[which],bones)
+     if side=='left' and which<len(poses):shapes[sample,which]=activation(poses[which],bones)
      matrices=bones
      if helpers:
       h,_,_=B['wrist'](v,b,bones,.24 if var=='v3' and side=='left' else 0);matrices=np.concatenate([bones,h@np.linalg.inv(b[1])])
@@ -80,8 +80,8 @@ def bake():
    sideinfo.append({'name':side,'names':names,'parents':parents});unity.append(localunity.astype('<f4'))
   rows=np.concatenate([unity[0].reshape(offset,-1),unity[1].reshape(offset,-1),(shapes*100).astype('<f4')],axis=1).astype('<f4');rows.tofile(OUT/(var+'.bin'))
   manifest['variants'][var]={'modelSha256':hashlib.sha256((R/path).read_bytes()).hexdigest(),'correctionsSha256':hashlib.sha256(((R/path).parent/'corrections.json').read_bytes()).hexdigest(),'sides':sideinfo,'stride':rows.shape[1],'file':var+'.bin','shapeNames':['MikuManual:'+p['name'] for p in poses]}
-  cam=bpy.data.objects.new(var+' camera',bpy.data.cameras.new(var+' camera'));scene.collection.objects.link(cam);scene.camera=cam;cam.rotation_euler=Vector((0,-1,0)).to_track_quat('-Z','Y').to_euler();cam.data.sensor_fit='VERTICAL';cam.data.lens=cam.data.sensor_height/(2*math.tan(math.radians(27.5)));cam.data.clip_start=.001
-  scene['instructions']='All 40 Cycler/shotgun poses, inspection, reload, fire and locomotion are baked at <=1/60 s. Timeline markers identify clips. Both arms plus wrist helpers and corrective weights. Weapons are viewed in Unity; this scene contains hands only.'
+  cam=bpy.data.objects.new(var+' camera',bpy.data.cameras.new(var+' camera'));scene.collection.objects.link(cam);scene.camera=cam;cam.location=(0,0,1);cam.rotation_euler=Vector((0,-1,0)).to_track_quat('-Z','Y').to_euler();cam.data.sensor_fit='VERTICAL';cam.data.lens=cam.data.sensor_height/(2*math.tan(math.radians(27.5)));cam.data.clip_start=.001
+  scene['instructions']='Cycler, shotgun and Plate Launcher poses, inspection, reload, fire and locomotion are baked at <=1/60 s. Timeline markers identify clips. Both arms plus wrist helpers and corrective weights. Weapons are viewed in Unity; this scene contains hands only.'
   # Evaluate real Blender F-curves at endpoints and midpoint of every clip.
   error=0.;checked=0
   for clip in manifest['clips']:

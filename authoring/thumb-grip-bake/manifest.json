@@ -1,8 +1,164 @@
 {
-  "version": "0.12.28",
+  "version": "0.12.29",
   "sampleRate": 60,
   "scope": "composed review clips; not a drop-in replacement for native additive clips",
   "clips": [
+    {
+      "key": "clip-312",
+      "label": "PlateLauncher Animation Set Aim / land",
+      "resource": "4d08abc75ddb664458d452530d619f25",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 4682,
+      "count": 31,
+      "duration": 0.5,
+      "bakeOffset": 0,
+      "startFrame": 1.0,
+      "endFrame": 31.0
+    },
+    {
+      "key": "clip-313",
+      "label": "PlateLauncher Animation Set / idle",
+      "resource": "f01d04603890d9945a94a46fb397d2a1",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 4713,
+      "count": 38,
+      "duration": 0.6000004,
+      "bakeOffset": 31,
+      "startFrame": 43.0,
+      "endFrame": 79.000024
+    },
+    {
+      "key": "clip-314",
+      "label": "PlateLauncher Animation Set / run",
+      "resource": "92f0cc8098bed2c488899b9abefc464e",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 4751,
+      "count": 39,
+      "duration": 0.6333333,
+      "bakeOffset": 69,
+      "startFrame": 92.0,
+      "endFrame": 129.999998
+    },
+    {
+      "key": "clip-315",
+      "label": "PlateLauncher Animation Set / run walking",
+      "resource": "93f15af0e3a37544a849b471cc6015b8",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 4790,
+      "count": 78,
+      "duration": 1.26666689,
+      "bakeOffset": 108,
+      "startFrame": 142.0,
+      "endFrame": 218.0000134
+    },
+    {
+      "key": "clip-316",
+      "label": "PlateLauncher Animation Set / jump",
+      "resource": "e950630fce8c5864f8c998715516ce79",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 4868,
+      "count": 52,
+      "duration": 0.8333334,
+      "bakeOffset": 186,
+      "startFrame": 231.0,
+      "endFrame": 281.000004
+    },
+    {
+      "key": "clip-317",
+      "label": "PlateLauncher Animation Set / jump walking",
+      "resource": "849f585914fddf54b8265eed960b1961",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 4920,
+      "count": 52,
+      "duration": 0.8333335,
+      "bakeOffset": 238,
+      "startFrame": 294.0,
+      "endFrame": 344.00001
+    },
+    {
+      "key": "clip-320",
+      "label": "PlateLauncher Animation Set / jumpLoop",
+      "resource": "7720abea86e33a44d9429a0a6daa4024",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 4972,
+      "count": 39,
+      "duration": 0.6333332,
+      "bakeOffset": 290,
+      "startFrame": 357.0,
+      "endFrame": 394.999992
+    },
+    {
+      "key": "clip-322",
+      "label": "PlateLauncher Animation Set / land",
+      "resource": "756c86685bf5c424e8ef20babccf6fc7",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 5011,
+      "count": 32,
+      "duration": 0.500000238,
+      "bakeOffset": 329,
+      "startFrame": 407.0,
+      "endFrame": 437.00001428
+    },
+    {
+      "key": "clip-323",
+      "label": "PlateLauncher Animation Set / land walking",
+      "resource": "b84a4b9c7131a7445800864939a04810",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 5043,
+      "count": 32,
+      "duration": 0.5000005,
+      "bakeOffset": 361,
+      "startFrame": 450.0,
+      "endFrame": 480.00003
+    },
+    {
+      "key": "clip-324",
+      "label": "PlateLauncher Animation Set / clamber",
+      "resource": "7d12943fdb445724e9f76a4161906786",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 5075,
+      "count": 22,
+      "duration": 0.333333969,
+      "bakeOffset": 393,
+      "startFrame": 493.0,
+      "endFrame": 513.00003814
+    },
+    {
+      "key": "clip-325",
+      "label": "PlateLauncher Animation Set / slide",
+      "resource": "2033fc592c92fcc4aa6ef05331f7939d",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 5097,
+      "count": 30,
+      "duration": 0.466666937,
+      "bakeOffset": 415,
+      "startFrame": 526.0,
+      "endFrame": 554.00001622
+    },
+    {
+      "key": "clip-326",
+      "label": "PlateLauncher Animation Set / stow",
+      "resource": "0e8fbee5e80c0434caf2021f90252201",
+      "baseKey": "idle",
+      "additive": false,
+      "offset": 5127,
+      "count": 4,
+      "duration": 0.0333347321,
+      "bakeOffset": 445,
+      "startFrame": 567.0,
+      "endFrame": 569.000083926
+    },
     {
       "key": "clip-360",
       "label": "Shotgun Animation Set Aim / idle",
@@ -12,9 +168,9 @@
       "offset": 6188,
       "count": 4,
       "duration": 0.0333347321,
-      "bakeOffset": 0,
-      "startFrame": 1.0,
-      "endFrame": 3.000083926
+      "bakeOffset": 449,
+      "startFrame": 582.0,
+      "endFrame": 584.000083926
     },
     {
       "key": "clip-361",
@@ -25,9 +181,9 @@
       "offset": 6192,
       "count": 78,
       "duration": 1.26666832,
-      "bakeOffset": 4,
-      "startFrame": 16.0,
-      "endFrame": 92.0000992
+      "bakeOffset": 453,
+      "startFrame": 597.0,
+      "endFrame": 673.0000992
     },
     {
       "key": "clip-362",
@@ -38,9 +194,9 @@
       "offset": 6270,
       "count": 52,
       "duration": 0.833333969,
-      "bakeOffset": 82,
-      "startFrame": 105.0,
-      "endFrame": 155.00003814000002
+      "bakeOffset": 531,
+      "startFrame": 686.0,
+      "endFrame": 736.00003814
     },
     {
       "key": "clip-365",
@@ -51,9 +207,9 @@
       "offset": 6322,
       "count": 31,
       "duration": 0.5,
-      "bakeOffset": 134,
-      "startFrame": 168.0,
-      "endFrame": 198.0
+      "bakeOffset": 583,
+      "startFrame": 749.0,
+      "endFrame": 779.0
     },
     {
       "key": "clip-367",
@@ -64,9 +220,9 @@
       "offset": 6353,
       "count": 40,
       "duration": 0.6333337,
-      "bakeOffset": 165,
-      "startFrame": 210.0,
-      "endFrame": 248.000022
+      "bakeOffset": 614,
+      "startFrame": 791.0,
+      "endFrame": 829.000022
     },
     {
       "key": "clip-368",
@@ -77,9 +233,9 @@
       "offset": 6393,
       "count": 39,
       "duration": 0.6333333,
-      "bakeOffset": 205,
-      "startFrame": 261.0,
-      "endFrame": 298.999998
+      "bakeOffset": 654,
+      "startFrame": 842.0,
+      "endFrame": 879.999998
     },
     {
       "key": "clip-369",
@@ -90,9 +246,9 @@
       "offset": 6432,
       "count": 78,
       "duration": 1.26666689,
-      "bakeOffset": 244,
-      "startFrame": 311.0,
-      "endFrame": 387.0000134
+      "bakeOffset": 693,
+      "startFrame": 892.0,
+      "endFrame": 968.0000134
     },
     {
       "key": "clip-370",
@@ -103,9 +259,9 @@
       "offset": 6510,
       "count": 52,
       "duration": 0.8333334,
-      "bakeOffset": 322,
-      "startFrame": 400.0,
-      "endFrame": 450.000004
+      "bakeOffset": 771,
+      "startFrame": 981.0,
+      "endFrame": 1031.000004
     },
     {
       "key": "clip-371",
@@ -116,9 +272,9 @@
       "offset": 6562,
       "count": 52,
       "duration": 0.8333335,
-      "bakeOffset": 374,
-      "startFrame": 463.0,
-      "endFrame": 513.00001
+      "bakeOffset": 823,
+      "startFrame": 1044.0,
+      "endFrame": 1094.00001
     },
     {
       "key": "clip-372",
@@ -129,9 +285,9 @@
       "offset": 6614,
       "count": 39,
       "duration": 0.6333332,
-      "bakeOffset": 426,
-      "startFrame": 526.0,
-      "endFrame": 563.999992
+      "bakeOffset": 875,
+      "startFrame": 1107.0,
+      "endFrame": 1144.999992
     },
     {
       "key": "clip-374",
@@ -142,9 +298,9 @@
       "offset": 6653,
       "count": 32,
       "duration": 0.500000238,
-      "bakeOffset": 465,
-      "startFrame": 576.0,
-      "endFrame": 606.00001428
+      "bakeOffset": 914,
+      "startFrame": 1157.0,
+      "endFrame": 1187.00001428
     },
     {
       "key": "clip-375",
@@ -155,9 +311,9 @@
       "offset": 6685,
       "count": 32,
       "duration": 0.5000005,
-      "bakeOffset": 497,
-      "startFrame": 619.0,
-      "endFrame": 649.00003
+      "bakeOffset": 946,
+      "startFrame": 1200.0,
+      "endFrame": 1230.00003
     },
     {
       "key": "clip-376",
@@ -168,9 +324,9 @@
       "offset": 6717,
       "count": 22,
       "duration": 0.333333969,
-      "bakeOffset": 529,
-      "startFrame": 662.0,
-      "endFrame": 682.00003814
+      "bakeOffset": 978,
+      "startFrame": 1243.0,
+      "endFrame": 1263.00003814
     },
     {
       "key": "clip-377",
@@ -181,9 +337,9 @@
       "offset": 6739,
       "count": 30,
       "duration": 0.466666937,
-      "bakeOffset": 551,
-      "startFrame": 695.0,
-      "endFrame": 723.00001622
+      "bakeOffset": 1000,
+      "startFrame": 1276.0,
+      "endFrame": 1304.00001622
     },
     {
       "key": "clip-378",
@@ -194,9 +350,9 @@
       "offset": 6769,
       "count": 4,
       "duration": 0.0333347321,
-      "bakeOffset": 581,
-      "startFrame": 736.0,
-      "endFrame": 738.000083926
+      "bakeOffset": 1030,
+      "startFrame": 1317.0,
+      "endFrame": 1319.000083926
     },
     {
       "key": "clip-381",
@@ -207,9 +363,9 @@
       "offset": 6773,
       "count": 40,
       "duration": 0.6333337,
-      "bakeOffset": 585,
-      "startFrame": 751.0,
-      "endFrame": 789.000022
+      "bakeOffset": 1034,
+      "startFrame": 1332.0,
+      "endFrame": 1370.000022
     },
     {
       "key": "clip-382",
@@ -220,9 +376,9 @@
       "offset": 6813,
       "count": 39,
       "duration": 0.6333333,
-      "bakeOffset": 625,
-      "startFrame": 802.0,
-      "endFrame": 839.999998
+      "bakeOffset": 1074,
+      "startFrame": 1383.0,
+      "endFrame": 1420.999998
     },
     {
       "key": "clip-383",
@@ -233,9 +389,9 @@
       "offset": 6852,
       "count": 78,
       "duration": 1.26666689,
-      "bakeOffset": 664,
-      "startFrame": 852.0,
-      "endFrame": 928.0000134
+      "bakeOffset": 1113,
+      "startFrame": 1433.0,
+      "endFrame": 1509.0000134
     },
     {
       "key": "clip-384",
@@ -246,9 +402,9 @@
       "offset": 6930,
       "count": 39,
       "duration": 0.6333332,
-      "bakeOffset": 742,
-      "startFrame": 941.0,
-      "endFrame": 978.999992
+      "bakeOffset": 1191,
+      "startFrame": 1522.0,
+      "endFrame": 1559.999992
     },
     {
       "key": "clip-386",
@@ -259,9 +415,9 @@
       "offset": 6969,
       "count": 32,
       "duration": 0.500000238,
-      "bakeOffset": 781,
-      "startFrame": 991.0,
-      "endFrame": 1021.00001428
+      "bakeOffset": 1230,
+      "startFrame": 1572.0,
+      "endFrame": 1602.00001428
     },
     {
       "key": "clip-387",
@@ -272,9 +428,9 @@
       "offset": 7001,
       "count": 32,
       "duration": 0.5000005,
-      "bakeOffset": 813,
-      "startFrame": 1034.0,
-      "endFrame": 1064.00003
+      "bakeOffset": 1262,
+      "startFrame": 1615.0,
+      "endFrame": 1645.00003
     },
     {
       "key": "clip-388",
@@ -285,9 +441,9 @@
       "offset": 7033,
       "count": 22,
       "duration": 0.333333969,
-      "bakeOffset": 845,
-      "startFrame": 1077.0,
-      "endFrame": 1097.00003814
+      "bakeOffset": 1294,
+      "startFrame": 1658.0,
+      "endFrame": 1678.00003814
     },
     {
       "key": "clip-389",
@@ -298,9 +454,9 @@
       "offset": 7055,
       "count": 30,
       "duration": 0.466666937,
-      "bakeOffset": 867,
-      "startFrame": 1110.0,
-      "endFrame": 1138.00001622
+      "bakeOffset": 1316,
+      "startFrame": 1691.0,
+      "endFrame": 1719.00001622
     },
     {
       "key": "clip-390",
@@ -311,9 +467,9 @@
       "offset": 7085,
       "count": 4,
       "duration": 0.0333347321,
-      "bakeOffset": 897,
-      "startFrame": 1151.0,
-      "endFrame": 1153.000083926
+      "bakeOffset": 1346,
+      "startFrame": 1732.0,
+      "endFrame": 1734.000083926
     },
     {
       "key": "weapon-bounce-shotgun-reload",
@@ -324,9 +480,9 @@
       "offset": 10430,
       "count": 92,
       "duration": 1.500001,
-      "bakeOffset": 901,
-      "startFrame": 1166.0,
-      "endFrame": 1256.00006
+      "bakeOffset": 1350,
+      "startFrame": 1747.0,
+      "endFrame": 1837.00006
     },
     {
       "key": "weapon-bounce-shotgun-inspect",
@@ -337,9 +493,9 @@
       "offset": 10522,
       "count": 355,
       "duration": 5.9,
-      "bakeOffset": 993,
-      "startFrame": 1269.0,
-      "endFrame": 1623.0
+      "bakeOffset": 1442,
+      "startFrame": 1850.0,
+      "endFrame": 2204.0
     },
     {
       "key": "weapon-bounce-shotgun-fire-1",
@@ -350,9 +506,9 @@
       "offset": 10877,
       "count": 20,
       "duration": 0.300001144,
-      "bakeOffset": 1348,
-      "startFrame": 1635.0,
-      "endFrame": 1653.00006864
+      "bakeOffset": 1797,
+      "startFrame": 2216.0,
+      "endFrame": 2234.00006864
     },
     {
       "key": "weapon-bounce-shotgun-fire-1-aim",
@@ -363,9 +519,9 @@
       "offset": 10897,
       "count": 20,
       "duration": 0.300001144,
-      "bakeOffset": 1368,
-      "startFrame": 1666.0,
-      "endFrame": 1684.00006864
+      "bakeOffset": 1817,
+      "startFrame": 2247.0,
+      "endFrame": 2265.00006864
     },
     {
       "key": "weapon-bounce-shotgun-fire-2",
@@ -376,9 +532,9 @@
       "offset": 10917,
       "count": 20,
       "duration": 0.300001144,
-      "bakeOffset": 1388,
-      "startFrame": 1697.0,
-      "endFrame": 1715.00006864
+      "bakeOffset": 1837,
+      "startFrame": 2278.0,
+      "endFrame": 2296.00006864
     },
     {
       "key": "weapon-bounce-shotgun-fire-2-aim",
@@ -389,9 +545,9 @@
       "offset": 10937,
       "count": 20,
       "duration": 0.300001144,
-      "bakeOffset": 1408,
-      "startFrame": 1728.0,
-      "endFrame": 1746.00006864
+      "bakeOffset": 1857,
+      "startFrame": 2309.0,
+      "endFrame": 2327.00006864
     },
     {
       "key": "weapon-bounce-shotgun-fire-3",
@@ -402,9 +558,9 @@
       "offset": 10957,
       "count": 20,
       "duration": 0.3000002,
-      "bakeOffset": 1428,
-      "startFrame": 1759.0,
-      "endFrame": 1777.000012
+      "bakeOffset": 1877,
+      "startFrame": 2340.0,
+      "endFrame": 2358.000012
     },
     {
       "key": "weapon-bounce-shotgun-fire-3-aim",
@@ -415,9 +571,61 @@
       "offset": 10977,
       "count": 20,
       "duration": 0.300001144,
-      "bakeOffset": 1448,
-      "startFrame": 1790.0,
-      "endFrame": 1808.00006864
+      "bakeOffset": 1897,
+      "startFrame": 2371.0,
+      "endFrame": 2389.00006864
+    },
+    {
+      "key": "weapon-plate-launcher-reload",
+      "label": "Plate Launcher / reload",
+      "resource": "22a7dfbaa1bd92d45bc373337968e6e1",
+      "baseKey": "clip-313",
+      "additive": false,
+      "offset": 11732,
+      "count": 26,
+      "duration": 0.400000572,
+      "bakeOffset": 1917,
+      "startFrame": 2402.0,
+      "endFrame": 2426.00003432
+    },
+    {
+      "key": "weapon-plate-launcher-inspect",
+      "label": "Plate Launcher / inspect",
+      "resource": "2e544b07d75670a41a477dbd2d0782bb",
+      "baseKey": "clip-313",
+      "additive": false,
+      "offset": 11758,
+      "count": 426,
+      "duration": 7.066667,
+      "bakeOffset": 1943,
+      "startFrame": 2439.0,
+      "endFrame": 2863.00002
+    },
+    {
+      "key": "weapon-plate-launcher-fire-1",
+      "label": "Plate Launcher / fire-1",
+      "resource": "3a140f7c94a300347ba446b313e663bf",
+      "baseKey": "clip-313",
+      "additive": true,
+      "offset": 12184,
+      "count": 22,
+      "duration": 0.333333969,
+      "bakeOffset": 2369,
+      "startFrame": 2876.0,
+      "endFrame": 2896.00003814
+    },
+    {
+      "key": "weapon-plate-launcher-fire-1-aim",
+      "label": "Plate Launcher / fire-1-aim",
+      "resource": "8d881453a7596de4686aa63fdaf1b982",
+      "baseKey": "clip-051",
+      "additive": true,
+      "offset": 12206,
+      "count": 22,
+      "duration": 0.333333969,
+      "bakeOffset": 2391,
+      "startFrame": 2909.0,
+      "endFrame": 2929.00003814
     },
     {
       "key": "weapon-smg-reload",
@@ -428,9 +636,9 @@
       "offset": 12913,
       "count": 86,
       "duration": 1.40000057,
-      "bakeOffset": 1468,
-      "startFrame": 1821.0,
-      "endFrame": 1905.0000342
+      "bakeOffset": 2413,
+      "startFrame": 2942.0,
+      "endFrame": 3026.0000342
     },
     {
       "key": "weapon-smg-inspect",
@@ -441,9 +649,9 @@
       "offset": 12999,
       "count": 362,
       "duration": 6.00000048,
-      "bakeOffset": 1554,
-      "startFrame": 1918.0,
-      "endFrame": 2278.0000288
+      "bakeOffset": 2499,
+      "startFrame": 3039.0,
+      "endFrame": 3399.0000288
     },
     {
       "key": "weapon-smg-fire-1",
@@ -454,9 +662,9 @@
       "offset": 13361,
       "count": 22,
       "duration": 0.333333969,
-      "bakeOffset": 1916,
-      "startFrame": 2291.0,
-      "endFrame": 2311.00003814
+      "bakeOffset": 2861,
+      "startFrame": 3412.0,
+      "endFrame": 3432.00003814
     },
     {
       "key": "weapon-smg-fire-1-aim",
@@ -467,9 +675,9 @@
       "offset": 13383,
       "count": 22,
       "duration": 0.333333969,
-      "bakeOffset": 1938,
-      "startFrame": 2324.0,
-      "endFrame": 2344.00003814
+      "bakeOffset": 2883,
+      "startFrame": 3445.0,
+      "endFrame": 3465.00003814
     },
     {
       "key": "weapon-smg-fire-2",
@@ -480,9 +688,9 @@
       "offset": 13405,
       "count": 22,
       "duration": 0.333333969,
-      "bakeOffset": 1960,
-      "startFrame": 2357.0,
-      "endFrame": 2377.00003814
+      "bakeOffset": 2905,
+      "startFrame": 3478.0,
+      "endFrame": 3498.00003814
     },
     {
       "key": "weapon-smg-fire-2-aim",
@@ -493,9 +701,9 @@
       "offset": 13427,
       "count": 22,
       "duration": 0.333333969,
-      "bakeOffset": 1982,
-      "startFrame": 2390.0,
-      "endFrame": 2410.00003814
+      "bakeOffset": 2927,
+      "startFrame": 3511.0,
+      "endFrame": 3531.00003814
     },
     {
       "key": "weapon-smg-fire-3",
@@ -506,9 +714,9 @@
       "offset": 13449,
       "count": 22,
       "duration": 0.333333969,
-      "bakeOffset": 2004,
-      "startFrame": 2423.0,
-      "endFrame": 2443.00003814
+      "bakeOffset": 2949,
+      "startFrame": 3544.0,
+      "endFrame": 3564.00003814
     },
     {
       "key": "weapon-smg-fire-3-aim",
@@ -519,15 +727,15 @@
       "offset": 13471,
       "count": 22,
       "duration": 0.333333969,
-      "bakeOffset": 2026,
-      "startFrame": 2456.0,
-      "endFrame": 2476.00003814
+      "bakeOffset": 2971,
+      "startFrame": 3577.0,
+      "endFrame": 3597.00003814
     }
   ],
   "variants": {
     "v1": {
-      "modelSha256": "3f0bc185582cdd5131174aafabf63ffccfbf3d1b9de3c66a966471a170d9504f",
-      "correctionsSha256": "1a7cf28b7a7697802fc563a32d72a2faa71e13b6b65d678952ca5334c314095d",
+      "modelSha256": "bb5f9511fe61c79f615e79a52f1a03bbe0afbe23dd2fc7e1170878a022a7b41f",
+      "correctionsSha256": "48f192255bf17d2361670960d171d52d3b060158e541ccea651677c5a09077f6",
       "sides": [
         {
           "name": "left",
@@ -674,16 +882,17 @@
           ]
         }
       ],
-      "stride": 652,
+      "stride": 653,
       "file": "v1.bin",
       "shapeNames": [
         "MikuManual:Cycler thumb grip",
-        "MikuManual:Shotgun thumb grip"
+        "MikuManual:Shotgun thumb grip",
+        "MikuManual:Plate thumb opposition"
       ]
     },
     "v2": {
-      "modelSha256": "08501d17223842a327211cf57aeb73dbf62bddff375bcc8d8f8c41e0d99fc359",
-      "correctionsSha256": "43adbcd1d4bbd7f73269428ed346da8b0634364fd1ce015c0766db27a73d0bc9",
+      "modelSha256": "e57361bfa3de3f9c5c2591ca7c4ead6765da8c8d0b7fb306261fd86205463e1d",
+      "correctionsSha256": "d4fa11baf79f84b1ee4b738eed94c586576cbeabf283525526d1dfbc07e75676",
       "sides": [
         {
           "name": "left",
@@ -856,8 +1065,8 @@
       ]
     },
     "v3": {
-      "modelSha256": "cdd704cfc43af184bca21684938c30bad6d8ea03d34047616081962789e3fb37",
-      "correctionsSha256": "c40d2ba18d54897bd7ff9814a29e1477fc088d541697beb35a352d60f9f1ff00",
+      "modelSha256": "7fecf7dd7d16b0b70a48a5ae77d321497dfc29e2f6c2dc956d93b18b92d0e988",
+      "correctionsSha256": "de76694331f453ea41a64417179ed4fcaec2f0e3ddb6a7a7f3657d175169e0ad",
       "sides": [
         {
           "name": "left",
@@ -1014,17 +1223,17 @@
   },
   "validation": {
     "v1": {
-      "sampledBoneTransforms": 7800,
+      "sampledBoneTransforms": 10920,
       "maximumLocalPositionOrScaleError": 9.38654864057753e-07
     },
     "v2": {
-      "sampledBoneTransforms": 8880,
+      "sampledBoneTransforms": 12432,
       "maximumLocalPositionOrScaleError": 9.38654864057753e-07
     },
     "v3": {
-      "sampledBoneTransforms": 7800,
+      "sampledBoneTransforms": 10920,
       "maximumLocalPositionOrScaleError": 9.38654864057753e-07
     }
   },
-  "framesPerVariant": 2048
+  "framesPerVariant": 2993
 }

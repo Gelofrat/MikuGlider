@@ -1,0 +1,113 @@
+[
+  {
+    "variant": "v1",
+    "vertices": 3997,
+    "bones": 37,
+    "shapes": 3,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.00063321200000000008,
+      0.00062554000000000006,
+      0.000626487,
+      0.000637002,
+      0.000610534,
+      0.000646546,
+      0.000662029
+    ],
+    "changingAllocatedBytes": 0,
+    "changingMillisecondsIncludingDriverWrite": [
+      0.002466503,
+      0.002428999,
+      0.002434077,
+      0.002679801,
+      0.002496165,
+      0.002460133,
+      0.00213696
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "distalCurlRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true,
+    "shotgunIsolation": true,
+    "shotgunOpenRelease": true,
+    "shotgunTransition": true,
+    "plateIsolation": true,
+    "plateOpenRelease": true
+  },
+  {
+    "variant": "v2",
+    "vertices": 6901,
+    "bones": 37,
+    "shapes": 2,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.000588149,
+      0.000580855,
+      0.00088511800000000006,
+      0.000585481,
+      0.000618868,
+      0.000584037,
+      0.000632586
+    ],
+    "changingAllocatedBytes": 0,
+    "changingMillisecondsIncludingDriverWrite": [
+      0.002173934,
+      0.002324905,
+      0.002089123,
+      0.002194486,
+      0.002214456,
+      0.002066927,
+      0.002530342
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "distalCurlRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true,
+    "shotgunIsolation": true,
+    "shotgunOpenRelease": true,
+    "shotgunTransition": true,
+    "plateIsolation": true,
+    "plateOpenRelease": true
+  },
+  {
+    "variant": "v3",
+    "vertices": 3855,
+    "bones": 37,
+    "shapes": 2,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.000592713,
+      0.00058032900000000009,
+      0.00074511400000000006,
+      0.00074513500000000007,
+      0.00073532400000000009,
+      0.000982154,
+      0.00072492199999999991
+    ],
+    "changingAllocatedBytes": 0,
+    "changingMillisecondsIncludingDriverWrite": [
+      0.002624967,
+      0.0025264180000000003,
+      0.0020956390000000003,
+      0.002241111,
+      0.002104057,
+      0.002071911,
+      0.002097392
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "distalCurlRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true,
+    "shotgunIsolation": true,
+    "shotgunOpenRelease": true,
+    "shotgunTransition": true,
+    "plateIsolation": true,
+    "plateOpenRelease": true
+  }
+]

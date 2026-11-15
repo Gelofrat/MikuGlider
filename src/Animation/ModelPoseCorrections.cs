@@ -97,17 +97,10 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
                 PoseShapeEdit pose = correction.poses[i];
                 var deltas = new Vector3[mesh.vertexCount];
                 for (int v = 0; v < pose.vertices.Length; v++) deltas[pose.vertices[v]] = pose.deltas[v];
-                var normalDeltas = new Vector3[mesh.vertexCount];
-                Mesh shape = Instantiate(mesh);
-                Vector3[] points = mesh.vertices;
-                shape.RecalculateNormals();
-                Vector3[] normals = shape.normals;
+                Vector3[] basis = mesh.vertices;
+                var points = (Vector3[])basis.Clone();
                 for (int v = 0; v < points.Length; v++) points[v] += deltas[v];
-                shape.vertices = points;
-                shape.RecalculateNormals();
-                Vector3[] correctedNormals = shape.normals;
-                for (int v = 0; v < normals.Length; v++) normalDeltas[v] = correctedNormals[v] - normals[v];
-                if (Application.isPlaying) Destroy(shape); else DestroyImmediate(shape);
+                Vector3[] normalDeltas = CalculateNormalDeltas(basis, points, mesh.normals, mesh.triangles);
                 applied.Shapes[i] = mesh.blendShapeCount;
                 AddShape(mesh, "MikuManual:" + pose.name, 100, deltas, normalDeltas, null);
             }
@@ -122,6 +115,48 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         component.appliedWeights = new float[applied.Shapes.Length];
         for (int i = 0; i < component.appliedWeights.Length; i++) component.appliedWeights[i] = float.NaN;
         component.enabled = applied.Shapes.Length > 0;
+    }
+
+    // Bake once at mesh creation. UV splits must not become new shading seams
+    // when a corrective bends a finger. Preserve deliberately hard normals.
+    internal static Vector3[] CalculateNormalDeltas(Vector3[] basis, Vector3[] target,
+        Vector3[] shading, int[] triangles)
+    {
+        var before = new Vector3[basis.Length];
+        var after = new Vector3[basis.Length];
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            int a = triangles[i], b = triangles[i + 1], c = triangles[i + 2];
+            Vector3 n = Vector3.Cross(basis[b] - basis[a], basis[c] - basis[a]);
+            Vector3 m = Vector3.Cross(target[b] - target[a], target[c] - target[a]);
+            before[a] += n; before[b] += n; before[c] += n;
+            after[a] += m; after[b] += m; after[c] += m;
+        }
+        var groups = new Dictionary<Vector3Int, List<int>>();
+        for (int i = 0; i < basis.Length; i++)
+        {
+            Vector3Int key = Vector3Int.RoundToInt(basis[i] * 1000000f);
+            if (!groups.TryGetValue(key, out var group)) groups.Add(key, group = new List<int>());
+            group.Add(i);
+        }
+        var result = new Vector3[basis.Length];
+        foreach (var group in groups.Values)
+            foreach (int i in group)
+            {
+                Vector3 n = Vector3.zero, m = Vector3.zero;
+                foreach (int j in group)
+                    if (Vector3.Dot(shading[i], shading[j]) > .999f &&
+                        (target[i] - target[j]).sqrMagnitude < 1e-10f)
+                    { n += before[j]; m += after[j]; }
+                // Normalize explicitly: Unity's Vector3.normalized epsilon is
+                // too large for the small triangles in fingertip meshes.
+                float nl = n.magnitude, ml = m.magnitude;
+                // The imported meshes use clockwise front faces. Match the
+                // existing shading orientation instead of assuming winding.
+                if (nl > 1e-12f && ml > 1e-12f)
+                    result[i] = (Vector3.Dot(n, shading[i]) < 0 ? -1f : 1f) * (m / ml - n / nl);
+            }
+        return result;
     }
 
     internal static float Activation(PoseShapeEdit pose, Transform[] bones)

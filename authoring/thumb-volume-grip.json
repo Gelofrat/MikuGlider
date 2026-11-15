@@ -1,0 +1,60 @@
+{
+  "version": "0.12.29",
+  "checkpoint": "8572dd6",
+  "inputs": {
+    "v1": "3f0bc185582cdd5131174aafabf63ffccfbf3d1b9de3c66a966471a170d9504f",
+    "v2": "08501d17223842a327211cf57aeb73dbf62bddff375bcc8d8f8c41e0d99fc359",
+    "v3": "cdd704cfc43af184bca21684938c30bad6d8ea03d34047616081962789e3fb37"
+  },
+  "sourceThumbCommit": "fe7e510",
+  "method": "Remove stacked base thumb edits, restore pre-opposition thumb geometry/weights; author volume-preserving weapon targets in Blender and inverse-bake to existing linear skinning. Plate opposition rotates around the palm long axis. No runtime DQ solver. v2/v3 web displacement is relaxed on welded vertices and constrained offline to retain at least 12% of each affected triangle area across the sampled native clips.",
+  "models": {
+    "v1": {
+      "sha256": "bb5f9511fe61c79f615e79a52f1a03bbe0afbe23dd2fc7e1170878a022a7b41f",
+      "changedBaseVertices": 384,
+      "changedWeightVertices": 286,
+      "thumbPartitionRestored": 384,
+      "rightArmAndOtherChunksUnchanged": true,
+      "vertexCount": 3997,
+      "nativeBones": 28,
+      "maxInfluences": 4
+    },
+    "v2": {
+      "sha256": "e57361bfa3de3f9c5c2591ca7c4ead6765da8c8d0b7fb306261fd86205463e1d",
+      "changedBaseVertices": 212,
+      "changedWeightVertices": 14,
+      "thumbPartitionRestored": 577,
+      "rightArmAndOtherChunksUnchanged": true,
+      "vertexCount": 6901,
+      "nativeBones": 28,
+      "maxInfluences": 4
+    },
+    "v3": {
+      "sha256": "7fecf7dd7d16b0b70a48a5ae77d321497dfc29e2f6c2dc956d93b18b92d0e988",
+      "changedBaseVertices": 129,
+      "changedWeightVertices": 110,
+      "thumbPartitionRestored": 412,
+      "rightArmAndOtherChunksUnchanged": true,
+      "vertexCount": 3855,
+      "nativeBones": 28,
+      "maxInfluences": 4
+    }
+  },
+  "performance": {
+    "additionalBones": 0,
+    "additionalVertices": 0,
+    "maximumInfluences": 4,
+    "additionalResidentShapes": {
+      "v1": 1,
+      "v2": 0,
+      "v3": 0
+    },
+    "maximumSimultaneouslyActiveWeaponShapes": 1
+  },
+  "limitations": [
+    "The dense animation files are composed review bakes, not replacements for native additive game clips.",
+    "The transition fix was verified using captured native states and the actual Animancer runtime in Unity; no new in-game recording after installation yet.",
+    "Triangle-area checks do not prove absence of all hand/weapon intersections.",
+    "CPU timing is an editor microbenchmark, not an in-game FPS or GPU measurement."
+  ]
+}

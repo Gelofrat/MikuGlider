@@ -22,6 +22,7 @@ def validate(manifest_name='cycler-thumb', pose_name='Cycler thumb grip',
     reference = json.loads((ROOT / 'references/glider-first-person.json').read_text())['renderers'][0]['bones']
     results = []
     for variant, path in M['PATHS'].items():
+        if variant not in manifest['models']: continue
         raw = (ROOT / path).read_bytes()
         assert hashlib.sha256(raw).hexdigest() == manifest['models'][variant]['sha256']
         _, vertices, binds, sections = M['read'](M['chunks'](raw)['arm-left'])
@@ -38,7 +39,7 @@ def validate(manifest_name='cycler-thumb', pose_name='Cycler thumb grip',
         points = np.c_[vertices['p'], np.ones(len(vertices))]
         row = dict(variant=variant, clips=len(clips), frames=0, newDegenerateTriangleFrames=0,
                    minimumTriangleAreaRatio=1., maximumWorldDisplacement=0.,
-                   maximumActivationStepAt60Hz=0., baseMeshUnchanged=True, activationByClip={})
+                   maximumActivationStepAt60Hz=0., baseline='Current base mesh with corrective disabled', activationByClip={})
         for clip in clips:
             activations = []
             for frame in range(clip['offset'], clip['offset'] + clip['count']):
