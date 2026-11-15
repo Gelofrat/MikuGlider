@@ -123,6 +123,11 @@ def build():
                     bone.rotation_quaternion=rotation;previous[name]=rotation.copy()
                     bone.keyframe_insert(data_path='location',frame=frame);bone.keyframe_insert(data_path='rotation_quaternion',frame=frame);bone.keyframe_insert(data_path='scale',frame=frame)
             rig['preview_note']='Native animation samples at 10 Hz plus endpoints; existing wrist helpers reproduced. No cloth or IK.'
+            # Unity's forward/up camera convention is left-handed. Mirror only
+            # the preview root so a Blender camera has the same screen-right.
+            # Native export vertices and bone-local pose data stay unchanged.
+            rig.scale.x=-1
+            rig['camera_handedness_preview_only']=True
         camera=bpy.data.objects.new('First-person 55 deg',bpy.data.cameras.new('First-person 55 deg'));scene.collection.objects.link(camera);scene.camera=camera
         camera.rotation_euler=Vector((0,-1,0)).to_track_quat('-Z','Y').to_euler();camera.data.sensor_fit='VERTICAL';camera.data.lens=camera.data.sensor_height/(2*math.tan(math.radians(27.5)));camera.data.clip_start=.001
         scene.frame_set(1)

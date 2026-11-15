@@ -2,7 +2,7 @@
   {
     "variant": "v1",
     "side": "left",
-    "maxPositionError": 4.423444491471392e-07
+    "maxPositionError": 4.855772404969721e-07
   },
   {
     "variant": "v1",
@@ -12,7 +12,7 @@
   {
     "variant": "v2",
     "side": "left",
-    "maxPositionError": 4.494428581670065e-07
+    "maxPositionError": 5.636862894423055e-07
   },
   {
     "variant": "v2",
@@ -22,7 +22,7 @@
   {
     "variant": "v3",
     "side": "left",
-    "maxPositionError": 5.320058799295803e-07
+    "maxPositionError": 5.830810109325353e-07
   },
   {
     "variant": "v3",

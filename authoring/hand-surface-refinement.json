@@ -1,0 +1,25 @@
+{
+  "version": "0.12.23",
+  "checkpoint": "fe7e5108c8f8c283a9a25d76cef7b1fa64eaa230",
+  "inputs": {
+    "v1": "1a259bfde152889334ca3b8d21cf3f5dfba1f5e223fe3b9c974d033748f7bbc4",
+    "v2": "3435aa31862672f5b5be0605cfe6db261b51e94f7cb47c8305647d66c520c43a",
+    "v3": "65a751256512fdd5cc1165d87cd7f8d437447a9ef3a696ee5738f6a4223084ee"
+  },
+  "methods": {
+    "v1": "Blender heat weights on a welded authoring cage with anatomical bone axes. Restore distal thumb endpoint, then bake a 15-degree thumb opposition correction from the recorded Plate Launcher pose through inverse linear skinning. No pose driver is shipped.",
+    "v2": "Smooth native metacarpal/proximal/middle/distal weight transitions at the knuckles; vertex positions unchanged.",
+    "v3": "Blender heat weights on a welded authoring cage with anatomical bone axes. Blend over the palm/fingers beyond the wrist; preserve the existing thumb weights to avoid a Mini Cannon reload regression. Vertex positions unchanged."
+  },
+  "invariants": [
+    "Only arm-left chunks changed",
+    "Right arms, third-person meshes, UVs, triangles and bind poses unchanged",
+    "28 native bind poses and at most four weights per vertex",
+    "No runtime animation, IK, cloth, blend shape or bone additions"
+  ],
+  "review": "first-person-hands.blend contains editable native meshes and keyed weapon/inspection previews.",
+  "limitations": [
+    "Existing v3 thumb/cuff crossing at Mini Cannon reload sample 120 remains: 39 triangle pairs before and after.",
+    "The lab material is unlit and does not reproduce the in-game contour shader. Blender clay renders were used to inspect surface folds."
+  ]
+}
