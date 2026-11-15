@@ -1,0 +1,1335 @@
+{
+  "leftHand": {
+    "nativeClips": 265,
+    "nativeFrames": 12913,
+    "sampledFrames": 2500,
+    "sampling": "Every sixth native 60 Hz sample plus every clip endpoint",
+    "meshes": [
+      {
+        "variant": "v3",
+        "side": "left",
+        "vertices": 3855,
+        "triangles": 7128,
+        "newDegenerateTriangles": 0,
+        "maxWeightSumError": 1.1920928955078125e-07,
+        "uvUnchanged": true,
+        "nativeCuffIntersections": [
+          {
+            "clip": "clip-047:0",
+            "after": 332,
+            "before": 334,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-047:3",
+            "after": 332,
+            "before": 334,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-308:0",
+            "after": 329,
+            "before": 343,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-308:3",
+            "after": 329,
+            "before": 343,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-326:0",
+            "after": 3,
+            "before": 64,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-326:3",
+            "after": 4,
+            "before": 56,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-340:0",
+            "after": 24,
+            "before": 24,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-340:3",
+            "after": 24,
+            "before": 24,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-359:0",
+            "after": 143,
+            "before": 142,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-359:3",
+            "after": 142,
+            "before": 142,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-374:6",
+            "after": 37,
+            "before": 38,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-374:12",
+            "after": 76,
+            "before": 76,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-378:0",
+            "after": 35,
+            "before": 35,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-378:3",
+            "after": 34,
+            "before": 34,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-398:0",
+            "after": 136,
+            "before": 136,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-398:6",
+            "after": 136,
+            "before": 136,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-398:12",
+            "after": 147,
+            "before": 147,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-398:18",
+            "after": 156,
+            "before": 154,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-398:24",
+            "after": 138,
+            "before": 137,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-398:30",
+            "after": 136,
+            "before": 136,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-398:36",
+            "after": 145,
+            "before": 145,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-398:39",
+            "after": 136,
+            "before": 136,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-399:12",
+            "after": 8,
+            "before": 8,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-399:18",
+            "after": 57,
+            "before": 57,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-399:24",
+            "after": 4,
+            "before": 4,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:0",
+            "after": 151,
+            "before": 154,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:6",
+            "after": 150,
+            "before": 154,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:12",
+            "after": 149,
+            "before": 149,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:18",
+            "after": 127,
+            "before": 127,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:24",
+            "after": 94,
+            "before": 94,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:30",
+            "after": 73,
+            "before": 73,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:36",
+            "after": 76,
+            "before": 76,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:42",
+            "after": 78,
+            "before": 78,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:48",
+            "after": 71,
+            "before": 71,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:54",
+            "after": 94,
+            "before": 94,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:60",
+            "after": 139,
+            "before": 139,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:66",
+            "after": 163,
+            "before": 163,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:72",
+            "after": 151,
+            "before": 153,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-400:77",
+            "after": 151,
+            "before": 154,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-401:0",
+            "after": 61,
+            "before": 61,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-402:0",
+            "after": 129,
+            "before": 129,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-404:24",
+            "after": 18,
+            "before": 18,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-404:30",
+            "after": 55,
+            "before": 55,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-404:31",
+            "after": 61,
+            "before": 61,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-405:18",
+            "after": 45,
+            "before": 45,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-405:24",
+            "after": 124,
+            "before": 124,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-405:30",
+            "after": 132,
+            "before": 132,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-405:31",
+            "after": 129,
+            "before": 129,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "weapon-fast-shotgun-fire-1-aim:11",
+            "after": 159,
+            "before": 159,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-472:0",
+            "after": 38,
+            "before": 80,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "clip-472:3",
+            "after": 38,
+            "before": 80,
+            "visibleAfter": 0
+          },
+          {
+            "clip": "weapon-mini-cannon-reload:120",
+            "after": 39,
+            "before": 39,
+            "visibleAfter": 39
+          }
+        ],
+        "recordedCuffIntersections": [
+          {
+            "capture": "20261115-183005-680-0b531e",
+            "sample": 161,
+            "after": 18,
+            "before": 61
+          },
+          {
+            "capture": "20261115-183005-680-0b531e",
+            "sample": 164,
+            "after": 69,
+            "before": 69
+          },
+          {
+            "capture": "20261115-183005-680-0b531e",
+            "sample": 186,
+            "after": 27,
+            "before": 27
+          },
+          {
+            "capture": "20261115-183005-680-0b531e",
+            "sample": 237,
+            "after": 65,
+            "before": 104
+          },
+          {
+            "capture": "20261115-183005-680-0b531e",
+            "sample": 238,
+            "after": 34,
+            "before": 34
+          },
+          {
+            "capture": "20261115-183005-680-0b531e",
+            "sample": 277,
+            "after": 26,
+            "before": 26
+          },
+          {
+            "capture": "20261115-183005-680-0b531e",
+            "sample": 278,
+            "after": 3,
+            "before": 65
+          },
+          {
+            "capture": "20261115-183005-680-0b531e",
+            "sample": 279,
+            "after": 74,
+            "before": 107
+          }
+        ],
+        "maxHandEdgeStretch": 5.935333506628635,
+        "worstHandClip": "weapon-wide-gun-reload:108",
+        "recordedFrames": 753
+      }
+    ],
+    "seconds": 88.68317866325378
+  },
+  "rightCuffWeaponPoses": [
+    {
+      "variant": "v1",
+      "pose": "clip-313-0",
+      "before": 1494,
+      "after": 0,
+      "bodyAfter": 0,
+      "bodyBefore": 8
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-313-0",
+      "before": 1214,
+      "after": 0,
+      "bodyAfter": 144,
+      "bodyBefore": 576
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-313-1",
+      "before": 1514,
+      "after": 0,
+      "bodyAfter": 0,
+      "bodyBefore": 8
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-313-1",
+      "before": 1213,
+      "after": 0,
+      "bodyAfter": 144,
+      "bodyBefore": 575
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-313-2",
+      "before": 1514,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-313-2",
+      "before": 1212,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-313-3",
+      "before": 1510,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-313-3",
+      "before": 1212,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-313-4",
+      "before": 1494,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-313-4",
+      "before": 1214,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-367-0",
+      "before": 423,
+      "after": 64,
+      "bodyAfter": 60,
+      "bodyBefore": 301
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-367-0",
+      "before": 368,
+      "after": 0,
+      "bodyAfter": 311,
+      "bodyBefore": 1016
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-367-1",
+      "before": 372,
+      "after": 0,
+      "bodyAfter": 62,
+      "bodyBefore": 177
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-367-1",
+      "before": 351,
+      "after": 0,
+      "bodyAfter": 262,
+      "bodyBefore": 946
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-367-2",
+      "before": 256,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-367-2",
+      "before": 345,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-367-3",
+      "before": 271,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-367-3",
+      "before": 347,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-367-4",
+      "before": 423,
+      "after": 64
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-367-4",
+      "before": 368,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-420-0",
+      "before": 552,
+      "after": 0,
+      "bodyAfter": 43,
+      "bodyBefore": 51
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-420-0",
+      "before": 286,
+      "after": 0,
+      "bodyAfter": 257,
+      "bodyBefore": 677
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-420-1",
+      "before": 550,
+      "after": 0,
+      "bodyAfter": 42,
+      "bodyBefore": 50
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-420-1",
+      "before": 286,
+      "after": 0,
+      "bodyAfter": 255,
+      "bodyBefore": 675
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-420-2",
+      "before": 560,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-420-2",
+      "before": 283,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-420-3",
+      "before": 572,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-420-3",
+      "before": 283,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-420-4",
+      "before": 552,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "clip-420-4",
+      "before": 286,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-0",
+      "before": 423,
+      "after": 64,
+      "bodyAfter": 60,
+      "bodyBefore": 261
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-bounce-shotgun-inspect-0",
+      "before": 368,
+      "after": 0,
+      "bodyAfter": 312,
+      "bodyBefore": 920
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-1",
+      "before": 505,
+      "after": 233,
+      "bodyAfter": 0,
+      "bodyBefore": 85
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-bounce-shotgun-inspect-1",
+      "before": 387,
+      "after": 97,
+      "bodyAfter": 142,
+      "bodyBefore": 535
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-2",
+      "before": 506,
+      "after": 231
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-bounce-shotgun-inspect-2",
+      "before": 387,
+      "after": 95
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-3",
+      "before": 389,
+      "after": 24
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-bounce-shotgun-inspect-3",
+      "before": 296,
+      "after": 20
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-4",
+      "before": 423,
+      "after": 64
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-bounce-shotgun-inspect-4",
+      "before": 368,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-fire-1-0",
+      "before": 1494,
+      "after": 0,
+      "bodyAfter": 0,
+      "bodyBefore": 8
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-fire-1-0",
+      "before": 1214,
+      "after": 0,
+      "bodyAfter": 144,
+      "bodyBefore": 576
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-fire-1-1",
+      "before": 1625,
+      "after": 50,
+      "bodyAfter": 39,
+      "bodyBefore": 47
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-fire-1-1",
+      "before": 1157,
+      "after": 0,
+      "bodyAfter": 209,
+      "bodyBefore": 635
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-fire-1-2",
+      "before": 1769,
+      "after": 50
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-fire-1-2",
+      "before": 1253,
+      "after": 13
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-fire-1-3",
+      "before": 1604,
+      "after": 18
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-fire-1-3",
+      "before": 1234,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-fire-1-4",
+      "before": 1510,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-fire-1-4",
+      "before": 1208,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-inspect-0",
+      "before": 0,
+      "after": 0,
+      "bodyAfter": 70,
+      "bodyBefore": 157
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-inspect-0",
+      "before": 49,
+      "after": 0,
+      "bodyAfter": 232,
+      "bodyBefore": 581
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-inspect-1",
+      "before": 12,
+      "after": 0,
+      "bodyAfter": 12,
+      "bodyBefore": 20
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-inspect-1",
+      "before": 49,
+      "after": 0,
+      "bodyAfter": 196,
+      "bodyBefore": 490
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-inspect-2",
+      "before": 14,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-inspect-2",
+      "before": 49,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-inspect-3",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-inspect-3",
+      "before": 49,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-inspect-4",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-inspect-4",
+      "before": 49,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-reload-0",
+      "before": 1425,
+      "after": 0,
+      "bodyAfter": 0,
+      "bodyBefore": 8
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-reload-0",
+      "before": 1184,
+      "after": 0,
+      "bodyAfter": 144,
+      "bodyBefore": 569
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-reload-1",
+      "before": 1581,
+      "after": 0,
+      "bodyAfter": 0,
+      "bodyBefore": 8
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-reload-1",
+      "before": 1230,
+      "after": 0,
+      "bodyAfter": 142,
+      "bodyBefore": 573
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-reload-2",
+      "before": 1536,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-reload-2",
+      "before": 1222,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-reload-3",
+      "before": 1682,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-reload-3",
+      "before": 1252,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-reload-4",
+      "before": 1425,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-reload-4",
+      "before": 1184,
+      "after": 0
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-wide-gun-inspect-0",
+      "before": 552,
+      "after": 0,
+      "bodyAfter": 43,
+      "bodyBefore": 51
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-wide-gun-inspect-0",
+      "before": 286,
+      "after": 0,
+      "bodyAfter": 257,
+      "bodyBefore": 677
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-wide-gun-inspect-1",
+      "before": 950,
+      "after": 173,
+      "bodyAfter": 0,
+      "bodyBefore": 67
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-wide-gun-inspect-1",
+      "before": 451,
+      "after": 76,
+      "bodyAfter": 154,
+      "bodyBefore": 634
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-wide-gun-inspect-2",
+      "before": 802,
+      "after": 140
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-wide-gun-inspect-2",
+      "before": 450,
+      "after": 68
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-wide-gun-inspect-3",
+      "before": 785,
+      "after": 74
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-wide-gun-inspect-3",
+      "before": 455,
+      "after": 66
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-wide-gun-inspect-4",
+      "before": 552,
+      "after": 0
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-wide-gun-inspect-4",
+      "before": 286,
+      "after": 0
+    }
+  ],
+  "remainingWeaponContacts": [
+    {
+      "variant": "v1",
+      "pose": "clip-367-0",
+      "before": 423,
+      "after": 64,
+      "bodyAfter": 60,
+      "bodyBefore": 301,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9404821395874023,
+          1.4368269443511963,
+          -0.07140408456325531
+        ],
+        [
+          0.9556846618652344,
+          1.4843841791152954,
+          -0.028047990053892136
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "clip-367-4",
+      "before": 423,
+      "after": 64,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9404821395874023,
+          1.4368269443511963,
+          -0.07140408456325531
+        ],
+        [
+          0.9556846618652344,
+          1.4843841791152954,
+          -0.028047990053892136
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-0",
+      "before": 423,
+      "after": 64,
+      "bodyAfter": 60,
+      "bodyBefore": 261,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9404821395874023,
+          1.4368269443511963,
+          -0.07140408456325531
+        ],
+        [
+          0.9556846618652344,
+          1.4843841791152954,
+          -0.028047990053892136
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-1",
+      "before": 505,
+      "after": 233,
+      "bodyAfter": 0,
+      "bodyBefore": 85,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.8962058424949646,
+          1.53522789478302,
+          -0.00925974640995264
+        ],
+        [
+          0.9547613263130188,
+          1.5703026056289673,
+          0.05663885548710823
+        ]
+      ]
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-bounce-shotgun-inspect-1",
+      "before": 387,
+      "after": 97,
+      "bodyAfter": 142,
+      "bodyBefore": 535,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9114697575569153,
+          1.5276048183441162,
+          -0.011606230400502682
+        ],
+        [
+          0.9606893062591553,
+          1.5607906579971313,
+          0.05226476490497589
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-2",
+      "before": 506,
+      "after": 231,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.8962058424949646,
+          1.53522789478302,
+          -0.00925974640995264
+        ],
+        [
+          0.9547613263130188,
+          1.5703026056289673,
+          0.05663885548710823
+        ]
+      ]
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-bounce-shotgun-inspect-2",
+      "before": 387,
+      "after": 95,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9114697575569153,
+          1.5276048183441162,
+          -0.011606230400502682
+        ],
+        [
+          0.9606893062591553,
+          1.5607906579971313,
+          0.05226476490497589
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-3",
+      "before": 389,
+      "after": 24,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.948416531085968,
+          1.5618091821670532,
+          -0.027847036719322205
+        ],
+        [
+          0.9546235203742981,
+          1.5703026056289673,
+          0.011247760616242886
+        ]
+      ]
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-bounce-shotgun-inspect-3",
+      "before": 296,
+      "after": 20,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9513619542121887,
+          1.5506006479263306,
+          -0.011606230400502682
+        ],
+        [
+          0.9587657451629639,
+          1.5570834875106812,
+          0.008073221892118454
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-bounce-shotgun-inspect-4",
+      "before": 423,
+      "after": 64,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9404821395874023,
+          1.4368269443511963,
+          -0.07140408456325531
+        ],
+        [
+          0.9556846618652344,
+          1.4843841791152954,
+          -0.028047990053892136
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-fire-1-1",
+      "before": 1625,
+      "after": 50,
+      "bodyAfter": 39,
+      "bodyBefore": 47,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9310122132301331,
+          1.551537275314331,
+          -0.05596326291561127
+        ],
+        [
+          0.9546977281570435,
+          1.5703026056289673,
+          0.029045986011624336
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-fire-1-2",
+      "before": 1769,
+      "after": 50,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9310122132301331,
+          1.556175947189331,
+          -0.043948590755462646
+        ],
+        [
+          0.9546977281570435,
+          1.5693080425262451,
+          0.029045986011624336
+        ]
+      ]
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-plate-launcher-fire-1-2",
+      "before": 1253,
+      "after": 13,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9549955725669861,
+          1.5411099195480347,
+          -0.03009921684861183
+        ],
+        [
+          0.9596223831176758,
+          1.5527409315109253,
+          -0.01055153552442789
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-plate-launcher-fire-1-3",
+      "before": 1604,
+      "after": 18,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9484683871269226,
+          1.5566126108169556,
+          -0.043948590755462646
+        ],
+        [
+          0.9546291828155518,
+          1.5703026056289673,
+          0.010947775095701218
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-wide-gun-inspect-1",
+      "before": 950,
+      "after": 173,
+      "bodyAfter": 0,
+      "bodyBefore": 67,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9297407865524292,
+          1.5547226667404175,
+          -0.0410122275352478
+        ],
+        [
+          0.9546977281570435,
+          1.5703026056289673,
+          0.029045986011624336
+        ]
+      ]
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-wide-gun-inspect-1",
+      "before": 451,
+      "after": 76,
+      "bodyAfter": 154,
+      "bodyBefore": 634,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9204503893852234,
+          1.4562788009643555,
+          -0.03009921684861183
+        ],
+        [
+          0.9665426015853882,
+          1.5607906579971313,
+          0.030797434970736504
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-wide-gun-inspect-2",
+      "before": 802,
+      "after": 140,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9297407865524292,
+          1.5459288358688354,
+          -0.028482001274824142
+        ],
+        [
+          0.9547120332717896,
+          1.5703026056289673,
+          0.04380019009113312
+        ]
+      ]
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-wide-gun-inspect-2",
+      "before": 450,
+      "after": 68,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9314122796058655,
+          1.5417261123657227,
+          -0.011606230400502682
+        ],
+        [
+          0.9599120020866394,
+          1.5576943159103394,
+          0.04259743168950081
+        ]
+      ]
+    },
+    {
+      "variant": "v1",
+      "pose": "weapon-wide-gun-inspect-3",
+      "before": 785,
+      "after": 74,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9309195876121521,
+          1.5472575426101685,
+          -0.028482001274824142
+        ],
+        [
+          0.9547120332717896,
+          1.5703026056289673,
+          0.04380019009113312
+        ]
+      ]
+    },
+    {
+      "variant": "v3",
+      "pose": "weapon-wide-gun-inspect-3",
+      "before": 455,
+      "after": 66,
+      "inFrustum": 0,
+      "restContactRange": [
+        [
+          0.9314122796058655,
+          1.5417261123657227,
+          -0.011606230400502682
+        ],
+        [
+          0.9599120020866394,
+          1.5570834875106812,
+          0.04259743168950081
+        ]
+      ]
+    }
+  ],
+  "scope": "Weapon contact check: 40 sampled poses per variant, eight clips, five samples each. Nonzero remaining right-cuff contacts are outside the 55-degree viewmodel frustum. This is not a claim of zero intersections for every animation or camera setting.",
+  "knownLimitations": [
+    "The existing v3 left thumb/cuff contact in Mini Cannon reload sample 120 remains (39 triangle pairs before and after).",
+    "Three offscreen left-hand/cuff sample counts increased by one or two triangle pairs; recorded captures have no increased counts.",
+    "The lab material does not reproduce the in-game outline shader. Clay and native recorded-pose views were reviewed."
+  ]
+}

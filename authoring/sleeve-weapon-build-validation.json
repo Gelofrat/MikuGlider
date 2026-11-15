@@ -1,0 +1,29 @@
+{
+  "version": "0.12.25",
+  "buildErrors": 0,
+  "buildWarnings": 0,
+  "unitySuites": [
+    {
+      "variant": "v1",
+      "passed": true,
+      "testedConfigurations": 325,
+      "renderedFrames": 51035,
+      "report": "simulation/Reports/20261115-221327-arms-playable/report.json",
+      "assetSha256": "cb8fdc439f0c769313c7554e87476bff47d8f71c054ea14cb22da3898bdd0f83"
+    },
+    {
+      "variant": "v3",
+      "passed": true,
+      "testedConfigurations": 325,
+      "renderedFrames": 51035,
+      "report": "simulation/Reports/20261115-221353-arms-playable/report.json",
+      "assetSha256": "1672f6d48cc6843fa9de8cc34efa5991e2310e1e71cef2422cf1ed7c7b9e1a5a"
+    }
+  ],
+  "dllSha256": "9257800cffc4ad0a9f1b5b98c3a01da67eceedf8e1d5a98ebbc5a39b47045b65",
+  "installedDllSha256": "9257800cffc4ad0a9f1b5b98c3a01da67eceedf8e1d5a98ebbc5a39b47045b65",
+  "gameDllMatches": true,
+  "restartRequired": true,
+  "additionalRuntimeBones": 0,
+  "additionalRuntimeDrivers": 0
+}

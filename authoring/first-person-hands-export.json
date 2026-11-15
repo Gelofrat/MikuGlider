@@ -1,6 +1,6 @@
 {
-  "version": "0.12.24",
-  "comparedTo": "f6632fa",
+  "version": "0.12.25",
+  "comparedTo": "2827b06",
   "meshes": {
     "v1": {
       "arm-left": {
@@ -8,16 +8,16 @@
         "triangles": 6301,
         "bones": 28,
         "maxInfluences": 4,
-        "verticesMoved": 205
+        "verticesMoved": 0
       },
       "arm-right": {
         "vertices": 3961,
         "triangles": 6301,
         "bones": 28,
         "maxInfluences": 3,
-        "verticesMoved": 0
+        "verticesMoved": 1074
       },
-      "sha256": "befd8636fcb25aaa2a9febebb8c9f6bde0d8b08e9574a06af67f6ebc9d31913f"
+      "sha256": "cb8fdc439f0c769313c7554e87476bff47d8f71c054ea14cb22da3898bdd0f83"
     },
     "v2": {
       "arm-left": {
@@ -42,16 +42,16 @@
         "triangles": 7128,
         "bones": 28,
         "maxInfluences": 4,
-        "verticesMoved": 0
+        "verticesMoved": 209
       },
       "arm-right": {
         "vertices": 3839,
         "triangles": 7128,
         "bones": 28,
         "maxInfluences": 4,
-        "verticesMoved": 0
+        "verticesMoved": 584
       },
-      "sha256": "230ecd61a773146aad022d74b8ae464c0fcc56a1cafbb38b7569c42774f4b2c5"
+      "sha256": "1672f6d48cc6843fa9de8cc34efa5991e2310e1e71cef2422cf1ed7c7b9e1a5a"
     }
   }
 }
