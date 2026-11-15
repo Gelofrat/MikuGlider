@@ -1,0 +1,84 @@
+{
+  "version": "0.12.21",
+  "checkpoint": "2b1ebb2",
+  "checkpointRef": "checkpoint/v3-hand-0.12.20",
+  "scope": "v3 first-person left wrist",
+  "method": "Separate swing and twist: wrist flexion retains the existing Hermite path, pronation is distributed over .24 model units of the forearm. Two proximal and seven wrist stations; original native finger transforms retained.",
+  "authoredWith": "Blender MCP; keyed idle and inspection preview in v3-first-person-wrist.blend",
+  "runtimeProfile": {
+    "firstPersonWristTwistLength": 0.24,
+    "wristBendStart": -0.09,
+    "wristBendEnd": 0.035,
+    "helperBones": 9
+  },
+  "unchanged": [
+    "v1 and v2 default deformation",
+    "mesh vertices, UVs, topology and source weights",
+    "native weapon and finger bones",
+    "right wrist"
+  ],
+  "validation": {
+    "recordedFrames": 796,
+    "recordedIntersectionFrames": 0,
+    "nativeClipConfigurations": 50,
+    "nativePoseFrames": 2758,
+    "nativeVisibleIntersectionFrames": 0,
+    "nativeOffscreenIntersectionFrames": 286,
+    "maxFingerPositionChange": 2.247344614808168e-09,
+    "frustum": {
+      "verticalFov": 55,
+      "aspect": "16:9"
+    },
+    "nativeTwistWrapFrames": [
+      {
+        "clip": "Fast Shotgun / fire-1-aim",
+        "frames": [
+          9
+        ]
+      },
+      {
+        "clip": "Fast Shotgun / fire-2-aim",
+        "frames": [
+          10
+        ]
+      },
+      {
+        "clip": "Fast Shotgun / fire-3-aim",
+        "frames": [
+          9
+        ]
+      }
+    ],
+    "unityParity": {
+      "after": 5.937211622976145e-07,
+      "before": 7.976871465324888e-07,
+      "unchangedDefaultMaxError": 0.0
+    },
+    "blenderParity": {
+      "maxError": 5.422367545322536e-06,
+      "vertices": 3855,
+      "bones": 37,
+      "keyedPoses": 61
+    },
+    "standalone": {
+      "report": "simulation/Reports/20261115-191541-arms-playable",
+      "passed": true,
+      "cases": 59,
+      "renderedFrames": 9427,
+      "errors": []
+    },
+    "runtimeChecks": 134,
+    "releaseBuildErrors": 0
+  },
+  "performance": {
+    "baselineMedianMilliseconds": 0.003150005,
+    "newMedianMilliseconds": 0.00396074,
+    "allocatedBytes": 0,
+    "iterations": 140000,
+    "addedBonesComparedWith01220": 0,
+    "addedVertices": 0,
+    "limitation": "Unity editor CPU microbenchmark. In-game FPS not measured."
+  },
+  "inGameVerified": false,
+  "dllSha256": "51f9e1dcd3eec7d74cabe943af1b53fb5096b2f00b7fea71afd752ae56cdcac2"
+}

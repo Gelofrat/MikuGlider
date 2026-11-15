@@ -21,5 +21,6 @@
     "z": 0
   },
   "coatEnvelope": true,
-  "preserveSourceGarmentShape": true
+  "preserveSourceGarmentShape": true,
+  "firstPersonWristTwistLength": 0.24
 }

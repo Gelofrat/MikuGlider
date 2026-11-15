@@ -69,7 +69,7 @@ internal sealed class SkinAppearanceController
                 : skin.Definition.CorrectFirstPersonRightWrist);
             var renderer = root.GetChild(side + 1).GetComponent<SkinnedMeshRenderer>();
             Mesh source = skin?.Assets.GetMesh(side == 0 ? "arm-left" : "arm-right");
-            FirstPersonWristVisual.Attach(renderer, correct ? source : null);
+            FirstPersonWristVisual.Attach(renderer, correct ? source : null, skin?.Assets.ModelDefinition);
             if (renderer != null) ModelPoseCorrections.Attach(renderer, skin?.Assets.Corrections);
         }
     }

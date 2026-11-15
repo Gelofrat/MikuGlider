@@ -12,6 +12,7 @@ internal sealed class SkinModelDefinition
     public bool coatEnvelope = false;
     public bool preserveSourceGarmentShape = false;
     public bool preserveSeatedHandHeading = false;
+    public float firstPersonWristTwistLength = 0f;
     public Vector3 torsoHoldPosition = Vector3.zero;
     public Vector3 torsoHoldRotation = Vector3.zero;
     public Vector3 legsHoldPosition = Vector3.zero;
@@ -24,6 +25,9 @@ internal sealed class SkinModelDefinition
             throw new InvalidDataException("Unsupported skin definition; expected schemaVersion 1.");
         if (definition.coatCullMode < 0 || definition.coatCullMode > 2)
             throw new InvalidDataException("Unsupported coat culling mode.");
+        if (!(definition.firstPersonWristTwistLength >= 0f) ||
+            float.IsInfinity(definition.firstPersonWristTwistLength))
+            throw new InvalidDataException("Invalid first-person wrist twist length.");
 
         SkinMeshValidator.ValidateVector(definition.torsoHoldPosition);
         SkinMeshValidator.ValidateVector(definition.torsoHoldRotation);
