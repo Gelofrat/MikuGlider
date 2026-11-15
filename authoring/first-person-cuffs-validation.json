@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-15",
+  "checkpoint": "8f02816",
+  "scope": "v1 and v3 first-person left sleeve",
+  "method": "Static axial cuff shortening in Blender MCP; original topology, UVs, hand geometry, bone weights and bind poses retained; removed shotgun-support-cuff pose shapes.",
+  "recordedFrames": 847,
+  "recordedHandSleeveIntersections": 0,
+  "nativeClipConfigurationsPerVariant": 50,
+  "nativePoseSamplesTotal": 5516,
+  "inspectConfigurations": [
+    {
+      "variant": "v1",
+      "key": "weapon-fast-shotgun-inspect",
+      "samples": 462,
+      "intersections": []
+    },
+    {
+      "variant": "v1",
+      "key": "weapon-heavy-shotgun-inspect",
+      "samples": 312,
+      "intersections": []
+    },
+    {
+      "variant": "v1",
+      "key": "weapon-bounce-shotgun-inspect",
+      "samples": 355,
+      "intersections": []
+    },
+    {
+      "variant": "v3",
+      "key": "weapon-fast-shotgun-inspect",
+      "samples": 462,
+      "intersections": []
+    },
+    {
+      "variant": "v3",
+      "key": "weapon-heavy-shotgun-inspect",
+      "samples": 312,
+      "intersections": []
+    },
+    {
+      "variant": "v3",
+      "key": "weapon-bounce-shotgun-inspect",
+      "samples": 355,
+      "intersections": []
+    }
+  ],
+  "remainingIntersectingPosesOutsideFirstPersonFrustum": 23,
+  "visibleResidualIntersectionPoints": 0,
+  "firstPersonFov": 55,
+  "aspect": "16:9",
+  "performance": {
+    "addedVertices": 0,
+    "addedTriangles": 0,
+    "addedBones": 0,
+    "addedRenderers": 0,
+    "addedRuntimeWork": false,
+    "removedPoseShapesPerVariant": 1,
+    "fpsBenchmarkPerformed": false
+  },
+  "playerSuites": [
+    {
+      "report": "simulation\\Reports\\20261115-180000-arms-playable\\report.json",
+      "passed": true,
+      "cases": 4,
+      "renderedFrames": 1835,
+      "errors": []
+    },
+    {
+      "report": "simulation\\Reports\\20261115-180037-arms-playable\\report.json",
+      "passed": true,
+      "cases": 4,
+      "renderedFrames": 1835,
+      "errors": []
+    }
+  ],
+  "limitations": [
+    "Not yet checked with the newly built DLL in a live Mycopunk session.",
+    "Residual intersections exist in extreme native reload/fire/stow poses outside the tested first-person frustum.",
+    "Surface tests cover hand versus sleeve; they do not prove weapon versus sleeve clearance for every weapon."
+  ],
+  "artifacts": {
+    "blender": "authoring/first-person-cuffs.blend",
+    "dll": "bin/Release/MikuGlider.dll",
+    "dllSha256": "e193a85aaca695c903f050a722b5ccfe0070404977d4e3de7e18b6be5aff3f0e"
+  }
+}
