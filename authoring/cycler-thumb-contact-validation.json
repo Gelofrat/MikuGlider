@@ -1,0 +1,92 @@
+[
+  {
+    "variant": "v1",
+    "clip": "clip-381",
+    "before": 199,
+    "after": 171
+  },
+  {
+    "variant": "v1",
+    "clip": "weapon-smg-inspect",
+    "before": 195,
+    "after": 165
+  },
+  {
+    "variant": "v1",
+    "clip": "weapon-smg-reload",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "variant": "v1",
+    "clip": "clip-313",
+    "before": 70,
+    "after": 70
+  },
+  {
+    "variant": "v1",
+    "clip": "clip-420",
+    "before": 89,
+    "after": 89
+  },
+  {
+    "variant": "v2",
+    "clip": "clip-381",
+    "before": 112,
+    "after": 61
+  },
+  {
+    "variant": "v2",
+    "clip": "weapon-smg-inspect",
+    "before": 108,
+    "after": 54
+  },
+  {
+    "variant": "v2",
+    "clip": "weapon-smg-reload",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "variant": "v2",
+    "clip": "clip-313",
+    "before": 24,
+    "after": 24
+  },
+  {
+    "variant": "v2",
+    "clip": "clip-420",
+    "before": 141,
+    "after": 141
+  },
+  {
+    "variant": "v3",
+    "clip": "clip-381",
+    "before": 156,
+    "after": 125
+  },
+  {
+    "variant": "v3",
+    "clip": "weapon-smg-inspect",
+    "before": 160,
+    "after": 127
+  },
+  {
+    "variant": "v3",
+    "clip": "weapon-smg-reload",
+    "before": 0,
+    "after": 0
+  },
+  {
+    "variant": "v3",
+    "clip": "clip-313",
+    "before": 7,
+    "after": 7
+  },
+  {
+    "variant": "v3",
+    "clip": "clip-420",
+    "before": 101,
+    "after": 101
+  }
+]

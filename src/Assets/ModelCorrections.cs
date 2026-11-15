@@ -149,6 +149,7 @@ internal sealed class MeshCorrection
 {
     public string key = "";
     public string fingerprint = "";
+    public string weapon = "";
     public VertexWeightEdit[] weights = Array.Empty<VertexWeightEdit>();
     public PoseShapeEdit[] poses = Array.Empty<PoseShapeEdit>();
 }

@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>MikuGlider.Diagnostics</AssemblyName>
+    <RootNamespace>MikuGlider.Diagnostics</RootNamespace>
+    <Version>0.4.3</Version>
+    <LangVersion>latest</LangVersion>
+    <PathMap>$(MSBuildProjectDirectory)=/_/MikuGlider.Diagnostics</PathMap>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <ManagedRoot>$(MikuGliderGameRoot)\Mycopunk_Data\Managed</ManagedRoot>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="src\**\*.cs" />
+    <EmbeddedResource Include="viewer.html" LogicalName="MikuGlider.Diagnostics.Viewer" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="review.py" CopyToOutputDirectory="PreserveNewest" />
+    <Reference Include="BepInEx"><HintPath>$(MikuGliderGameRoot)\BepInEx\core\BepInEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(MikuGliderGameRoot)\BepInEx\core\0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp"><HintPath>$(ManagedRoot)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Animancer"><HintPath>$(ManagedRoot)\Animancer.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Netcode.Runtime"><HintPath>$(ManagedRoot)\Unity.Netcode.Runtime.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(ManagedRoot)\Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(ManagedRoot)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedRoot)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.AnimationModule"><HintPath>$(ManagedRoot)\UnityEngine.AnimationModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(ManagedRoot)\UnityEngine.PhysicsModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(ManagedRoot)\UnityEngine.IMGUIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule"><HintPath>$(ManagedRoot)\UnityEngine.ScreenCaptureModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.ImageConversionModule"><HintPath>$(ManagedRoot)\UnityEngine.ImageConversionModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.InputSystem"><HintPath>$(ManagedRoot)\Unity.InputSystem.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Collections"><HintPath>$(ManagedRoot)\Unity.Collections.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <Target Name="CheckDiagnosticReferences" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="'$(GameRoot)' == ''" Text="Set GameRoot in Directory.Build.local.props, MYCOPUNK_GAME_ROOT, or -p:GameRoot=... ." />
+    <Error Condition="'$(GameRoot)' != '' and !Exists('$(ManagedRoot)\Assembly-CSharp.dll')" Text="GameRoot must contain Mycopunk_Data\Managed\Assembly-CSharp.dll." />
+    <Error Condition="'$(GameRoot)' != '' and !Exists('$(MikuGliderGameRoot)\BepInEx\core\BepInEx.dll')" Text="GameRoot must contain BepInEx\core\BepInEx.dll." />
+  </Target>
+</Project>

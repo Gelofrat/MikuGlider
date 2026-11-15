@@ -76,6 +76,16 @@ namespace Horse.MikuPhysicsLab.Editor
                 mesh.RecalculateBounds();arm.sharedMesh=mesh;
             }
             if(curved){FirstPersonWristVisual.Attach(arm,arm.sharedMesh,new SkinModelDefinition{firstPersonWristTwistLength=twistLength});arm.GetComponent<FirstPersonWristVisual>().UpdatePose();}
+            if(curved)
+            {
+                ModelPoseCorrections.Attach(arm,actor.Skin.Assets.Corrections,actor.Rig.Nodes.First(node=>node.name=="cc_WeaponRoot"),"Native weapon ");
+                var correction=arm.GetComponent<ModelPoseCorrections>();
+                if(correction!=null && correction.enabled) correction.SendMessage("LateUpdate");
+            }
+            File.WriteAllText(output+".pose.json",Newtonsoft.Json.JsonConvert.SerializeObject(new{
+                key=ModelCorrections.Key(arm.sharedMesh),fingerprint=ModelCorrections.Fingerprint(arm.sharedMesh),
+                rotations=arm.bones.Take(28).Select((t,i)=>new {bone=i,name=t.name,rotation=new {x=t.localRotation.x,y=t.localRotation.y,z=t.localRotation.z,w=t.localRotation.w}}).ToArray(),
+                shapeWeights=Enumerable.Range(0,arm.sharedMesh.blendShapeCount).Select(i=>arm.GetBlendShapeWeight(i)).ToArray()}));
             var baked=new Mesh();arm.BakeMesh(baked, true);
             var rightBaked=new Mesh();right.BakeMesh(rightBaked,true);
             File.WriteAllText(output+".right.json",Newtonsoft.Json.JsonConvert.SerializeObject(new{positions=rightBaked.vertices.Select(p=>right.transform.TransformPoint(p)).Select(p=>new[]{p.x,p.y,p.z}).ToArray(),triangles=rightBaked.triangles,bones=right.bones.Take(28).Select(t=>Enumerable.Range(0,16).Select(i=>t.localToWorldMatrix[i/4,i%4]).ToArray()).ToArray()}));

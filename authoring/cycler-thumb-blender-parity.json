@@ -1,0 +1,17 @@
+[
+  {
+    "variant": "v1",
+    "maximumPositionError": 5.508605723922259e-07,
+    "rmsPositionError": 1.6101236692154142e-07
+  },
+  {
+    "variant": "v2",
+    "maximumPositionError": 5.322000054252906e-07,
+    "rmsPositionError": 1.5028468522440046e-07
+  },
+  {
+    "variant": "v3",
+    "maximumPositionError": 5.009098512967587e-06,
+    "rmsPositionError": 6.995556913419363e-07
+  }
+]

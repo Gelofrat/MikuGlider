@@ -1,0 +1,293 @@
+[
+  {
+    "variant": "v1",
+    "clips": 17,
+    "frames": 896,
+    "newDegenerateTriangleFrames": 0,
+    "minimumTriangleAreaRatio": 0.05783453713451986,
+    "maximumWorldDisplacement": 0.005014722169340487,
+    "maximumActivationStepAt60Hz": 0.4008390488863205,
+    "baseMeshUnchanged": true,
+    "activationByClip": {
+      "clip-381": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-382": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-383": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-384": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-386": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-387": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-388": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-389": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-390": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-reload": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.4008390488863205
+      },
+      "weapon-smg-inspect": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.21885105872611588
+      },
+      "weapon-smg-fire-1": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-1-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-2": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-2-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-3": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-3-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      }
+    }
+  },
+  {
+    "variant": "v2",
+    "clips": 17,
+    "frames": 896,
+    "newDegenerateTriangleFrames": 0,
+    "minimumTriangleAreaRatio": 0.045799687515701,
+    "maximumWorldDisplacement": 0.005220519360201816,
+    "maximumActivationStepAt60Hz": 0.4008390488863205,
+    "baseMeshUnchanged": true,
+    "activationByClip": {
+      "clip-381": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-382": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-383": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-384": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-386": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-387": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-388": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-389": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-390": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-reload": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.4008390488863205
+      },
+      "weapon-smg-inspect": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.21885105872611588
+      },
+      "weapon-smg-fire-1": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-1-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-2": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-2-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-3": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-3-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      }
+    }
+  },
+  {
+    "variant": "v3",
+    "clips": 17,
+    "frames": 896,
+    "newDegenerateTriangleFrames": 0,
+    "minimumTriangleAreaRatio": 0.10304028634575242,
+    "maximumWorldDisplacement": 0.005387463360005196,
+    "maximumActivationStepAt60Hz": 0.4008390488863205,
+    "baseMeshUnchanged": true,
+    "activationByClip": {
+      "clip-381": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-382": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-383": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-384": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-386": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-387": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-388": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-389": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "clip-390": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-reload": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.4008390488863205
+      },
+      "weapon-smg-inspect": {
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "maximumStep": 0.21885105872611588
+      },
+      "weapon-smg-fire-1": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-1-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-2": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-2-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-3": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      },
+      "weapon-smg-fire-3-aim": {
+        "minimum": 1.0,
+        "maximum": 1.0,
+        "maximumStep": 0.0
+      }
+    }
+  }
+]

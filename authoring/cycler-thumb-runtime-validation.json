@@ -1,0 +1,65 @@
+[
+  {
+    "variant": "v1",
+    "vertices": 3997,
+    "bones": 37,
+    "shapes": 1,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.000409596,
+      0.00041220600000000003,
+      0.000417474,
+      0.00042088900000000003,
+      0.00042229400000000003,
+      0.00040910800000000004,
+      0.000405972
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true
+  },
+  {
+    "variant": "v2",
+    "vertices": 6901,
+    "bones": 37,
+    "shapes": 1,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.00041050600000000004,
+      0.00040702200000000005,
+      0.000408527,
+      0.00041391400000000004,
+      0.00040830000000000006,
+      0.000410017,
+      0.00042322400000000004
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true
+  },
+  {
+    "variant": "v3",
+    "vertices": 3855,
+    "bones": 37,
+    "shapes": 1,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.000430783,
+      0.000428063,
+      0.00040985500000000004,
+      0.00040737200000000003,
+      0.000420137,
+      0.00041533900000000003,
+      0.00042097700000000006
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true
+  }
+]
