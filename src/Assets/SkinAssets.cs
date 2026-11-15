@@ -15,6 +15,7 @@ internal sealed class SkinAssets : IDisposable
 
     internal SkinModelDefinition ModelDefinition { get; private set; }
     internal HairAnimationData Hair { get; private set; }
+    internal ModelCorrections Corrections { get; private set; }
 
     private SkinAssets(SkinVariantDefinition variant)
     {
@@ -28,13 +29,14 @@ internal sealed class SkinAssets : IDisposable
         try
         {
             assets.ModelDefinition = SkinModelDefinition.Parse(resources.ReadText("Definition", 128 * 1024));
+            assets.Corrections = ModelCorrections.Parse(resources.ReadText("Corrections", 16 * 1024 * 1024));
             using (Stream stream = resources.Open("Model", MeshResourceReader.MaximumBytes))
             {
                 foreach (MeshData data in MeshResourceReader.Read(stream))
                     assets.CreateMesh(data);
             }
 
-            assets.LoadTextures(resources);
+            assets.LoadTextures(new EmbeddedResources(variant.TextureResourcePrefix));
             if (variant.AnimatedHair)
             {
                 using (Stream stream = resources.Open("Hair", HairResourceReader.MaximumBytes))

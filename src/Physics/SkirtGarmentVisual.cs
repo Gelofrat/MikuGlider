@@ -12,6 +12,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
     private SkinnedMeshRenderer skirt;
     private SkinnedMeshRenderer surfaceRenderer;
     private SkinnedMeshRenderer coat;
+    private SkinnedMeshRenderer sleeves;
+    private SleevePoseRig sleeveRig;
     private Player owner;
     private bool ready;
     private bool failed;
@@ -51,7 +53,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
             root = new GameObject(skin.Definition.Key + " pose garments").transform;
             root.SetParent(body.transform, false);
             Mesh source = skin.Assets.GetMesh("skirt");
-            poseRig = new PoseGarmentRig(body.bones, source);
+            bool preserveShape = skin.Assets.ModelDefinition.preserveSourceGarmentShape;
+            poseRig = new PoseGarmentRig(body.bones, source, body.sharedMesh, preserveShape);
             skin.Assets.TryGetMesh("coat-flaps", out Mesh overlay);
             skirtMesh = poseRig.Bind(source, false, overlay);
             skirt = CreateGarment(root.gameObject, skirtMesh);
@@ -63,8 +66,20 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
                 coatMesh = poseRig.Bind(overlay, true);
                 coat = CreateGarment(garment, coatMesh);
             }
-            armClearance = new GarmentArmClearance(body.bones, source.vertices);
-            seatedHands = new SeatedHandClearance(body.bones, poseRig.Bones, skirtMesh, coatMesh);
+            if (skin.Assets.TryGetMesh("sleeves", out Mesh sleeveMesh))
+            {
+                var garment = new GameObject(skin.Definition.Key + " sleeves");
+                garment.transform.SetParent(root, false);
+                sleeveRig = new SleevePoseRig(sleeveMesh, body.bones, garment.transform);
+                sleeves = CreateGarment(garment, sleeveRig.Mesh);
+                sleeves.bones = sleeveRig.Bones;
+            }
+            ModelPoseCorrections.Attach(skirt, skin.Assets.Corrections);
+            if (coat != null) ModelPoseCorrections.Attach(coat, skin.Assets.Corrections);
+            if (sleeves != null) ModelPoseCorrections.Attach(sleeves, skin.Assets.Corrections);
+            armClearance = new GarmentArmClearance(body.bones, source);
+            seatedHands = new SeatedHandClearance(body.bones, poseRig.Bones, skirtMesh, coatMesh,
+                preserveShape || skin.Assets.ModelDefinition.preserveSeatedHandHeading);
             ready = true;
             failed = false;
             SynchronizeRenderer();
@@ -114,6 +129,7 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         else
             armClearance?.ResetCorrections();
         seatedHands?.Apply(poseRig.Reference, poseRig.SeatedBlend, Time.deltaTime);
+        sleeveRig?.UpdatePose();
         PoseUpdateMilliseconds = (System.Diagnostics.Stopwatch.GetTimestamp() - started) *
             1000.0 / System.Diagnostics.Stopwatch.Frequency;
     }
@@ -126,10 +142,12 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         {
             material = next;
             skirt.sharedMaterial = material;
+            if (sleeves != null) sleeves.sharedMaterial = material;
             UpdateCoatMaterial();
         }
         CopyVisibility(skirt);
         if (coat != null) CopyVisibility(coat);
+        if (sleeves != null) CopyVisibility(sleeves);
     }
 
     private void CopyVisibility(SkinnedMeshRenderer renderer)
@@ -177,6 +195,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         armClearance = null;
         seatedHands?.Restore();
         seatedHands = null;
+        sleeveRig?.Dispose();
+        sleeveRig = null;
         if (root != null) { root.gameObject.SetActive(false); Destroy(root.gameObject); }
         poseRig?.Dispose();
         poseRig = null;
@@ -185,6 +205,7 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         skirt = null;
         surfaceRenderer = null;
         coat = null;
+        sleeves = null;
         skirtMesh = null;
         coatMesh = null;
         coatMaterial = null;

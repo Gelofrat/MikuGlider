@@ -7,7 +7,7 @@ Choose **Hatsune Miku v1**, **v2** or **v3** in Glider's skin selection.
 ## Controls
 
 - **J**: cycle first person, free orbit and shoulder camera.
-- **K**: show or hide your weapon.
+- **K**: show or hide your weapon in third person.
 
 Change the keys in `BepInEx/config/horse.mycopunk.mikuglider.cfg`. Set a key to `None` to disable it. Restart the game after editing.
 

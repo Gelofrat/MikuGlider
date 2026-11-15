@@ -62,11 +62,14 @@ internal sealed class SkinAppearanceController
         if (!player.IsLocalPlayer) return;
         Transform root = player.Animator.FirstPersonRoot;
         if (root == null || root.childCount < 3) return;
-        bool correct = skin != null && (skin.Definition.Key == "MikuGliderV2" || skin.Definition.Key == "MikuGliderV3");
-        FirstPersonWristVisual.Attach(root.GetChild(1).GetComponent<SkinnedMeshRenderer>(),
-            correct ? skin.Assets.GetMesh("arm-left") : null);
-        FirstPersonWristVisual.Attach(root.GetChild(2).GetComponent<SkinnedMeshRenderer>(),
-            correct ? skin.Assets.GetMesh("arm-right") : null);
+        bool correct = skin != null && skin.Definition.CorrectFirstPersonWrists;
+        for (int side = 0; side < 2; side++)
+        {
+            var renderer = root.GetChild(side + 1).GetComponent<SkinnedMeshRenderer>();
+            Mesh source = skin?.Assets.GetMesh(side == 0 ? "arm-left" : "arm-right");
+            FirstPersonWristVisual.Attach(renderer, correct ? source : null);
+            if (renderer != null) ModelPoseCorrections.Attach(renderer, skin?.Assets.Corrections);
+        }
     }
 
     internal void RefreshUtilities(Player player)
@@ -85,6 +88,8 @@ internal sealed class SkinAppearanceController
             return;
 
         RegisteredSkin skin = skins.FindByBody(player.Animator.OverrideThirdPersonMesh);
+        FlightHairVisual.Attach(left, skin, player, 0f);
+        FlightHairVisual.Attach(right, skin, player, 1.1f);
         if (skin == null)
             return;
 
@@ -142,6 +147,7 @@ internal sealed class SkinAppearanceController
             AnimatedHairVisual.Attach(rig.gameObject, body, rig.HeadBone, rig.MainRendererIndex, skin, player);
         if (skin?.Definition.PoseSkirt == true)
             SkirtGarmentVisual.Attach(rig.gameObject, body, rig.MainRendererIndex, skin, player);
+        ModelPoseCorrections.Attach(body, skin?.Assets.Corrections);
     }
 
     internal void EnsurePreviewVisuals(MenuRig menu, Transform head)
@@ -158,6 +164,7 @@ internal sealed class SkinAppearanceController
             AnimatedHairVisual.Attach(menu.gameObject, body, head, 1, skin, null);
         if (skin?.Definition.PoseSkirt == true)
             SkirtGarmentVisual.Attach(menu.gameObject, body, 1, skin, null);
+        ModelPoseCorrections.Attach(body, skin?.Assets.Corrections);
     }
 
     private void UpdateRigBody(ThirdPersonRig rig, Mesh body)

@@ -21,5 +21,6 @@
     "z": 0
   },
   "coatEnvelope": true,
+  "preserveSeatedHandHeading": true,
   "coatCullMode": 1
 }

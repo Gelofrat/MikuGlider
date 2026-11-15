@@ -19,9 +19,9 @@ internal sealed class WeaponVisibility
             Restore();
     }
 
-    internal void Update(Player player)
+    internal void Update(Player player, bool thirdPerson)
     {
-        if (Visible || player == null)
+        if (!thirdPerson || Visible || player == null)
         {
             Restore();
             return;

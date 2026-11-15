@@ -34,6 +34,8 @@ internal sealed class SkinRegistry
 
     internal RegisteredSkin FindById(int numericId)
     {
+        if (numericId == 0x4D494B58)
+            numericId = 0x4D494B57;
         skinsById.TryGetValue(numericId, out RegisteredSkin skin);
         return skin;
     }
@@ -62,7 +64,7 @@ internal sealed class SkinRegistry
                 throw new InvalidOperationException("The game did not register skin " + definition.Key + ".");
 
             Retain(candidate);
-            logger.LogInfo("Registered " + definition.DisplayName + " (" + definition.Rarity + ").");
+            logger.LogInfo("Registered " + definition.DisplayName + " (" + definition.Rarity + "). Correction profiles: " + assets.Corrections.meshes.Length + ".");
         }
         catch (Exception error)
         {

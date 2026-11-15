@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace MikuGlider;
@@ -7,25 +6,27 @@ namespace MikuGlider;
 [DefaultExecutionOrder(1200)]
 internal sealed class FirstPersonWristVisual : MonoBehaviour
 {
-    private const int Stations = 9;
-    private const float ForearmLength = .12f;
-    private const float PalmLength = .045f;
     private SkinnedMeshRenderer surface;
     private Mesh original;
     private Mesh corrected;
     private Transform[] originalBones;
+    private const int Stations = 9;
+    private const float ForearmBlendLength = .09f;
+    private const float PalmBlendLength = .035f;
     private readonly Transform[] joints = new Transform[Stations];
     private Matrix4x4 forearmBind;
     private Matrix4x4 palmBind;
-    private Vector3 start;
-    private Vector3 end;
     private Vector3 axis;
-    private Vector3 up;
-    private Quaternion restRotation;
+    private Vector3 restElbow;
+    private Vector3 restStart;
+    private Vector3 restEnd;
+    private Quaternion forearmRestRotation;
 
     internal static void Attach(SkinnedMeshRenderer renderer, Mesh expected)
     {
         if (renderer == null) return;
+        if (expected != null && !expected.name.EndsWith(".arm-left", StringComparison.Ordinal) &&
+            !expected.name.EndsWith(".arm-right", StringComparison.Ordinal)) expected = null;
         var current = renderer.GetComponent<FirstPersonWristVisual>();
         if (current != null && current.original == expected && expected != null)
         {
@@ -47,46 +48,46 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
         originalBones = renderer.bones;
         Matrix4x4[] binds = source.bindposes;
         if (binds.Length < 4 || originalBones.Length != binds.Length)
-            throw new InvalidOperationException("First-person wrist rig does not match its mesh.");
+            throw new InvalidOperationException("First-person arm rig does not match its mesh.");
         forearmBind = binds[1];
         palmBind = binds[3];
-        Vector3 wrist = binds[2].inverse.MultiplyPoint3x4(Vector3.zero);
-        Vector3 elbow = binds[1].inverse.MultiplyPoint3x4(Vector3.zero);
-        axis = (wrist - elbow).normalized;
-        up = Vector3.ProjectOnPlane(Vector3.up, axis).normalized;
-        restRotation = Quaternion.LookRotation(axis, up);
-        start = wrist - axis * ForearmLength;
-        end = wrist + axis * PalmLength;
-        var extended = new Transform[binds.Length + Stations];
+        Vector3 restWrist = binds[2].inverse.MultiplyPoint3x4(Vector3.zero);
+        restElbow = forearmBind.inverse.MultiplyPoint3x4(Vector3.zero);
+        forearmRestRotation = forearmBind.inverse.rotation;
+        axis = (restWrist - restElbow).normalized;
+        restStart = restWrist - axis * ForearmBlendLength;
+        restEnd = restWrist + axis * PalmBlendLength;
+        var extended = new Transform[binds.Length + joints.Length];
         var poses = new Matrix4x4[extended.Length];
         Array.Copy(originalBones, extended, binds.Length);
         Array.Copy(binds, poses, binds.Length);
-        for (int i = 0; i < Stations; i++)
+        for (int i = 0; i < joints.Length; i++)
         {
             joints[i] = new GameObject("Miku wrist transition " + i).transform;
             joints[i].SetParent(renderer.transform, false);
             extended[binds.Length + i] = joints[i];
-            poses[binds.Length + i] = Matrix4x4.TRS(Vector3.Lerp(start, end, i / (float)(Stations - 1)), restRotation, Vector3.one).inverse;
+            poses[binds.Length + i] = forearmBind;
+        }
+        BoneWeight[] weights = source.boneWeights;
+        Vector3[] vertices = source.vertices;
+        float length = ForearmBlendLength + PalmBlendLength;
+        for (int i = 0; i < weights.Length; i++)
+        {
+            BoneWeight weight = weights[i];
+            float along = Mathf.Clamp01(Vector3.Dot(vertices[i] - restStart, axis) / length);
+            float station = along * (Stations - 1);
+            int low = Mathf.Min(Stations - 2, Mathf.FloorToInt(station));
+            float fraction = station - low;
+            int retained = RetainedInfluence(weight.boneIndex0, weight.weight0)
+                + RetainedInfluence(weight.boneIndex1, weight.weight1)
+                + RetainedInfluence(weight.boneIndex2, weight.weight2)
+                + RetainedInfluence(weight.boneIndex3, weight.weight3);
+            if (retained > 2) fraction = Mathf.Round(fraction);
+            weights[i] = SkinWeightBlend.Replace(weight, 1, 2, 3, binds.Length + low, fraction);
         }
         corrected = Instantiate(source);
         corrected.name = source.name + " wrist transition";
         corrected.bindposes = poses;
-        Vector3[] vertices = source.vertices;
-        BoneWeight[] weights = source.boneWeights;
-        for (int i = 0; i < weights.Length; i++)
-        {
-            float distance = Vector3.Dot(vertices[i] - wrist, axis);
-            float radius = (vertices[i] - wrist - axis * distance).magnitude;
-            if (distance <= -ForearmLength || distance >= PalmLength || radius > .065f) continue;
-            float station = (distance + ForearmLength) / (ForearmLength + PalmLength) * (Stations - 1);
-            int low = Mathf.Min(Stations - 2, Mathf.FloorToInt(station));
-            weights[i] = ReplaceWristWeights(weights[i], binds.Length + low, station - low);
-            float support = Mathf.SmoothStep(0, 1, (distance + ForearmLength) / .045f) *
-                Mathf.SmoothStep(0, 1, (PalmLength - distance) / .025f);
-            if (radius > .00001f && radius < .027f)
-                vertices[i] += (vertices[i] - wrist - axis * distance).normalized * ((.027f - radius) * support);
-        }
-        corrected.vertices = vertices;
         corrected.boneWeights = weights;
         renderer.bones = extended;
         renderer.sharedMesh = corrected;
@@ -94,29 +95,8 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
         UpdatePose();
     }
 
-    private static BoneWeight ReplaceWristWeights(BoneWeight source, int joint, float fraction)
-    {
-        int[] indices = { source.boneIndex0, source.boneIndex1, source.boneIndex2, source.boneIndex3 };
-        float[] values = { source.weight0, source.weight1, source.weight2, source.weight3 };
-        var remaining = new List<KeyValuePair<int, float>>(6);
-        float amount = 0;
-        for (int i = 0; i < 4; i++)
-            if (indices[i] >= 1 && indices[i] <= 3) amount += values[i];
-            else if (values[i] > 0) remaining.Add(new KeyValuePair<int, float>(indices[i], values[i]));
-        if (amount <= 0) return source;
-        remaining.Add(new KeyValuePair<int, float>(joint, amount * (1 - fraction)));
-        remaining.Add(new KeyValuePair<int, float>(joint + 1, amount * fraction));
-        remaining.Sort((a, b) => b.Value.CompareTo(a.Value));
-        while (remaining.Count < 4) remaining.Add(new KeyValuePair<int, float>(0, 0));
-        float total = remaining[0].Value + remaining[1].Value + remaining[2].Value + remaining[3].Value;
-        return new BoneWeight
-        {
-            boneIndex0 = remaining[0].Key, weight0 = remaining[0].Value / total,
-            boneIndex1 = remaining[1].Key, weight1 = remaining[1].Value / total,
-            boneIndex2 = remaining[2].Key, weight2 = remaining[2].Value / total,
-            boneIndex3 = remaining[3].Key, weight3 = remaining[3].Value / total
-        };
-    }
+    private static int RetainedInfluence(int bone, float weight) =>
+        weight > 0 && (bone < 1 || bone > 3) ? 1 : 0;
 
     private void LateUpdate()
     {
@@ -126,21 +106,34 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
 
     internal void UpdatePose()
     {
-        if (originalBones == null || originalBones[1] == null || originalBones[3] == null) return;
-        Matrix4x4 a = originalBones[1].localToWorldMatrix * forearmBind;
-        Matrix4x4 b = originalBones[3].localToWorldMatrix * palmBind;
-        Vector3 p0 = a.MultiplyPoint3x4(start), p3 = b.MultiplyPoint3x4(end);
-        float length = (end - start).magnitude;
-        Vector3 p1 = p0 + a.MultiplyVector(axis) * (length / 3);
-        Vector3 p2 = p3 - b.MultiplyVector(axis) * (length / 3);
+        if (originalBones == null || originalBones[0] == null || originalBones[1] == null ||
+            originalBones[2] == null || originalBones[3] == null) return;
+        Matrix4x4 forearm = originalBones[1].localToWorldMatrix * forearmBind;
+        Matrix4x4 palm = originalBones[3].localToWorldMatrix * palmBind;
+        Vector3 startPoint = forearm.MultiplyPoint3x4(restStart);
+        Vector3 endPoint = palm.MultiplyPoint3x4(restEnd);
+        float length = ForearmBlendLength + PalmBlendLength;
+        Vector3 startTangent = forearm.MultiplyVector(axis) * length;
+        Vector3 endTangent = palm.MultiplyVector(axis) * length;
+        Quaternion start = forearm.rotation;
+        Quaternion end = palm.rotation;
+        Vector3 scale = originalBones[1].lossyScale;
+        Vector3 parentScale = surface.transform.lossyScale;
+        Vector3 localScale = new Vector3(scale.x / parentScale.x, scale.y / parentScale.y, scale.z / parentScale.z);
         for (int i = 0; i < Stations; i++)
         {
-            float t = i / (float)(Stations - 1), s = 1 - t;
-            Vector3 position = s * s * s * p0 + 3 * s * s * t * p1 + 3 * s * t * t * p2 + t * t * t * p3;
-            Vector3 tangent = s * s * (p1 - p0) + 2 * s * t * (p2 - p1) + t * t * (p3 - p2);
-            Vector3 normal = Quaternion.Slerp(a.rotation, b.rotation, t) * up;
-            joints[i].SetPositionAndRotation(position, Quaternion.LookRotation(tangent, normal));
-            joints[i].localScale = Vector3.one;
+            float t = i / (float)(Stations - 1);
+            float square = t * t;
+            float cube = square * t;
+            Vector3 center = (2f * cube - 3f * square + 1f) * startPoint
+                + (cube - 2f * square + t) * startTangent
+                + (-2f * cube + 3f * square) * endPoint
+                + (cube - square) * endTangent;
+            Quaternion rotation = Quaternion.Slerp(start, end, t);
+            Vector3 restCenter = Vector3.Lerp(restStart, restEnd, t);
+            Vector3 position = center + rotation * Vector3.Scale(restElbow - restCenter, scale);
+            joints[i].SetPositionAndRotation(position, rotation * forearmRestRotation);
+            joints[i].localScale = localScale;
         }
     }
 
@@ -151,7 +144,11 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
             if (surface.sharedMesh == corrected) surface.sharedMesh = original;
             surface.bones = originalBones;
         }
-        foreach (Transform joint in joints) if (joint != null) Destroy(joint.gameObject);
+        for (int i = 0; i < joints.Length; i++)
+        {
+            if (joints[i] != null) Destroy(joints[i].gameObject);
+            joints[i] = null;
+        }
         if (corrected != null) Destroy(corrected);
         original = null;
         corrected = null;

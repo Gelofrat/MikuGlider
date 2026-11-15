@@ -10,32 +10,15 @@ internal sealed class GarmentArmClearance
     private readonly Quaternion[] applied = new Quaternion[2];
     private readonly Quaternion[] corrections = { Quaternion.identity, Quaternion.identity };
     private readonly bool[] active = new bool[2];
-    private readonly float[] widths = new float[128];
+    private readonly GarmentWidthProfile widthProfile;
     private readonly float top;
     private readonly float bottom;
 
-    internal GarmentArmClearance(Transform[] bones, Vector3[] skirt)
+    internal GarmentArmClearance(Transform[] bones, Mesh skirt)
     {
-        top = float.NegativeInfinity;
-        bottom = float.PositiveInfinity;
-        foreach (Vector3 point in skirt)
-        {
-            top = Mathf.Max(top, point.y);
-            bottom = Mathf.Min(bottom, point.y);
-        }
-        for (int row = 0; row < widths.Length; row++)
-        {
-            float height = Mathf.Lerp(bottom, top, row / (float)(widths.Length - 1));
-            float nearest = float.PositiveInfinity;
-            foreach (Vector3 point in skirt)
-            {
-                float distance = Mathf.Abs(point.y - height);
-                if (distance > nearest + .001f) continue;
-                if (distance < nearest - .001f) widths[row] = 0;
-                nearest = distance;
-                widths[row] = Mathf.Max(widths[row], Mathf.Abs(point.x));
-            }
-        }
+        widthProfile = GarmentWidthProfile.ForMesh(skirt);
+        top = widthProfile.Top;
+        bottom = widthProfile.Bottom;
         for (int side = 0; side < 2; side++)
         {
             string suffix = side == 0 ? "_L" : "_R";
@@ -75,8 +58,7 @@ internal sealed class GarmentArmClearance
             Vector3 hand = inverse.MultiplyPoint3x4(wrist.position);
             Vector3 pivot = inverse.MultiplyPoint3x4(shoulder.position);
             float sign = Mathf.Sign(pivot.x);
-            int row = Mathf.Clamp(Mathf.RoundToInt(Mathf.InverseLerp(bottom, top, hand.y) * (widths.Length - 1)), 0, widths.Length - 1);
-            float width = widths[row];
+            float width = widthProfile.AtHeight(hand.y);
             float vertical = Mathf.Clamp01((top + .12f - hand.y) / .10f) * Mathf.Clamp01((hand.y - bottom + .18f) / .10f);
             float lateral = Mathf.Clamp01((Mathf.Abs(hand.x) - .10f) / .10f);
             float depth = Mathf.Clamp01((.30f - Mathf.Abs(hand.z)) / .10f);

@@ -14,7 +14,7 @@ internal sealed class HotkeySettings
         perspective = config.Bind("Hotkeys", "CyclePerspective", Key.J,
             "Cycle first person, free orbit and shoulder camera. Set None to disable.");
         weapon = config.Bind("Hotkeys", "ToggleWeapon", Key.K,
-            "Show or hide the local weapon. Set None to disable. Use a different key from CyclePerspective.");
+            "Show or hide the weapon in third person only. Set None to disable. Use a different key from CyclePerspective.");
     }
 
     internal bool PerspectivePressed => Pressed(perspective.Value);

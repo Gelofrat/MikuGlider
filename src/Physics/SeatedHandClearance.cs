@@ -7,10 +7,12 @@ internal sealed class SeatedHandClearance
 {
     private readonly Transform[,] arms = new Transform[2, 3];
     private readonly Transform[,] probes = new Transform[2, 3];
+    private readonly Transform[] knees = new Transform[2];
     private readonly Quaternion[,] original = new Quaternion[2, 3];
     private readonly Quaternion[,] applied = new Quaternion[2, 3];
     private readonly bool[] changed = new bool[2];
     private readonly float[] lifts = new float[2];
+    private readonly float[] elbowAngles = new float[2];
     private readonly Transform[] bones;
     private readonly Matrix4x4[] bindposes;
     private readonly Matrix4x4[] matrices;
@@ -18,9 +20,12 @@ internal sealed class SeatedHandClearance
     private readonly Vector3[] world;
     private readonly BoneWeight[] weights;
     private readonly int[] triangles;
+    private readonly bool preserveHandHeading;
 
-    internal SeatedHandClearance(Transform[] body, Transform[] garmentBones, Mesh skirt, Mesh coat)
+    internal SeatedHandClearance(Transform[] body, Transform[] garmentBones, Mesh skirt, Mesh coat,
+        bool preserveHandHeading = false)
     {
+        this.preserveHandHeading = preserveHandHeading;
         bones = garmentBones;
         bindposes = skirt.bindposes;
         matrices = new Matrix4x4[bones.Length];
@@ -37,6 +42,7 @@ internal sealed class SeatedHandClearance
                 if (bone.name == "joint_Hand" + suffix) probes[side, 0] = bone;
                 if (bone.name == "joint_Middle01" + suffix) probes[side, 1] = bone;
                 if (bone.name == "joint_Middle03" + suffix) probes[side, 2] = bone;
+                if (bone.name == "joint_Knee" + suffix) knees[side] = bone;
             }
         }
     }
@@ -97,7 +103,12 @@ internal sealed class SeatedHandClearance
 
     internal void Apply(Transform reference, float seated, float deltaTime)
     {
-        if (seated < .15f) { lifts[0] = lifts[1] = 0; return; }
+        if (seated < .15f)
+        {
+            lifts[0] = lifts[1] = 0;
+            elbowAngles[0] = elbowAngles[1] = 0;
+            return;
+        }
         float scale = reference.lossyScale.x;
         for (int i = 0; i < bones.Length; i++) matrices[i] = bones[i].localToWorldMatrix * bindposes[i];
         for (int i = 0; i < vertices.Length; i++)
@@ -114,33 +125,97 @@ internal sealed class SeatedHandClearance
             Transform wrist = arms[side, 2];
             if (wrist == null || arms[side, 0] == null || arms[side, 1] == null) continue;
             Vector3 local = reference.InverseTransformPoint(wrist.position);
-            if (local.z < .1f) { lifts[side] = 0; continue; }
-            Vector3 forward = reference.TransformVector(Vector3.forward * (.075f * seated));
+            if (local.z < .1f) { lifts[side] = elbowAngles[side] = 0; continue; }
             for (int joint = 0; joint < 3; joint++) original[side, joint] = arms[side, joint].localRotation;
             if (probes[side, 2] != null)
             {
                 Vector3 direction = probes[side, 2].position - wrist.position;
-                Vector3 flat = Vector3.ProjectOnPlane(direction, Vector3.up);
-                if (flat.sqrMagnitude > .000001f)
+                Vector3 ahead = !preserveHandHeading && knees[0] != null && knees[1] != null ?
+                    (knees[0].position + knees[1].position) * .5f - wrist.position : direction;
+                ahead = Vector3.ProjectOnPlane(ahead, Vector3.up).normalized;
+                Vector3 start = wrist.position + ahead * .06f * scale;
+                Vector3 finish = wrist.position + ahead * direction.magnitude;
+                float startHeight = SurfaceHeight(start, .015f * scale);
+                float endHeight = SurfaceHeight(finish, .015f * scale);
+                Vector3 tangent = finish - start;
+                if (!float.IsNegativeInfinity(startHeight) && !float.IsNegativeInfinity(endHeight))
+                    tangent.y = endHeight - startHeight;
+                if (tangent.sqrMagnitude > .000001f)
                     wrist.rotation = Quaternion.RotateTowards(Quaternion.identity,
-                        Quaternion.FromToRotation(direction, flat), 30f * seated) * wrist.rotation;
+                        Quaternion.FromToRotation(direction, tangent),
+                        (preserveHandHeading ? 15f : 75f) * Mathf.SmoothStep(0, 1, seated / .7f)) * wrist.rotation;
             }
-            float lift = 0;
+            float lift = float.NegativeInfinity;
             for (int probe = -1; probe < 3; probe++)
             {
                 Transform contact = probe < 0 ? wrist : probes[side, probe];
                 if (contact == null) continue;
-                Vector3 point = contact.position + forward;
-                float height = SurfaceHeight(point, .04f * scale);
-                if (height > point.y - .04f * scale && height < point.y + .32f * scale)
-                    lift = Mathf.Max(lift, height + .055f * scale - point.y);
+                Vector3 point = contact.position;
+                float height = SurfaceHeight(point, .025f * scale);
+                if (height > point.y - .32f * scale && height < point.y + .32f * scale)
+                    lift = Mathf.Max(lift, height + .030f * scale - point.y);
             }
-            lift = Mathf.Clamp(lift, .08f * scale, .32f * scale) * Mathf.SmoothStep(0, 1, seated);
+            lift = float.IsNegativeInfinity(lift) ? 0f : Mathf.Clamp(lift, -.25f * scale, .32f * scale) * Mathf.SmoothStep(0, 1, seated / .7f);
             lifts[side] = Mathf.Lerp(lifts[side], lift, 1 - Mathf.Exp(-deltaTime * 18));
-            MoveWrist(arms[side, 0], arms[side, 1], wrist, wrist.position + forward + Vector3.up * lifts[side]);
+            MoveWrist(arms[side, 0], arms[side, 1], wrist, wrist.position + Vector3.up * lifts[side]);
+            ClearForearm(side, scale, seated, deltaTime);
             for (int joint = 0; joint < 3; joint++) applied[side, joint] = arms[side, joint].localRotation;
             changed[side] = true;
         }
+    }
+
+    private void ClearForearm(int side, float scale, float seated, float deltaTime)
+    {
+        Transform shoulder = arms[side, 0], elbow = arms[side, 1], wrist = arms[side, 2];
+        Vector3 origin = shoulder.position, target = wrist.position;
+        Vector3 axis = (target - origin).normalized;
+        Vector3 center = origin + axis * Vector3.Dot(elbow.position - origin, axis);
+        Vector3 radial = elbow.position - center;
+        Vector3 up = Vector3.ProjectOnPlane(Vector3.up, axis).normalized;
+        float radius = radial.magnitude;
+        if (radius < .0001f || up.sqrMagnitude < .5f) { elbowAngles[side] = 0; return; }
+        Vector3 bend = radial / radius;
+        float maximum = Mathf.Min(16f * Mathf.Deg2Rad,
+            2f * Mathf.Asin(Mathf.Clamp01(.045f * scale / (2f * radius))));
+        maximum = Mathf.Min(maximum, Vector3.Angle(bend, up) * Mathf.Deg2Rad);
+        float required = RequiredElbowLift(side, scale);
+        float wanted = 0;
+        if (required > 0)
+        {
+            float low = 0, high = maximum;
+            for (int iteration = 0; iteration < 6; iteration++)
+            {
+                float angle = (low + high) * .5f;
+                Vector3 candidate = center + Vector3.RotateTowards(bend, up, angle, 0) * radius;
+                if (candidate.y < elbow.position.y + required) low = angle;
+                else high = angle;
+            }
+            wanted = high * Mathf.SmoothStep(0, 1, seated / .7f);
+        }
+        elbowAngles[side] = Mathf.Lerp(elbowAngles[side], wanted, 1 - Mathf.Exp(-deltaTime * 18));
+        float appliedAngle = Mathf.Min(elbowAngles[side], maximum);
+        if (appliedAngle < .00001f) return;
+        Vector3 joint = center + Vector3.RotateTowards(bend, up, appliedAngle, 0) * radius;
+        Quaternion handRotation = wrist.rotation;
+        shoulder.rotation = Quaternion.FromToRotation(elbow.position - origin, joint - origin) * shoulder.rotation;
+        elbow.rotation = Quaternion.FromToRotation(wrist.position - elbow.position, target - elbow.position) * elbow.rotation;
+        wrist.rotation = handRotation;
+    }
+
+    private float RequiredElbowLift(int side, float scale)
+    {
+        Vector3 elbow = arms[side, 1].position, wrist = arms[side, 2].position;
+        float required = 0;
+        for (int sample = 0; sample < 3; sample++)
+        {
+            float along = .30f + sample * .25f;
+            Vector3 point = Vector3.Lerp(elbow, wrist, along);
+            float radius = Mathf.Lerp(.042f, .028f, along) * scale;
+            float height = SurfaceHeight(point, radius);
+            if (height < point.y - .12f * scale || height > point.y + .12f * scale) continue;
+            required = Mathf.Max(required, (height + radius - point.y) / (1 - along));
+        }
+        return required;
     }
 
     private float SurfaceHeight(Vector3 point, float radius)

@@ -13,21 +13,24 @@ internal static class SkinCatalog
             displayName: "Hatsune Miku v1",
             rarity: Rarity.Exotic,
             resourcePrefix: "MikuGlider",
-            poseSkirt: true),
+            poseSkirt: true,
+            correctFirstPersonWrists: false),
         new SkinVariantDefinition(
             numericId: 0x4D494B56,
             key: "MikuGliderV2",
             displayName: "Hatsune Miku v2",
             rarity: Rarity.Exotic,
             resourcePrefix: "MikuGliderV2",
-            poseSkirt: true),
+            poseSkirt: true,
+            correctFirstPersonWrists: true),
         new SkinVariantDefinition(
             numericId: 0x4D494B57,
             key: "MikuGliderV3",
             displayName: "Hatsune Miku v3",
             rarity: Rarity.Exotic,
             resourcePrefix: "MikuGliderV3",
-            poseSkirt: true)
+            poseSkirt: true,
+            correctFirstPersonWrists: false)
     });
 }
 
@@ -38,12 +41,15 @@ internal sealed class SkinVariantDefinition
     internal string DisplayName { get; }
     internal Rarity Rarity { get; }
     internal string ResourcePrefix { get; }
+    internal string TextureResourcePrefix { get; }
     internal bool AnimatedHair { get; }
     internal bool PoseSkirt { get; }
+    internal bool CorrectFirstPersonWrists { get; }
     internal UpgradeID UpgradeId => new UpgradeID(NumericId, MikuGliderPlugin.Guid);
 
     internal SkinVariantDefinition(int numericId, string key, string displayName, Rarity rarity,
-        string resourcePrefix, bool animatedHair = true, bool poseSkirt = false)
+        string resourcePrefix, bool animatedHair = true, bool poseSkirt = false,
+        string textureResourcePrefix = null, bool correctFirstPersonWrists = false)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("A skin key is required.", nameof(key));
@@ -57,7 +63,9 @@ internal sealed class SkinVariantDefinition
         DisplayName = displayName;
         Rarity = rarity;
         ResourcePrefix = resourcePrefix;
+        TextureResourcePrefix = textureResourcePrefix ?? resourcePrefix;
         AnimatedHair = animatedHair;
         PoseSkirt = poseSkirt;
+        CorrectFirstPersonWrists = correctFirstPersonWrists;
     }
 }

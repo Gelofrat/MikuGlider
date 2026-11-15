@@ -10,6 +10,8 @@ internal sealed class SkinModelDefinition
     public int schemaVersion = 0;
     public int coatCullMode = 0;
     public bool coatEnvelope = false;
+    public bool preserveSourceGarmentShape = false;
+    public bool preserveSeatedHandHeading = false;
     public Vector3 torsoHoldPosition = Vector3.zero;
     public Vector3 torsoHoldRotation = Vector3.zero;
     public Vector3 legsHoldPosition = Vector3.zero;

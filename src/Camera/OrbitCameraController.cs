@@ -22,6 +22,9 @@ internal sealed class OrbitCameraController
 
     internal ThirdPersonCameraMode Mode { get; private set; }
 
+    private bool IsThirdPersonActive => activeLook != null && activeLook.IsInThirdPerson &&
+        Mode != ThirdPersonCameraMode.FirstPerson;
+
     internal OrbitCameraController(SkinAppearanceController appearance, HotkeySettings hotkeys)
     {
         this.appearance = appearance;
@@ -37,9 +40,9 @@ internal sealed class OrbitCameraController
             ReleaseMovementInput();
             owner.ModifyRawMoveInput += AdjustMovementInput;
         }
-        if (CanUseInput(PlayerLook.Instance) && hotkeys.WeaponPressed)
+        if (IsThirdPersonActive && CanUseInput(PlayerLook.Instance) && hotkeys.WeaponPressed)
             weaponVisibility.Toggle();
-        weaponVisibility.Update(Player.LocalPlayer);
+        weaponVisibility.Update(Player.LocalPlayer, IsThirdPersonActive);
         if (!hotkeys.PerspectivePressed)
             return;
 
@@ -85,6 +88,7 @@ internal sealed class OrbitCameraController
         ReleaseFrameOverrides(look);
         ReleaseMovementInput();
         weapon.Clear();
+        weaponVisibility.Restore();
         reticle.Hide();
         if (owner != null)
         {
@@ -145,7 +149,7 @@ internal sealed class OrbitCameraController
     internal void AfterCameraUpdate(PlayerLook look)
     {
         if (look == PlayerLook.Instance)
-            weaponVisibility.Update(Player.LocalPlayer);
+            weaponVisibility.Update(Player.LocalPlayer, IsThirdPersonActive);
         ReleaseFrameOverrides(look);
         if (look != activeLook || owner == null || owner.Animator == null)
             return;

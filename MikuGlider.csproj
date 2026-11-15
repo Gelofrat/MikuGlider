@@ -3,7 +3,7 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>MikuGlider</AssemblyName>
     <RootNamespace>MikuGlider</RootNamespace>
-    <Version>0.12.0</Version>
+    <Version>0.12.19</Version>
     <LangVersion>latest</LangVersion>
     <EnableDefaultItems>false</EnableDefaultItems>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
@@ -17,6 +17,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\**\*.cs" />
+    <EmbeddedResource Include="assets\corrections.json" LogicalName="MikuGlider.Corrections" />
+    <EmbeddedResource Include="assets\v2\corrections.json" LogicalName="MikuGliderV2.Corrections" />
+    <EmbeddedResource Include="assets\v3\corrections.json" LogicalName="MikuGliderV3.Corrections" />
     <EmbeddedResource Include="assets\MikuGlider.mikumesh" LogicalName="MikuGlider.Model" />
     <EmbeddedResource Include="assets\textures\body-albedo.png" LogicalName="MikuGlider.Texture.BodyAlbedo" />
     <EmbeddedResource Include="assets\textures\body-specular.png" LogicalName="MikuGlider.Texture.BodySpecular" />
@@ -44,6 +47,7 @@
     <Reference Include="BepInEx"><HintPath>$(MikuGliderGameRoot)\BepInEx\core\BepInEx.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="0Harmony"><HintPath>$(MikuGliderGameRoot)\BepInEx\core\0Harmony.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Assembly-CSharp"><HintPath>$(ManagedRoot)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(ManagedRoot)\Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine"><HintPath>$(ManagedRoot)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedRoot)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.AnimationModule"><HintPath>$(ManagedRoot)\UnityEngine.AnimationModule.dll</HintPath><Private>false</Private></Reference>
