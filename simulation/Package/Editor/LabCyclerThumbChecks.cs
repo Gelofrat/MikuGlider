@@ -34,7 +34,7 @@ namespace Horse.MikuPhysicsLab.Editor
                     var update = (Action)Delegate.CreateDelegate(typeof(Action), correction,
                         typeof(ModelPoseCorrections).GetMethod("LateUpdate", BindingFlags.Instance|BindingFlags.NonPublic));
                     var data = JObject.Parse(File.ReadAllText(Path.Combine(review, variant+"-before.png.pose.json")));
-                    foreach (int index in new[] {24,25})
+                    foreach (int index in new[] {24,25,26})
                     {
                         var q=data["rotations"][index]["rotation"];
                         arm.bones[index].localRotation=new Quaternion((float)q["x"],(float)q["y"],(float)q["z"],(float)q["w"]);
@@ -47,6 +47,10 @@ namespace Horse.MikuPhysicsLab.Editor
                     arm.bones[25].localRotation=closed*Quaternion.AngleAxis(32.5f,Vector3.forward);
                     update(); Require(Mathf.Abs(arm.GetBlendShapeWeight(0)-50)<.02f, "Pose transition is not smooth");
                     arm.bones[25].localRotation=closed;
+                    Quaternion distal=arm.bones[26].localRotation;
+                    arm.bones[26].localRotation=distal*Quaternion.AngleAxis(65,Vector3.forward);
+                    update();Require(arm.GetBlendShapeWeight(0)==0,"Curled distal thumb retained the extended-pose correction");
+                    arm.bones[26].localRotation=distal;
                     var root=actor.Rig.Nodes.First(n=>n.name=="cc_WeaponRoot");
                     var weapon=Enumerable.Range(0,root.childCount).Select(i=>root.GetChild(i)).First(t=>t.name=="Native weapon SMG");
                     weapon.gameObject.SetActive(false); update();
@@ -59,15 +63,15 @@ namespace Horse.MikuPhysicsLab.Editor
                     UnityEngine.Object.DestroyImmediate(other);weapon.SetParent(root,true);weapon.gameObject.SetActive(true);
                     update();Require(arm.GetBlendShapeWeight(0)==100,"Re-equipped Cycler failed");
                     correction.enabled=false;
-                    if(!Application.isPlaying) correction.SendMessage("OnDisable");
+                    if(!Application.isPlaying) typeof(ModelPoseCorrections).GetMethod("OnDisable",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(correction,null);
                     Require(arm.GetBlendShapeWeight(0)==0,"Disable did not reset shape");
                     correction.enabled=true;update();Require(arm.GetBlendShapeWeight(0)==100,"Re-enable did not restore shape");
                     // Swap to the actual shotgun gunModel name with the same child count.
-                    var originalThumb= new[] {arm.bones[24].localRotation,arm.bones[25].localRotation};
+                    var originalThumb= new[] {arm.bones[24].localRotation,arm.bones[25].localRotation,arm.bones[26].localRotation};
                     weapon.SetParent(actor.Root.transform,true);
                     var shotgun=new GameObject("Native weapon Lever Action Shotgun");shotgun.transform.SetParent(root,false);
                     var shotgunData=JObject.Parse(File.ReadAllText(Path.Combine(review,variant+"-clip-367.png.pose.json")));
-                    foreach(int index in new[]{24,25})
+                    foreach(int index in new[]{24,25,26})
                     {
                         var q=shotgunData["rotations"][index]["rotation"];
                         arm.bones[index].localRotation=new Quaternion((float)q["x"],(float)q["y"],(float)q["z"],(float)q["w"]);
@@ -79,7 +83,7 @@ namespace Horse.MikuPhysicsLab.Editor
                     arm.bones[25].localRotation=shotgunClosed*Quaternion.AngleAxis(32.5f,Vector3.forward);
                     update();Require(Mathf.Abs(arm.GetBlendShapeWeight(1)-50)<.02f,"Shotgun pose transition failed");
                     UnityEngine.Object.DestroyImmediate(shotgun);weapon.SetParent(root,true);
-                    arm.bones[24].localRotation=originalThumb[0];arm.bones[25].localRotation=originalThumb[1];
+                    arm.bones[24].localRotation=originalThumb[0];arm.bones[25].localRotation=originalThumb[1];arm.bones[26].localRotation=originalThumb[2];
                     update();Require(arm.GetBlendShapeWeight(0)==100 && arm.GetBlendShapeWeight(1)==0,"Shotgun correction leaked after swap");
                     for(int i=0;i<1000;i++)update();
                     var samples=new double[7];var timer=new System.Diagnostics.Stopwatch();
@@ -106,7 +110,7 @@ namespace Horse.MikuPhysicsLab.Editor
                     results.Add(new {variant,vertices=arm.sharedMesh.vertexCount,bones=arm.bones.Length,
                         shapes=arm.sharedMesh.blendShapeCount,allocatedBytes=allocated,millisecondsPerUpdate=samples,
                         changingAllocatedBytes=changingAllocated,changingMillisecondsIncludingDriverWrite=changingSamples,
-                        activation=true,openHandRelease=true,smoothTransition=true,weaponIsolation=true,disableReset=true,
+                        activation=true,openHandRelease=true,distalCurlRelease=true,smoothTransition=true,weaponIsolation=true,disableReset=true,
                         shotgunIsolation=true,shotgunOpenRelease=true,shotgunTransition=true});
                 }
                 finally {actor.Dispose();UnityEngine.Object.DestroyImmediate(actor.Root);}
