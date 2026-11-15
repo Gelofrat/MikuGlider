@@ -1,0 +1,53 @@
+{
+  "v1": {
+    "arm-left": {
+      "vertices": 3997,
+      "triangles": 6301,
+      "bones": 28,
+      "maxInfluences": 3,
+      "verticesMoved": 1101
+    },
+    "arm-right": {
+      "vertices": 3961,
+      "triangles": 6301,
+      "bones": 28,
+      "maxInfluences": 3,
+      "verticesMoved": 1097
+    },
+    "sha256": "1a259bfde152889334ca3b8d21cf3f5dfba1f5e223fe3b9c974d033748f7bbc4"
+  },
+  "v2": {
+    "arm-left": {
+      "vertices": 6901,
+      "triangles": 8039,
+      "bones": 28,
+      "maxInfluences": 4,
+      "verticesMoved": 2340
+    },
+    "arm-right": {
+      "vertices": 6642,
+      "triangles": 7958,
+      "bones": 28,
+      "maxInfluences": 4,
+      "verticesMoved": 2311
+    },
+    "sha256": "3435aa31862672f5b5be0605cfe6db261b51e94f7cb47c8305647d66c520c43a"
+  },
+  "v3": {
+    "arm-left": {
+      "vertices": 3855,
+      "triangles": 7128,
+      "bones": 28,
+      "maxInfluences": 4,
+      "verticesMoved": 1423
+    },
+    "arm-right": {
+      "vertices": 3839,
+      "triangles": 7128,
+      "bones": 28,
+      "maxInfluences": 4,
+      "verticesMoved": 1424
+    },
+    "sha256": "65a751256512fdd5cc1165d87cd7f8d437447a9ef3a696ee5738f6a4223084ee"
+  }
+}

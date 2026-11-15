@@ -1,0 +1,47 @@
+{
+  "canonicalFirstPersonBlend": "authoring/first-person-hands.blend",
+  "sources": [
+    {
+      "path": "art/model/MikuV6/MikuV6_Glider.blend",
+      "sha256": "5e93908aef498388e3c353e989da16d95ed4c8cd752a971cae96aef4d284218d"
+    },
+    {
+      "path": "art/model/MikuV2/MikuV2_Glider.blend",
+      "sha256": "7f0f5e528a4c3648cd0307beecb4008894d83e4a5d85e5536ff0bfb95907642b"
+    },
+    {
+      "path": "art/model/MikuV2/source/miku-model.blend",
+      "sha256": "ca1e8dc7d28d3282d82f6eb0551627e37f7c3ba96ac6e9801676d4d843b801f0"
+    },
+    {
+      "path": "art/model/MikuV3/MikuV3_Glider.blend",
+      "sha256": "db207e8fd99af582f9816edfae1dce441275c227c5754ec2b63a08e8e0a41812"
+    },
+    {
+      "path": "art/model/MikuV3/MikuV3_Restored.blend",
+      "sha256": "3541183e33fa6de511e75359aa5e788a833aededde2674b118de5a550307e9f0"
+    },
+    {
+      "path": "art/model/MikuV3/source/model-obj/rig-landmarks.json",
+      "sha256": "2a909c0f785eac51bd5d5335794f459b7320a0f1b976328104abd69097a438f4"
+    },
+    {
+      "path": "art/model/MikuV3/source/model-obj/hand-skinning.json",
+      "sha256": "5dd40d1737d345d9a573e9d1a682de75c26709c86f2826701eccb3ac25af7d92"
+    },
+    {
+      "path": "references/glider-first-person.json",
+      "sha256": "2f3b95a3dfbd68d43ce3220e1741f59c8d7dc8bd1cfcba781098dcf05a1e10a5"
+    }
+  ],
+  "finding": "Native non-thumb A is a metacarpal; imported first phalanx had been fitted and weighted to A. Correct correspondence is proximal B, middle C, distal D. Thumb mapping remains A/B/C, with incorrect distal support reweighted spatially. v2 source end-marker influence is merged into distal D.",
+  "historicalBlendWarning": "Full-character *_Glider.blend files and earlier cuff/wrist review blends predate the current runtime arm patches. Use 00_EXPORT in first-person-hands.blend for these six meshes.",
+  "quality": "No subdivision, decimation, triangles, vertices, bindposes, UV edits or runtime animation layers added. Rest finger length and skin weights changed.",
+  "animation": "Native game clips unchanged; evaluated with their native base/overlay relationships. Preview blend keys sampled every six 60 Hz frames plus endpoints with compatible quaternions and linear interpolation.",
+  "recordingsWithoutGeometry": [
+    "20261115-160644-301-7a38af",
+    "20261115-160555-577-df9d92",
+    "20261115-160527-107-ceea71",
+    "20261115-160456-364-b98e87"
+  ]
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "variant": "v1",
+    "side": "left",
+    "maxPositionError": 4.423444491471392e-07
+  },
+  {
+    "variant": "v1",
+    "side": "right",
+    "maxPositionError": 4.659066059446309e-05
+  },
+  {
+    "variant": "v2",
+    "side": "left",
+    "maxPositionError": 4.494428581670065e-07
+  },
+  {
+    "variant": "v2",
+    "side": "right",
+    "maxPositionError": 6.36530052040324e-05
+  },
+  {
+    "variant": "v3",
+    "side": "left",
+    "maxPositionError": 5.320058799295803e-07
+  },
+  {
+    "variant": "v3",
+    "side": "right",
+    "maxPositionError": 5.7752045128059545e-05
+  }
+]
