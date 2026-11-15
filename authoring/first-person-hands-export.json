@@ -1,6 +1,6 @@
 {
-  "version": "0.12.23",
-  "comparedTo": "fe7e510",
+  "version": "0.12.24",
+  "comparedTo": "f6632fa",
   "meshes": {
     "v1": {
       "arm-left": {
@@ -8,7 +8,7 @@
         "triangles": 6301,
         "bones": 28,
         "maxInfluences": 4,
-        "verticesMoved": 421
+        "verticesMoved": 205
       },
       "arm-right": {
         "vertices": 3961,
@@ -17,7 +17,7 @@
         "maxInfluences": 3,
         "verticesMoved": 0
       },
-      "sha256": "c14a57fda729c5e6a552a834837fd0f167252199baa992ced8f50d087e953b5e"
+      "sha256": "befd8636fcb25aaa2a9febebb8c9f6bde0d8b08e9574a06af67f6ebc9d31913f"
     },
     "v2": {
       "arm-left": {

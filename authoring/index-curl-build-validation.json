@@ -1,0 +1,27 @@
+{
+  "version": "0.12.24",
+  "baseline": "f6632fa",
+  "buildErrors": 0,
+  "buildWarnings": 0,
+  "unitySuite": {
+    "variant": "v1",
+    "passed": true,
+    "testedConfigurations": 325,
+    "renderedFrames": 51035,
+    "report": "simulation/Reports/20261115-213716-arms-playable/report.json",
+    "assetSha256": "befd8636fcb25aaa2a9febebb8c9f6bde0d8b08e9574a06af67f6ebc9d31913f"
+  },
+  "changedAssetChunks": [
+    "v1/arm-left"
+  ],
+  "unchanged": [
+    "v1/arm-right",
+    "v1/third-person",
+    "v2",
+    "v3",
+    "runtime animation code"
+  ],
+  "dllSha256": "d40a1ec06228d33d3a1c0c99f4b00aa18aeebfe6a513c50b62d9521e0552c55b",
+  "gameDllMatches": true,
+  "restartRequired": true
+}
