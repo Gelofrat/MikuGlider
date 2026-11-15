@@ -23,8 +23,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     private Transform weaponRoot;
     private string weaponNamePrefix = "";
     private Transform[] weaponChildren = Array.Empty<Transform>();
-    private bool[] weaponMatches = Array.Empty<bool>();
-    private string matchedWeapon;
+    private string[] weaponNames = Array.Empty<string>();
 
     internal sealed class AppliedMesh
     {
@@ -54,7 +53,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
                 component.weaponRoot = weaponRoot;
                 component.weaponNamePrefix = weaponNamePrefix;
                 component.weaponChildren = Array.Empty<Transform>();
-                component.weaponMatches = Array.Empty<bool>();
+                component.weaponNames = Array.Empty<string>();
             }
         }
         catch (Exception error) when (error is InvalidDataException || error is InvalidOperationException)
@@ -141,11 +140,13 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     private void LateUpdate()
     {
         if (surface == null || state == null || GetApplied(surface.sharedMesh) != state) { enabled = false; return; }
-        bool weaponActive = MatchesWeapon();
+        UpdateWeaponCache();
         float total = 0;
         for (int i = 0; i < activations.Length; i++)
         {
-            activations[i] = weaponActive ? Activation(state.Correction.poses[i], bones) : 0;
+            PoseShapeEdit pose = state.Correction.poses[i];
+            string weapon = string.IsNullOrEmpty(pose.weapon) ? state.Correction.weapon : pose.weapon;
+            activations[i] = MatchesWeapon(weapon) ? Activation(pose, bones) : 0;
             total += activations[i];
         }
         float scale = 100f / Mathf.Max(1, total);
@@ -158,19 +159,15 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         }
     }
 
-    private bool MatchesWeapon()
+    private void UpdateWeaponCache()
     {
-        string required = state.Correction.weapon;
-        if (string.IsNullOrEmpty(required)) return true;
-        if (weaponRoot == null) return false;
+        if (weaponRoot == null) return;
         int count = weaponRoot.childCount;
-        if (weaponChildren.Length != count || matchedWeapon != required)
+        if (weaponChildren.Length != count)
         {
             weaponChildren = new Transform[count];
-            weaponMatches = new bool[count];
-            matchedWeapon = required;
+            weaponNames = new string[count];
         }
-        bool matched = false;
         for (int i = 0; i < count; i++)
         {
             Transform child = weaponRoot.GetChild(i);
@@ -178,11 +175,20 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
             {
                 weaponChildren[i] = child;
                 // Names are read only when the weapon model changes, not every frame.
-                weaponMatches[i] = child.name == weaponNamePrefix + required;
+                string name = child.name;
+                weaponNames[i] = name.StartsWith(weaponNamePrefix, StringComparison.Ordinal)
+                    ? name.Substring(weaponNamePrefix.Length) : name;
             }
-            matched |= weaponMatches[i] && child.gameObject.activeSelf;
         }
-        return matched;
+    }
+
+    private bool MatchesWeapon(string required)
+    {
+        if (string.IsNullOrEmpty(required)) return true;
+        if (weaponRoot == null) return false;
+        for (int i = 0; i < weaponChildren.Length; i++)
+            if (weaponNames[i] == required && weaponChildren[i].gameObject.activeSelf) return true;
+        return false;
     }
 
     private void ResetShapes()

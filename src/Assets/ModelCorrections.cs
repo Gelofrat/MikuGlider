@@ -166,6 +166,8 @@ internal sealed class PoseShapeEdit
 {
     public string name = "";
     public string sourcePose = "";
+    // Empty inherits the mesh scope, preserving existing correction profiles.
+    public string weapon = "";
     public PoseShapeDriver[] drivers = Array.Empty<PoseShapeDriver>();
     public int[] vertices = Array.Empty<int>();
     public Vector3[] deltas = Array.Empty<Vector3>();

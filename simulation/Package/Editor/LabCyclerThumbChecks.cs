@@ -39,7 +39,7 @@ namespace Horse.MikuPhysicsLab.Editor
                         var q=data["rotations"][index]["rotation"];
                         arm.bones[index].localRotation=new Quaternion((float)q["x"],(float)q["y"],(float)q["z"],(float)q["w"]);
                     }
-                    Require(arm.sharedMesh.blendShapeCount==1 && arm.bones.Length==37, "Unexpected skinning layout");
+                    Require(arm.sharedMesh.blendShapeCount==2 && arm.bones.Length==37, "Unexpected skinning layout");
                     update(); Require(arm.GetBlendShapeWeight(0)==100, "Cycler grip did not activate");
                     Quaternion closed=arm.bones[25].localRotation;
                     arm.bones[25].localRotation=closed*Quaternion.AngleAxis(65,Vector3.forward);
@@ -62,6 +62,25 @@ namespace Horse.MikuPhysicsLab.Editor
                     if(!Application.isPlaying) correction.SendMessage("OnDisable");
                     Require(arm.GetBlendShapeWeight(0)==0,"Disable did not reset shape");
                     correction.enabled=true;update();Require(arm.GetBlendShapeWeight(0)==100,"Re-enable did not restore shape");
+                    // Swap to the actual shotgun gunModel name with the same child count.
+                    var originalThumb= new[] {arm.bones[24].localRotation,arm.bones[25].localRotation};
+                    weapon.SetParent(actor.Root.transform,true);
+                    var shotgun=new GameObject("Native weapon Lever Action Shotgun");shotgun.transform.SetParent(root,false);
+                    var shotgunData=JObject.Parse(File.ReadAllText(Path.Combine(review,variant+"-clip-367.png.pose.json")));
+                    foreach(int index in new[]{24,25})
+                    {
+                        var q=shotgunData["rotations"][index]["rotation"];
+                        arm.bones[index].localRotation=new Quaternion((float)q["x"],(float)q["y"],(float)q["z"],(float)q["w"]);
+                    }
+                    update();Require(arm.GetBlendShapeWeight(0)==0 && arm.GetBlendShapeWeight(1)==100,"Shotgun and Cycler scopes overlap");
+                    Quaternion shotgunClosed=arm.bones[25].localRotation;
+                    arm.bones[25].localRotation=shotgunClosed*Quaternion.AngleAxis(65,Vector3.forward);
+                    update();Require(arm.GetBlendShapeWeight(1)==0,"Open shotgun thumb did not release");
+                    arm.bones[25].localRotation=shotgunClosed*Quaternion.AngleAxis(32.5f,Vector3.forward);
+                    update();Require(Mathf.Abs(arm.GetBlendShapeWeight(1)-50)<.02f,"Shotgun pose transition failed");
+                    UnityEngine.Object.DestroyImmediate(shotgun);weapon.SetParent(root,true);
+                    arm.bones[24].localRotation=originalThumb[0];arm.bones[25].localRotation=originalThumb[1];
+                    update();Require(arm.GetBlendShapeWeight(0)==100 && arm.GetBlendShapeWeight(1)==0,"Shotgun correction leaked after swap");
                     for(int i=0;i<1000;i++)update();
                     var samples=new double[7];var timer=new System.Diagnostics.Stopwatch();
                     long allocated=GC.GetAllocatedBytesForCurrentThread();
@@ -72,9 +91,23 @@ namespace Horse.MikuPhysicsLab.Editor
                     }
                     allocated=GC.GetAllocatedBytesForCurrentThread()-allocated;
                     Require(allocated==0,"Corrective allocates per update");
+                    var changingSamples=new double[7];
+                    Quaternion shallow=closed*Quaternion.AngleAxis(20,Vector3.forward);
+                    Quaternion deep=closed*Quaternion.AngleAxis(40,Vector3.forward);
+                    long changingAllocated=GC.GetAllocatedBytesForCurrentThread();
+                    for(int sample=0;sample<changingSamples.Length;sample++)
+                    {
+                        timer.Restart();
+                        for(int i=0;i<100000;i++){arm.bones[25].localRotation=(i&1)==0?shallow:deep;update();}
+                        timer.Stop();changingSamples[sample]=timer.Elapsed.TotalMilliseconds/100000;
+                    }
+                    changingAllocated=GC.GetAllocatedBytesForCurrentThread()-changingAllocated;
+                    Require(changingAllocated==0,"Changing corrective allocates per update");
                     results.Add(new {variant,vertices=arm.sharedMesh.vertexCount,bones=arm.bones.Length,
                         shapes=arm.sharedMesh.blendShapeCount,allocatedBytes=allocated,millisecondsPerUpdate=samples,
-                        activation=true,openHandRelease=true,smoothTransition=true,weaponIsolation=true,disableReset=true});
+                        changingAllocatedBytes=changingAllocated,changingMillisecondsIncludingDriverWrite=changingSamples,
+                        activation=true,openHandRelease=true,smoothTransition=true,weaponIsolation=true,disableReset=true,
+                        shotgunIsolation=true,shotgunOpenRelease=true,shotgunTransition=true});
                 }
                 finally {actor.Dispose();UnityEngine.Object.DestroyImmediate(actor.Root);}
             }

@@ -1,0 +1,67 @@
+{
+  "version": "0.12.27",
+  "checkpoint": "checkpoint/shotgun-thumb-0.12.26 (1cebf47)",
+  "buildErrors": 0,
+  "buildWarnings": 0,
+  "unitySuites": [
+    {
+      "variant": "v1",
+      "report": "simulation/Reports/20261116-000556-arms-playable/report.json",
+      "passed": true,
+      "testedConfigurations": 333,
+      "renderedFrames": 52098
+    },
+    {
+      "variant": "v2",
+      "report": "simulation/Reports/20261116-000706-arms-playable/report.json",
+      "passed": true,
+      "testedConfigurations": 333,
+      "renderedFrames": 52098
+    },
+    {
+      "variant": "v3",
+      "report": "simulation/Reports/20261116-000823-arms-playable/report.json",
+      "passed": true,
+      "testedConfigurations": 333,
+      "renderedFrames": 52098
+    }
+  ],
+  "assets": {
+    "v1": {
+      "baseMeshSha256": "cb8fdc439f0c769313c7554e87476bff47d8f71c054ea14cb22da3898bdd0f83",
+      "correctionsSha256": "9e2d2e75fe8c5bd4c0b424eb2a4e02d6a5e5c40021283ebd80f5bcffb3204868",
+      "baseMeshUnchanged": true
+    },
+    "v2": {
+      "baseMeshSha256": "4a31bb3df89865501b069accfc469f296563d915b2a2b0d929939b2bd7a1eb04",
+      "correctionsSha256": "a4096764593a78bd41ba58ae72f8a6447c746082ad19b3ca0fcb9ce511e48a76",
+      "baseMeshUnchanged": true
+    },
+    "v3": {
+      "baseMeshSha256": "1672f6d48cc6843fa9de8cc34efa5991e2310e1e71cef2422cf1ed7c7b9e1a5a",
+      "correctionsSha256": "e1c1422d9ea3b9f18e5a28a4a8d25c38370aae9edf1fbe1952bf958756f9127c",
+      "baseMeshUnchanged": true
+    }
+  },
+  "dllSha256": "091e4ad8d22ba9d55735d62e8162ef26755a00639e60036d9c86a16776ed5f8f",
+  "additionalRuntimeBones": 0,
+  "residentThumbShapes": 2,
+  "maximumActiveThumbShapes": 1,
+  "physicsOrIKAdded": false,
+  "scope": "Left support thumb on Bounce Shotgun: native gunModel Lever Action Shotgun; independent from the unchanged Cycler pose",
+  "validation": [
+    "shotgun-thumb-animation-validation.json",
+    "shotgun-thumb-blender-parity.json",
+    "shotgun-thumb-contact-validation.json",
+    "shotgun-thumb-runtime-validation.json",
+    "shotgun-thumb-performance.json"
+  ],
+  "limitations": [
+    "Final verification uses the native clips on the Unity stand, not a new game recording.",
+    "Contact counts are triangle-intersection candidates; they are not zero-overlap certification.",
+    "CPU benchmarks exclude GPU evaluation, initial mesh creation and full game FPS."
+  ],
+  "restartRequired": true,
+  "installedDllSha256": "091e4ad8d22ba9d55735d62e8162ef26755a00639e60036d9c86a16776ed5f8f",
+  "gameDllMatches": true
+}

@@ -13,11 +13,12 @@ M = B['model']
 REVIEW = ROOT / 'simulation/Reports/cycler-thumb-review'
 
 
-def validate():
+def validate(manifest_name='cycler-thumb', pose_name='Cycler thumb grip',
+             label_prefix='SMG ', key_prefix='weapon-smg-'):
     catalog = json.loads((REVIEW / 'native-clips/clips.json').read_text())
     bones = np.fromfile(REVIEW / 'native-clips/clip-bones.bin', '<f4').reshape(catalog['frames'], 56, 4, 4)
-    clips = [c for c in catalog['clips'] if c['label'].startswith('SMG ') or c['key'].startswith('weapon-smg-')]
-    manifest = json.loads((ROOT / 'authoring/cycler-thumb.json').read_text())
+    clips = [c for c in catalog['clips'] if c['label'].startswith(label_prefix) or c['key'].startswith(key_prefix)]
+    manifest = json.loads((ROOT / 'authoring' / (manifest_name + '.json')).read_text())
     reference = json.loads((ROOT / 'references/glider-first-person.json').read_text())['renderers'][0]['bones']
     results = []
     for variant, path in M['PATHS'].items():
@@ -25,8 +26,8 @@ def validate():
         assert hashlib.sha256(raw).hexdigest() == manifest['models'][variant]['sha256']
         _, vertices, binds, sections = M['read'](M['chunks'](raw)['arm-left'])
         profile = json.loads(((ROOT / path).parent / 'corrections.json').read_text())
-        correction = next(c for c in profile['meshes'] if c['weapon'] == 'SMG')
-        pose = correction['poses'][0]
+        correction = next(c for c in profile['meshes'] if any(p['name'] == pose_name for p in c['poses']))
+        pose = next(p for p in correction['poses'] if p['name'] == pose_name)
         delta = np.zeros((len(vertices), 3))
         delta[pose['vertices']] = [[v['x'], v['y'], v['z']] for v in pose['deltas']]
         tri = np.concatenate(sections)
@@ -67,7 +68,13 @@ def validate():
                 a, b = area(before), area(after)
                 valid = a > 1e-10
                 row['newDegenerateTriangleFrames'] += int(np.sum(valid & (b < 1e-10)))
-                row['minimumTriangleAreaRatio'] = min(row['minimumTriangleAreaRatio'], float(np.min(b[valid] / a[valid])))
+                ratio = np.where(valid, b / np.maximum(a, 1e-30), 1)
+                worst = int(np.argmin(ratio))
+                if ratio[worst] < row['minimumTriangleAreaRatio']:
+                    row['minimumTriangleAreaRatio'] = float(ratio[worst])
+                    row['smallestAreaSample'] = dict(clip=clip['key'], frame=frame-clip['offset'],
+                        activation=float(activation), triangle=tri[worst].tolist(),
+                        beforeDoubleArea=float(a[worst]), afterDoubleArea=float(b[worst]))
                 row['maximumWorldDisplacement'] = max(row['maximumWorldDisplacement'], float(np.linalg.norm(displacement, axis=1).max()))
                 row['frames'] += 1
             step = float(np.max(np.abs(np.diff(activations)))) if len(activations) > 1 else 0.
@@ -75,7 +82,7 @@ def validate():
             row['activationByClip'][clip['key']] = dict(minimum=min(activations), maximum=max(activations), maximumStep=step)
         assert row['newDegenerateTriangleFrames'] == 0, row
         results.append(row)
-    output = ROOT / 'authoring/cycler-thumb-animation-validation.json'
+    output = ROOT / 'authoring' / (manifest_name + '-animation-validation.json')
     output.write_text(json.dumps(results, indent=2) + '\n')
     print(json.dumps([{k: v for k, v in row.items() if k != 'activationByClip'} for row in results]))
 

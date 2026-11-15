@@ -42,6 +42,9 @@ def apply():
         profile = manifest['models'][variant]['profile']
         destination = (ROOT / path).parent / 'corrections.json'
         current = json.loads(destination.read_text())
+        previous = next((entry for entry in current['meshes'] if entry['key'] == profile['key']), None)
+        if previous:
+            profile['poses'] += [pose for pose in previous['poses'] if pose['name'] != SHAPE]
         current['meshes'] = [entry for entry in current['meshes'] if entry['key'] != profile['key']] + [profile]
         destination.write_text(json.dumps(current, indent=2) + '\n')
     bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath, compress=True)

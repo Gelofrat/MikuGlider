@@ -1,0 +1,104 @@
+[
+  {
+    "variant": "v1",
+    "vertices": 3997,
+    "bones": 37,
+    "shapes": 2,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.00042862200000000003,
+      0.00042679,
+      0.00042877400000000004,
+      0.000422204,
+      0.000432173,
+      0.000430407,
+      0.00042935300000000005
+    ],
+    "changingAllocatedBytes": 0,
+    "changingMillisecondsIncludingDriverWrite": [
+      0.001648394,
+      0.0016729820000000002,
+      0.001681026,
+      0.001708433,
+      0.0017201430000000001,
+      0.00173368,
+      0.0016828210000000001
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true,
+    "shotgunIsolation": true,
+    "shotgunOpenRelease": true,
+    "shotgunTransition": true
+  },
+  {
+    "variant": "v2",
+    "vertices": 6901,
+    "bones": 37,
+    "shapes": 2,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.00043703500000000006,
+      0.00044085,
+      0.000429134,
+      0.00044397200000000005,
+      0.000434576,
+      0.00042399,
+      0.00043154900000000004
+    ],
+    "changingAllocatedBytes": 0,
+    "changingMillisecondsIncludingDriverWrite": [
+      0.001716295,
+      0.0017234300000000002,
+      0.001724496,
+      0.0017015090000000001,
+      0.0017098240000000002,
+      0.001688802,
+      0.0016753800000000002
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true,
+    "shotgunIsolation": true,
+    "shotgunOpenRelease": true,
+    "shotgunTransition": true
+  },
+  {
+    "variant": "v3",
+    "vertices": 3855,
+    "bones": 37,
+    "shapes": 2,
+    "allocatedBytes": 0,
+    "millisecondsPerUpdate": [
+      0.000432436,
+      0.000429482,
+      0.000430775,
+      0.000433181,
+      0.000432483,
+      0.00043486699999999997,
+      0.000432566
+    ],
+    "changingAllocatedBytes": 0,
+    "changingMillisecondsIncludingDriverWrite": [
+      0.001661275,
+      0.0017109220000000001,
+      0.001678058,
+      0.0016941660000000002,
+      0.001697303,
+      0.001712327,
+      0.00168438
+    ],
+    "activation": true,
+    "openHandRelease": true,
+    "smoothTransition": true,
+    "weaponIsolation": true,
+    "disableReset": true,
+    "shotgunIsolation": true,
+    "shotgunOpenRelease": true,
+    "shotgunTransition": true
+  }
+]
