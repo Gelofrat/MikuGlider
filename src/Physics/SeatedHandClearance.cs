@@ -6,7 +6,7 @@ namespace MikuGlider;
 internal sealed class SeatedHandClearance
 {
     private readonly Transform[,] arms = new Transform[2, 3];
-    private readonly Transform[,] probes = new Transform[2, 3];
+    private readonly Transform[,] probes = new Transform[2, 9];
     private readonly Transform[] knees = new Transform[2];
     private readonly Quaternion[,] original = new Quaternion[2, 3];
     private readonly Quaternion[,] applied = new Quaternion[2, 3];
@@ -20,16 +20,25 @@ internal sealed class SeatedHandClearance
     private readonly Vector3[] world;
     private readonly BoneWeight[] weights;
     private readonly int[] triangles;
+    private readonly SurfaceBounds[] triangleBounds;
     private readonly bool preserveHandHeading;
+    private readonly Mesh skirtMesh, coatMesh;
+    private readonly int[] vertexSources;
+    private readonly List<Vector3> skirtVertices, coatVertices;
 
     internal SeatedHandClearance(Transform[] body, Transform[] garmentBones, Mesh skirt, Mesh coat,
         bool preserveHandHeading = false)
     {
         this.preserveHandHeading = preserveHandHeading;
+        skirtMesh = skirt;
+        coatMesh = coat;
+        skirtVertices = new List<Vector3>(skirt.vertexCount);
+        coatVertices = new List<Vector3>(coat != null ? coat.vertexCount : 0);
         bones = garmentBones;
         bindposes = skirt.bindposes;
         matrices = new Matrix4x4[bones.Length];
-        BuildSurface(skirt, coat, out vertices, out weights, out triangles);
+        BuildSurface(skirt, coat, out vertices, out weights, out triangles, out vertexSources);
+        triangleBounds = new SurfaceBounds[triangles.Length / 3];
         world = new Vector3[vertices.Length];
         for (int side = 0; side < 2; side++)
         {
@@ -42,16 +51,23 @@ internal sealed class SeatedHandClearance
                 if (bone.name == "joint_Hand" + suffix) probes[side, 0] = bone;
                 if (bone.name == "joint_Middle01" + suffix) probes[side, 1] = bone;
                 if (bone.name == "joint_Middle03" + suffix) probes[side, 2] = bone;
+                if (bone.name == "joint_Thumb03" + suffix) probes[side, 3] = bone;
+                if (bone.name == "joint_Index03" + suffix) probes[side, 4] = bone;
+                if (bone.name == "joint_Ring03" + suffix) probes[side, 5] = bone;
+                if (bone.name == "joint_Pinky03" + suffix) probes[side, 6] = bone;
+                if (bone.name == "joint_Thumb01" + suffix) probes[side, 7] = bone;
+                if (bone.name == "joint_Pinky01" + suffix) probes[side, 8] = bone;
                 if (bone.name == "joint_Knee" + suffix) knees[side] = bone;
             }
         }
     }
 
-    private static void BuildSurface(Mesh skirt, Mesh coat, out Vector3[] points, out BoneWeight[] skin, out int[] faces)
+    private static void BuildSurface(Mesh skirt, Mesh coat, out Vector3[] points, out BoneWeight[] skin, out int[] faces, out int[] sources)
     {
         var positions = new List<Vector3>();
         var weights = new List<BoneWeight>();
         var triangles = new List<int>();
+        var vertexSources = new List<int>();
         foreach (Mesh source in new[] { skirt, coat })
         {
             if (source == null) continue;
@@ -72,6 +88,7 @@ internal sealed class SeatedHandClearance
                     cells.Add(cell, index);
                     positions.Add(p);
                     weights.Add(binding[i]);
+                    vertexSources.Add(source == skirt ? i : -i - 1);
                 }
                 map[i] = index;
             }
@@ -87,6 +104,7 @@ internal sealed class SeatedHandClearance
         points = positions.ToArray();
         skin = weights.ToArray();
         faces = triangles.ToArray();
+        sources = vertexSources.ToArray();
     }
 
     internal void Restore()
@@ -110,15 +128,26 @@ internal sealed class SeatedHandClearance
             return;
         }
         float scale = reference.lossyScale.x;
+        // Contact the final cloth after leg clearance, not the undeformed
+        // authoring surface. Reuse buffers while a sitting animation is active.
+        skirtMesh.GetVertices(skirtVertices);
+        if (coatMesh != null) coatMesh.GetVertices(coatVertices);
         for (int i = 0; i < bones.Length; i++) matrices[i] = bones[i].localToWorldMatrix * bindposes[i];
         for (int i = 0; i < vertices.Length; i++)
         {
             BoneWeight w = weights[i];
-            Vector3 p = vertices[i];
+            int source = vertexSources[i];
+            Vector3 p = source >= 0 ? skirtVertices[source] : coatVertices[-source - 1];
             world[i] = matrices[w.boneIndex0].MultiplyPoint3x4(p) * w.weight0 +
                 matrices[w.boneIndex1].MultiplyPoint3x4(p) * w.weight1 +
                 matrices[w.boneIndex2].MultiplyPoint3x4(p) * w.weight2 +
                 matrices[w.boneIndex3].MultiplyPoint3x4(p) * w.weight3;
+        }
+        for (int i = 0; i < triangleBounds.Length; i++)
+        {
+            Vector3 a = world[triangles[i * 3]], b = world[triangles[i * 3 + 1]], c = world[triangles[i * 3 + 2]];
+            triangleBounds[i] = new SurfaceBounds { minX = Mathf.Min(a.x, Mathf.Min(b.x, c.x)), maxX = Mathf.Max(a.x, Mathf.Max(b.x, c.x)),
+                minZ = Mathf.Min(a.z, Mathf.Min(b.z, c.z)), maxZ = Mathf.Max(a.z, Mathf.Max(b.z, c.z)) };
         }
         for (int side = 0; side < 2; side++)
         {
@@ -126,6 +155,18 @@ internal sealed class SeatedHandClearance
             if (wrist == null || arms[side, 0] == null || arms[side, 1] == null) continue;
             Vector3 local = reference.InverseTransformPoint(wrist.position);
             if (local.z < .1f) { lifts[side] = elbowAngles[side] = 0; continue; }
+            // Do not pull an already clear hand down onto the lap (steering,
+            // gestures, or a transition away from sitting).
+            float overlap = float.NegativeInfinity;
+            for (int probe = -1; probe < 3; probe++)
+            {
+                Transform p = probe < 0 ? wrist : probes[side, probe];
+                if (p == null) continue;
+                float height = SurfaceHeight(p.position, .015f * scale);
+                if (height > p.position.y - .32f * scale && height < p.position.y + .32f * scale)
+                    overlap = Mathf.Max(overlap, height + .025f * scale - p.position.y);
+            }
+            if (overlap <= 0 && RequiredElbowLift(side, scale) <= 0) { lifts[side] = elbowAngles[side] = 0; continue; }
             for (int joint = 0; joint < 3; joint++) original[side, joint] = arms[side, joint].localRotation;
             if (probes[side, 2] != null)
             {
@@ -146,7 +187,7 @@ internal sealed class SeatedHandClearance
                         (preserveHandHeading ? 15f : 75f) * Mathf.SmoothStep(0, 1, seated / .7f)) * wrist.rotation;
             }
             float lift = float.NegativeInfinity;
-            for (int probe = -1; probe < 3; probe++)
+            for (int probe = -1; probe < probes.GetLength(1); probe++)
             {
                 Transform contact = probe < 0 ? wrist : probes[side, probe];
                 if (contact == null) continue;
@@ -155,7 +196,7 @@ internal sealed class SeatedHandClearance
                 if (height > point.y - .32f * scale && height < point.y + .32f * scale)
                     lift = Mathf.Max(lift, height + .030f * scale - point.y);
             }
-            lift = float.IsNegativeInfinity(lift) ? 0f : Mathf.Clamp(lift, -.25f * scale, .32f * scale) * Mathf.SmoothStep(0, 1, seated / .7f);
+            lift = float.IsNegativeInfinity(lift) ? 0f : Mathf.Clamp(lift, 0, .32f * scale) * Mathf.SmoothStep(0, 1, seated / .7f);
             lifts[side] = Mathf.Lerp(lifts[side], lift, 1 - Mathf.Exp(-deltaTime * 18));
             MoveWrist(arms[side, 0], arms[side, 1], wrist, wrist.position + Vector3.up * lifts[side]);
             ClearForearm(side, scale, seated, deltaTime);
@@ -223,11 +264,10 @@ internal sealed class SeatedHandClearance
         float height = float.NegativeInfinity;
         for (int i = 0; i < triangles.Length; i += 3)
         {
+            SurfaceBounds bounds = triangleBounds[i / 3];
+            if (point.x < bounds.minX - radius || point.x > bounds.maxX + radius ||
+                point.z < bounds.minZ - radius || point.z > bounds.maxZ + radius) continue;
             Vector3 a = world[triangles[i]], b = world[triangles[i + 1]], c = world[triangles[i + 2]];
-            if (point.x < Mathf.Min(a.x, Mathf.Min(b.x, c.x)) - radius ||
-                point.x > Mathf.Max(a.x, Mathf.Max(b.x, c.x)) + radius ||
-                point.z < Mathf.Min(a.z, Mathf.Min(b.z, c.z)) - radius ||
-                point.z > Mathf.Max(a.z, Mathf.Max(b.z, c.z)) + radius) continue;
             Vector3 ab = b - a, ac = c - a, ap = point - a;
             float determinant = ab.x * ac.z - ab.z * ac.x;
             if (Mathf.Abs(determinant) < 1e-9f) continue;
@@ -241,6 +281,8 @@ internal sealed class SeatedHandClearance
         }
         return height;
     }
+
+    private struct SurfaceBounds { internal float minX, maxX, minZ, maxZ; }
 
     private static float EdgeHeight(Vector3 point, Vector3 a, Vector3 b, float radius)
     {

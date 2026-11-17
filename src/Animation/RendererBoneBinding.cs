@@ -4,14 +4,14 @@ using UnityEngine;
 namespace MikuGlider;
 
 // The only writer of renderer.bones for wrist and grip corrections.
-// Layers are ordered: native rig -> wrist stations -> grip copies.
+// Layers are ordered: native rig -> wrist stations -> grip copies -> seated arms.
 internal sealed class RendererBoneBinding
 {
     private static readonly ConditionalWeakTable<SkinnedMeshRenderer, RendererBoneBinding> Owners =
         new ConditionalWeakTable<SkinnedMeshRenderer, RendererBoneBinding>();
     private readonly SkinnedMeshRenderer renderer;
     private readonly Transform[] native;
-    private Transform[] wrist, grip, lastApplied;
+    private Transform[] wrist, grip, seated, lastApplied;
 
     private RendererBoneBinding(SkinnedMeshRenderer renderer)
     {
@@ -28,12 +28,29 @@ internal sealed class RendererBoneBinding
 
     internal void SetWrist(Transform[] bones) { wrist = bones; Apply(); }
     internal void SetGrip(Transform[] bones) { grip = bones; Apply(); }
+    internal void SetSeated(Transform[] bones) { seated = bones; Apply(); }
     internal void ReleaseGrip() { grip = null; Restore(); }
     internal void ReleaseWrist() { wrist = null; Restore(); }
+    internal void ReleaseSeated() { seated = null; Restore(); }
+
+    internal static Transform[] BeforeSeated(SkinnedMeshRenderer renderer, Transform[] fallback)
+        => Owners.TryGetValue(renderer, out var owner)
+            ? owner.grip ?? owner.wrist ?? owner.native : fallback;
+
+    internal static Transform[] NativeBones(SkinnedMeshRenderer renderer)
+    {
+        Transform[] current = renderer.bones;
+        return Owners.TryGetValue(renderer, out var owner) && owner.Matches(current) ? owner.native : current;
+    }
+
+    internal static void ReleaseSeated(SkinnedMeshRenderer renderer)
+    {
+        if (Owners.TryGetValue(renderer, out var owner) && owner.seated != null) owner.ReleaseSeated();
+    }
 
     private void Apply()
     {
-        lastApplied = grip ?? wrist ?? native;
+        lastApplied = seated ?? grip ?? wrist ?? native;
         renderer.bones = lastApplied;
     }
 
@@ -41,7 +58,7 @@ internal sealed class RendererBoneBinding
     {
         // A game-side rebind takes precedence over cleanup of our old layers.
         if (renderer != null && SameBones(renderer.bones, lastApplied)) Apply();
-        if (wrist == null && grip == null) Owners.Remove(renderer);
+        if (wrist == null && grip == null && seated == null) Owners.Remove(renderer);
     }
 
     internal static bool SameBones(Transform[] a, Transform[] b)

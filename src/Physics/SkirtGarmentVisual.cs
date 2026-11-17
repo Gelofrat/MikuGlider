@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MikuGlider;
 
-[DefaultExecutionOrder(1100)]
+[DefaultExecutionOrder(1600)]
 internal sealed class SkirtGarmentVisual : MonoBehaviour
 {
     private RegisteredSkin skin;
@@ -27,6 +27,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
     private Mesh coatMesh;
     private GarmentSurfaceClearance skirtSurface;
     private GarmentSurfaceClearance coatSurface;
+    private SeatedArmRig seatedArms;
+    private readonly SeatedPoseContext seatedContext = new SeatedPoseContext();
     internal SkinnedMeshRenderer SurfaceRenderer => surfaceRenderer;
     internal bool UsesPoseRig => ready && !failed && poseRig != null;
     internal double PoseUpdateMilliseconds { get; private set; }
@@ -36,7 +38,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         RegisteredSkin skin, Player owner)
     {
         var visual = host.GetComponent<SkirtGarmentVisual>() ?? host.AddComponent<SkirtGarmentVisual>();
-        bool rebuild = visual.root == null || visual.skin != skin || visual.body != body || visual.root.parent != body.transform;
+        bool rebuild = visual.root == null || visual.skin != skin || visual.body != body || visual.root.parent != body.transform ||
+            visual.seatedArms == null || !visual.seatedArms.Matches(RendererBoneBinding.NativeBones(body));
         visual.skin = skin;
         visual.body = body;
         visual.owner = owner;
@@ -54,7 +57,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
             root.SetParent(body.transform, false);
             Mesh source = skin.Assets.GetMesh("skirt");
             bool preserveShape = skin.Assets.ModelDefinition.preserveSourceGarmentShape;
-            poseRig = new PoseGarmentRig(body.bones, source, body.sharedMesh, preserveShape);
+            Transform[] nativeBones = RendererBoneBinding.NativeBones(body);
+            poseRig = new PoseGarmentRig(nativeBones, source, body.sharedMesh, preserveShape);
             skin.Assets.TryGetMesh("coat-flaps", out Mesh overlay);
             skirtMesh = poseRig.Bind(source, false, overlay);
             skirt = CreateGarment(root.gameObject, skirtMesh);
@@ -70,11 +74,12 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
                 coatSurface = poseRig.CreateSurface(coatMesh, true);
                 coat = CreateGarment(garment, coatSurface.Mesh);
             }
+            seatedArms = new SeatedArmRig(body, nativeBones, poseRig.Bones, skirtSurface.Mesh, coatSurface?.Mesh);
             if (skin.Assets.TryGetMesh("sleeves", out Mesh sleeveMesh))
             {
                 var garment = new GameObject(skin.Definition.Key + " sleeves");
                 garment.transform.SetParent(root, false);
-                sleeveRig = new SleevePoseRig(sleeveMesh, body.bones, garment.transform);
+                sleeveRig = new SleevePoseRig(sleeveMesh, seatedArms.Bones, garment.transform);
                 sleeves = CreateGarment(garment, sleeveRig.Mesh);
                 sleeves.bones = sleeveRig.Bones;
             }
@@ -114,13 +119,14 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         if (!ready || body == null || poseRig == null) return;
         bool visible = skin.OwnsBody(body.sharedMesh) && body.enabled;
         if (root.gameObject.activeSelf != visible) root.gameObject.SetActive(visible);
-        if (!visible) return;
+        if (!visible) { seatedArms?.Reset(); return; }
         SynchronizeRenderer();
-        if (!body.enabled || body.forceRenderingOff) return;
+        if (!body.enabled || body.forceRenderingOff) { seatedArms?.Reset(); return; }
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
         poseRig.UpdatePose(GliderEquipment.FindWingsuit(owner)?.IsFlying == true);
         skirtSurface?.Apply();
         coatSurface?.Apply();
+        seatedArms?.Apply(poseRig.Reference, seatedContext.Weight(owner, body), Time.deltaTime);
         sleeveRig?.UpdatePose();
         PoseUpdateMilliseconds = (System.Diagnostics.Stopwatch.GetTimestamp() - started) *
             1000.0 / System.Diagnostics.Stopwatch.Frequency;
@@ -180,6 +186,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
     private void RemoveRenderer()
     {
         ready = false;
+        seatedArms?.Dispose();
+        seatedArms = null;
         skirtSurface?.Dispose();
         skirtSurface = null;
         coatSurface?.Dispose();
@@ -201,5 +209,6 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         material = null;
     }
 
+    private void OnDisable() => seatedArms?.Reset();
     private void OnDestroy() => RemoveRenderer();
 }

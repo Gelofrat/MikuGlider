@@ -47,6 +47,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     internal static void PrepareMeshChange(SkinnedMeshRenderer renderer)
     {
         if (renderer == null) return;
+        RendererBoneBinding.ReleaseSeated(renderer);
         renderer.GetComponent<ModelPoseCorrections>()?.ResetShapes();
         FirstPersonWristVisual.Attach(renderer, null);
     }
@@ -54,6 +55,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     internal static void Attach(SkinnedMeshRenderer renderer, ModelCorrections profile, Transform weaponRoot = null, string weaponNamePrefix = "")
     {
         if (renderer == null) return;
+        RendererBoneBinding.ReleaseSeated(renderer);
         if (renderer.sharedMesh == null || profile == null || profile.meshes.Length == 0)
         {
             renderer.GetComponent<ModelPoseCorrections>()?.ResetShapes();
