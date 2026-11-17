@@ -38,23 +38,3 @@ To disable it, set `EnableDalekMissionIntro = false` in the `[Audio]` section of
 *Model renders. Appearance may vary in game.*
 
 [View all artwork](https://github.com/Gelofrat/MikuGlider/tree/main/arts) - [Credits](https://github.com/Gelofrat/MikuGlider/blob/main/ATTRIBUTION.md)
-
-## Runtime maintenance
-
-`ModRuntime` keeps registered skins alive while session features (camera and mission audio) can be stopped and resumed. Skin asset failures do not disable mission audio. Inventory grants are checked after collection, saved once per batch, and retried after five seconds if collection or saving fails. Pending saves remain associated with their profile.
-
-For hand corrections, `ModelCorrectionMeshes` owns mesh preparation and asset validation; `ModelPoseCorrections` evaluates poses against the native skeleton. `RendererBoneBinding` applies the ordered native/wrist/grip layers and preserves newer game-side bindings during cleanup. The wrist transition updates after the corrected palm when that palm is overridden. Mesh rejection and renderer skeleton rejection use separate caches. Correction profiles are immutable after loading; authoring tools must use a fresh mesh when changing a prepared profile.
-
-Before native skin replacement, temporary wrist and grip bindings are released for player models and character/gear previews. Reusing a mesh also checks the actual source bones; a new skeleton must receive new correction transforms. `LabSkinBindingChecks.Run()` and `.Arms()` exercise skin switches, inactive models, replacement rigs, and new renderers using already-prepared meshes.
-
-Mission audio separates eligibility (`MissionIntroContext`), one attempt per mission (`MissionIntroChance`), orchestration (`DalekMissionAudio`) and native PCM playback (`DalekPlayback`). The probability remains 50%.
-
-The project file is authoritative for the version and embedded resources. Placeholder specular textures are retained as source assets but are not loaded or packaged by the unlit materials. The [Unity lab setup](simulation/SETUP.md) includes model inspection and the artwork export workflow.
-
-Run the regression checks from PowerShell with a .NET 10 SDK and the game/BepInEx installed:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tests/Run.ps1 -GameRoot 'C:\Apps\Steam\steamapps\common\Mycopunk'
-```
-
-These checks cover failure/retry paths, camera subscription lifetime, session enable/disable, Harmony targets and arguments against the installed game assembly, embedded resource hashes, audio configuration, objective filtering, chance and PCM callbacks. They do not execute native Wwise playback. The Unity stand additionally exposes `LabArchitectureChecks.Run()` for actual mesh/bone binding lifecycle checks. Recorded hand fixtures must load their matching `.mikumesh` file together with their correction profile; mixing old vertices with current bind poses or topology is invalid.
