@@ -8,6 +8,7 @@ internal sealed class GarmentLegClearance
 {
     private const int Samples = 6;
     private readonly float[] radii = new float[Samples];
+    private readonly float maximumRadius;
     private Vector3 leftHip;
     private Vector3 leftAxis;
     private Vector3 rightHip;
@@ -32,6 +33,7 @@ internal sealed class GarmentLegClearance
             radii[i] += .018f;
         }
         radii[0] = Mathf.Min(radii[0], radii[1] + .01f);
+        foreach (float radius in radii) maximumRadius = Mathf.Max(maximumRadius, radius);
     }
 
     private static void MeasureLeg(int hipBone, int kneeBone, Vector3[] vertices, BoneWeight[] weights,
@@ -81,20 +83,26 @@ internal sealed class GarmentLegClearance
     private Vector3 Project(Vector3 point, Vector3 hip, Vector3 axis, float length, float padding)
     {
         if (length < .001f) return point;
-        float along = Vector3.Dot(point - hip, axis);
-        // The hip joint is inside the pelvis, not a round cap on the visible
-        // thigh. Fade its proxy in below the waist instead of inflating it.
+        float x = point.x - hip.x, y = point.y - hip.y, z = point.z - hip.z;
+        float along = x * axis.x + y * axis.y + z * axis.z;
+        // Exclude the hip joint inside the pelvis before the thigh proxy fades in.
+        if (along <= .12f * length) return point;
+        float distance = along < length ? along : length;
+        float dx = x - axis.x * distance, dy = y - axis.y * distance, dz = z - axis.z * distance;
+        float square = dx * dx + dy * dy + dz * dz;
+        // Reject against the largest possible radius before evaluating taper
+        // and the hip fade. This conservative test does not remove contacts.
+        float limit = maximumRadius + padding;
+        if (square >= limit * limit) return point;
         float proximal = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.12f, .35f, along / length));
-        if (proximal <= 0) return point;
-        float distance = Mathf.Clamp(along, 0, length);
         float sample = Mathf.Clamp(distance / length * Samples - .5f, 0, Samples - 1);
-        int first = Mathf.FloorToInt(sample);
-        float radius = (Mathf.Lerp(radii[first], radii[Mathf.Min(first + 1, Samples - 1)], sample - first) + padding) * proximal;
-        Vector3 center = hip + axis * distance;
-        Vector3 offset = point - center;
-        float square = offset.sqrMagnitude;
+        int first = (int)sample;
+        float radius = (Mathf.Lerp(radii[first], radii[first < Samples - 1 ? first + 1 : first], sample - first) + padding) * proximal;
         if (square >= radius * radius) return point;
-        Vector3 normal = square > 1e-10f ? offset / Mathf.Sqrt(square) : Vector3.up;
-        return center + normal * radius;
+        if (square <= 1e-10f)
+            return new Vector3(hip.x + axis.x * distance, hip.y + axis.y * distance + radius, hip.z + axis.z * distance);
+        float scale = radius / Mathf.Sqrt(square);
+        return new Vector3(hip.x + axis.x * distance + dx * scale,
+            hip.y + axis.y * distance + dy * scale, hip.z + axis.z * distance + dz * scale);
     }
 }
