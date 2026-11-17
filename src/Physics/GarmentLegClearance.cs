@@ -141,6 +141,40 @@ internal sealed class GarmentLegClearance
         return angle >= 1.5f ? angle : Solve(surfaceProbes[sector], radial, pivot, angle);
     }
 
+    internal float SupportHeight(Vector3 point)
+    {
+        return Mathf.Max(SupportHeight(point, leftHip, leftAxis, leftLength),
+            SupportHeight(point, rightHip, rightAxis, rightLength));
+    }
+
+    private float SupportHeight(Vector3 point, Vector3 hip, Vector3 axis, float length)
+    {
+        float horizontalAxis = axis.x * axis.x + axis.z * axis.z;
+        if (horizontalAxis < .05f || (point.x - hip.x) * axis.x + (point.z - hip.z) * axis.z < length * horizontalAxis * .25f)
+            return float.NegativeInfinity;
+        float height = float.NegativeInfinity;
+        for (int i = 0; i < Samples; i++)
+        {
+            // Exact upper intersection of a vertical ray with a capsule. Use
+            // short, overlapping segments to retain the measured leg taper.
+            Vector3 start = hip + axis * (length * i / Samples);
+            float radius = Mathf.Max(radii[i], radii[Mathf.Min(i + 1, Samples - 1)]);
+            float x = point.x - start.x, z = point.z - start.z;
+            float horizontal = axis.x * axis.x + axis.z * axis.z;
+            float along = horizontal > 1e-6f ? (x * axis.x + z * axis.z) / horizontal : 0;
+            float perpendicular = x * x + z * z - along * along * horizontal;
+            float available = radius * radius - perpendicular;
+            if (available <= 0) continue;
+            float peak = horizontal > 1e-6f ? along + axis.y * Mathf.Sqrt(available / horizontal) :
+                (axis.y > 0 ? length / Samples : 0);
+            Vector3 center = start + axis * Mathf.Clamp(peak, 0, length / Samples);
+            x = point.x - center.x; z = point.z - center.z;
+            float square = radius * radius - x * x - z * z;
+            if (square > 0) height = Mathf.Max(height, center.y + Mathf.Sqrt(square));
+        }
+        return height;
+    }
+
     private float Solve(GarmentProbeSet points, Vector3 radial, Vector3 pivot, float minimum)
     {
         if (Clear(points, radial, pivot, minimum)) return minimum;
