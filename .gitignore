@@ -103,3 +103,6 @@ art/model/previews/*
 /assets/README.md
 /arts/README.md
 /arts/render-manifest.json
+
+# Keep repository ignore rules tracked despite local excludes.
+!/.gitignore
