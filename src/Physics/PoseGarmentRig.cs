@@ -23,6 +23,7 @@ internal sealed class PoseGarmentRig : IDisposable
     private readonly float bottom;
     private readonly float hinge;
     private readonly GarmentLegClearance legClearance;
+    private GarmentSurfaceClearance surfaceClearance;
     private readonly float[] openings = new float[Sectors];
     private readonly bool preserveCoatShape;
     internal Transform Reference { get; }
@@ -96,7 +97,7 @@ internal sealed class PoseGarmentRig : IDisposable
                 entry.Coat == coat && entry.PreserveCoatShape == preserveCoatShape &&
                 entry.Pelvis == pelvis && entry.BoneCount == firstSector && entry.Mesh != null)
             {
-                if (!coat) legClearance.PrepareSurface(entry.Mesh);
+                if (!coat) PrepareClearance(entry.Mesh);
                 return entry.Mesh;
             }
         Mesh mesh = UnityEngine.Object.Instantiate(source);
@@ -176,7 +177,7 @@ internal sealed class PoseGarmentRig : IDisposable
         mesh.boneWeights = weights;
         mesh.bindposes = poses;
         mesh.RecalculateBounds();
-        if (!coat) legClearance.PrepareSurface(mesh);
+        if (!coat) PrepareClearance(mesh);
         Cache.Add(new CachedBinding { Source = source, Skirt = restSkirt, Outer = outer, Coat = coat,
             PreserveCoatShape = preserveCoatShape, Pelvis = pelvis, BoneCount = firstSector, Mesh = mesh });
         return mesh;
@@ -303,7 +304,7 @@ internal sealed class PoseGarmentRig : IDisposable
             float lapAngle = Mathf.Clamp(thighAngle - flareAngles[index] + .20f, 0, seatedLimit);
             angle = Mathf.Lerp(angle, lapAngle, drape);
             if (!flying && drape < 1f)
-                angle = Mathf.Lerp(legClearance.Opening(index, radial, sectors[index].localPosition, angle), angle, drape);
+                angle = Mathf.Lerp(legClearance.Opening(index, radial, directions[index] * .14f + Vector3.up * hinge, angle), angle, drape);
             openings[index] = angle;
         }
         for (int index = 0; index < Sectors; index++)
@@ -319,6 +320,7 @@ internal sealed class PoseGarmentRig : IDisposable
                     angle = Mathf.Max(angle, Mathf.Lerp(openings[neighbor] - distance * .16f, angle, drape));
                 }
             Vector3 down = Vector3.down * Mathf.Cos(angle) + radial * Mathf.Sin(angle);
+            sectors[index].localPosition = directions[index] * .14f + Vector3.up * hinge;
             sectors[index].localRotation = Quaternion.FromToRotation(Vector3.down, down);
             Vector3 hemDirection = Quaternion.Inverse(sectors[index].localRotation) * gravity;
             hems[index].localRotation = Quaternion.Slerp(Quaternion.identity,
@@ -335,6 +337,14 @@ internal sealed class PoseGarmentRig : IDisposable
                 Mathf.Lerp(tip.y - .06f, knee.y - .025f, front), Mathf.Lerp(tip.z, knee.z + .13f, front));
             hems[index].localPosition += Quaternion.Inverse(sectors[index].localRotation) * ((target - deformed) * drape);
         }
+        if (!flying && seated > .01f)
+            surfaceClearance?.Apply(Reference, Bones, bindposes, firstSector, legClearance);
+    }
+
+    private void PrepareClearance(Mesh mesh)
+    {
+        legClearance.PrepareSurface(mesh);
+        surfaceClearance = new GarmentSurfaceClearance(mesh, firstSector, Sectors);
     }
 
     private static float Opening(Vector3 leg, Vector3 radial, float clearance)
