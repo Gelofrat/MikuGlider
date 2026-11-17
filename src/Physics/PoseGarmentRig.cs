@@ -274,7 +274,7 @@ internal sealed class PoseGarmentRig : IDisposable
         Vector3 leftKnee = inverse.MultiplyPoint3x4(body.LeftKnee.position);
         Vector3 rightKnee = inverse.MultiplyPoint3x4(body.RightKnee.position);
         float leftSign = Mathf.Sign(inverse.MultiplyPoint3x4(body.LeftThigh.position).x);
-        float seated = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.40f, .30f, Mathf.Max(-left.y, -right.y))) *
+        float seated = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.85f, .10f, Mathf.Max(-left.y, -right.y))) *
             Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.2f, .8f, Vector3.Dot(left, right)));
         float pelvisTilt = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.85f, .35f, Vector3.Dot(gravity, Vector3.down)));
         seated = flying ? 0f : Mathf.Max(seated, pelvisTilt);
