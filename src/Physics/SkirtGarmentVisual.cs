@@ -25,8 +25,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
     private PoseGarmentRig poseRig;
     private Mesh skirtMesh;
     private Mesh coatMesh;
-    private GarmentArmClearance armClearance;
-    private SeatedHandClearance seatedHands;
+    private GarmentSurfaceClearance skirtSurface;
+    private GarmentSurfaceClearance coatSurface;
     internal SkinnedMeshRenderer SurfaceRenderer => surfaceRenderer;
     internal bool UsesPoseRig => ready && !failed && poseRig != null;
     internal double PoseUpdateMilliseconds { get; private set; }
@@ -58,13 +58,17 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
             skin.Assets.TryGetMesh("coat-flaps", out Mesh overlay);
             skirtMesh = poseRig.Bind(source, false, overlay);
             skirt = CreateGarment(root.gameObject, skirtMesh);
-            surfaceRenderer = skirt;
+            skirtSurface = poseRig.CreateSurface(skirtMesh);
+            var surface = new GameObject(skin.Definition.Key + " skirt surface");
+            surface.transform.SetParent(root, false);
+            surfaceRenderer = CreateGarment(surface, skirtSurface.Mesh);
             if (overlay != null)
             {
                 var garment = new GameObject(skin.Definition.Key + " coat flaps");
                 garment.transform.SetParent(root, false);
                 coatMesh = poseRig.Bind(overlay, true);
-                coat = CreateGarment(garment, coatMesh);
+                coatSurface = poseRig.CreateSurface(coatMesh, true);
+                coat = CreateGarment(garment, coatSurface.Mesh);
             }
             if (skin.Assets.TryGetMesh("sleeves", out Mesh sleeveMesh))
             {
@@ -74,12 +78,9 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
                 sleeves = CreateGarment(garment, sleeveRig.Mesh);
                 sleeves.bones = sleeveRig.Bones;
             }
-            ModelPoseCorrections.Attach(skirt, skin.Assets.Corrections);
+            ModelPoseCorrections.Attach(surfaceRenderer, skin.Assets.Corrections);
             if (coat != null) ModelPoseCorrections.Attach(coat, skin.Assets.Corrections);
             if (sleeves != null) ModelPoseCorrections.Attach(sleeves, skin.Assets.Corrections);
-            armClearance = new GarmentArmClearance(body.bones, source);
-            seatedHands = new SeatedHandClearance(body.bones, poseRig.Bones, skirtMesh, coatMesh,
-                preserveShape || skin.Assets.ModelDefinition.preserveSeatedHandHeading);
             ready = true;
             failed = false;
             SynchronizeRenderer();
@@ -108,12 +109,6 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         return renderer;
     }
 
-    private void Update()
-    {
-        armClearance?.Restore();
-        seatedHands?.Restore();
-    }
-
     private void LateUpdate()
     {
         if (!ready || body == null || poseRig == null) return;
@@ -124,11 +119,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         if (!body.enabled || body.forceRenderingOff) return;
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
         poseRig.UpdatePose(GliderEquipment.FindWingsuit(owner)?.IsFlying == true);
-        if (poseRig.SeatedBlend < .15f)
-            armClearance?.Apply(poseRig.Reference.localToWorldMatrix, Time.deltaTime);
-        else
-            armClearance?.ResetCorrections();
-        seatedHands?.Apply(poseRig.Reference, poseRig.SeatedBlend, Time.deltaTime);
+        skirtSurface?.Apply();
+        coatSurface?.Apply();
         sleeveRig?.UpdatePose();
         PoseUpdateMilliseconds = (System.Diagnostics.Stopwatch.GetTimestamp() - started) *
             1000.0 / System.Diagnostics.Stopwatch.Frequency;
@@ -142,10 +134,13 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         {
             material = next;
             skirt.sharedMaterial = material;
+            surfaceRenderer.sharedMaterial = material;
             if (sleeves != null) sleeves.sharedMaterial = material;
             UpdateCoatMaterial();
         }
         CopyVisibility(skirt);
+        skirt.enabled = false;
+        CopyVisibility(surfaceRenderer);
         if (coat != null) CopyVisibility(coat);
         if (sleeves != null) CopyVisibility(sleeves);
     }
@@ -182,19 +177,13 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
     }
 
 
-    private void OnDisable()
-    {
-        armClearance?.Restore();
-        seatedHands?.Restore();
-    }
-
     private void RemoveRenderer()
     {
         ready = false;
-        armClearance?.Restore();
-        armClearance = null;
-        seatedHands?.Restore();
-        seatedHands = null;
+        skirtSurface?.Dispose();
+        skirtSurface = null;
+        coatSurface?.Dispose();
+        coatSurface = null;
         sleeveRig?.Dispose();
         sleeveRig = null;
         if (root != null) { root.gameObject.SetActive(false); Destroy(root.gameObject); }

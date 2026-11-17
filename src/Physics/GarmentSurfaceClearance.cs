@@ -4,114 +4,159 @@ using UnityEngine;
 
 namespace MikuGlider;
 
-// Fit the existing pose bones against the final blended surface, after draping.
-// Meshes stay immutable; each actor owns its solver and reusable buffers.
-internal sealed class GarmentSurfaceClearance
+// Contact belongs to the garment instance. Never translate the waist or the
+// native skeleton to clear a leg; move only the cloth that touches it.
+internal sealed class GarmentSurfaceClearance : IDisposable
 {
-    private readonly Probe[] probes;
-    private readonly Matrix4x4[] matrices;
-    private readonly float[] offsets;
-    private readonly float[] lifts;
-    private readonly int sectors;
+    private readonly Vector3[] rest, guide, corrected, output, offsets;
+    private readonly BoneWeight[] weights;
+    private readonly Matrix4x4[] bindposes, matrices;
+    private readonly int[] vertexMap;
+    private readonly float[] mobility;
+    private readonly Edge[] edges;
+    private readonly Transform reference;
+    private readonly Transform[] bones;
+    private readonly GarmentLegClearance legs;
+    private readonly float padding;
+    private readonly Stencil[] stencils;
+    private readonly bool coat;
+    internal Mesh Mesh { get; }
 
-    internal GarmentSurfaceClearance(Mesh mesh, int first, int sectors)
+    internal GarmentSurfaceClearance(Mesh source, Transform reference, Transform[] bones,
+        GarmentLegClearance legs, float hinge, bool coat)
     {
-        this.sectors = sectors;
-        matrices = new Matrix4x4[first + sectors * 2];
-        offsets = new float[sectors * 2];
-        Vector3[] vertices = mesh.vertices;
-        BoneWeight[] weights = mesh.boneWeights;
-        var samples = new List<Probe>();
-        var unique = new HashSet<Vector3>();
-        int[] triangles = mesh.triangles;
-        foreach (int index in triangles)
-            if (unique.Add(vertices[index])) Add(samples, vertices[index], weights[index], first);
+        this.reference = reference; this.bones = bones; this.legs = legs;
+        this.coat = coat;
+        padding = coat ? .012f : 0;
+
+        Mesh = UnityEngine.Object.Instantiate(source);
+        Mesh.name = source.name + " local contact";
+        Mesh.MarkDynamic();
+        output = source.vertices;
+        bindposes = source.bindposes;
+        matrices = new Matrix4x4[bindposes.Length];
+        vertexMap = new int[output.Length];
+        var unique = new Dictionary<(Vector3, BoneWeight), int>();
+        int[] triangles = source.triangles;
+        var used = new bool[output.Length];
+        foreach (int vertex in triangles) used[vertex] = true;
+        var points = new List<Vector3>();
+        var bindings = new List<BoneWeight>();
+        BoneWeight[] sourceWeights = source.boneWeights;
+        for (int i = 0; i < output.Length; i++)
+        {
+            if (!used[i]) { vertexMap[i] = -1; continue; }
+            if (!unique.TryGetValue((output[i], sourceWeights[i]), out int index))
+            {
+                index = points.Count; unique.Add((output[i], sourceWeights[i]), index);
+                points.Add(output[i]); bindings.Add(sourceWeights[i]);
+            }
+            vertexMap[i] = index;
+        }
+        rest = points.ToArray(); weights = bindings.ToArray();
+        guide = new Vector3[rest.Length];
+        corrected = new Vector3[rest.Length]; mobility = new float[rest.Length];
+        float bottom = float.PositiveInfinity, top = float.NegativeInfinity;
+        foreach (Vector3 point in rest) { bottom = Mathf.Min(bottom, point.y); top = Mathf.Max(top, point.y); }
+        const int sectors = 32;
+        offsets = new Vector3[(Mathf.CeilToInt((top - bottom) / .04f) + 2) * sectors];
+        stencils = new Stencil[rest.Length];
+        for (int i = 0; i < rest.Length; i++)
+        {
+            mobility[i] = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(hinge, hinge - .05f, rest[i].y));
+            float angle = Mathf.Repeat(Mathf.Atan2(rest[i].x, rest[i].z) / (2f * Mathf.PI), 1f) * sectors;
+            float height = (rest[i].y - bottom) / .04f;
+            int a = Mathf.FloorToInt(angle), h = Mathf.FloorToInt(height);
+            float x = angle - a, y = height - h;
+            stencils[i] = new Stencil { A = h * sectors + a, B = h * sectors + (a + 1) % sectors,
+                C = (h + 1) * sectors + a, D = (h + 1) * sectors + (a + 1) % sectors,
+                Weights = new Vector4((1-x)*(1-y),x*(1-y),(1-x)*y,x*y) };
+        }
+        var links = new List<Edge>(); var keys = new HashSet<ulong>();
         for (int i = 0; i < triangles.Length; i += 3)
-        {
-            // An edge can cross a knee even with clear endpoints.
-            for (int edge = 0; edge < 3; edge++)
+            for (int k = 0; k < 3; k++)
             {
-                int a = triangles[i + edge], b = triangles[i + (edge + 1) % 3];
-                if (unique.Add((vertices[a] + vertices[b]) * .5f))
-                    samples.Add(new Probe(vertices[a], weights[a], vertices[b], weights[b], first));
+                int a = vertexMap[triangles[i + k]], b = vertexMap[triangles[i + (k + 1) % 3]];
+                if (a > b) { int swap = a; a = b; b = swap; }
+                if (a != b && mobility[a] + mobility[b] > 0 && keys.Add(((ulong)(uint)a << 32) | (uint)b))
+                    links.Add(new Edge { A = a, B = b });
             }
-        }
-        probes = samples.FindAll(p => p.Free).ToArray();
-        lifts = new float[probes.Length];
+        edges = links.ToArray();
     }
 
-    private static void Add(List<Probe> probes, Vector3 point, BoneWeight weight, int first)
-        => probes.Add(new Probe(point, weight, point, weight, first));
-
-    internal void Apply(Transform reference, Transform[] bones, Matrix4x4[] bindposes,
-        int first, GarmentLegClearance legs)
+    internal void Apply()
     {
-        Array.Clear(offsets, 0, offsets.Length);
+        // Rebuild from the current native pose each frame. No accumulated
+        // correction survives a transition, disabled renderer or skin switch.
         Matrix4x4 inverse = reference.worldToLocalMatrix;
-        for (int i = 0; i < bones.Length; i++) matrices[i] = inverse * bones[i].localToWorldMatrix * bindposes[i];
-        for (int i = 0; i < probes.Length; i++)
+        for (int i = 0; i < matrices.Length; i++) matrices[i] = inverse * bones[i].localToWorldMatrix * bindposes[i];
+        for (int i = 0; i < rest.Length; i++)
         {
-            Vector3 point = probes[i].Pose(matrices);
-            lifts[i] = Mathf.Max(0, legs.SupportHeight(point) + .005f - point.y);
+            BoneWeight w = weights[i];
+            guide[i] = matrices[w.boneIndex0].MultiplyPoint3x4(rest[i]) * w.weight0 +
+                matrices[w.boneIndex1].MultiplyPoint3x4(rest[i]) * w.weight1 +
+                matrices[w.boneIndex2].MultiplyPoint3x4(rest[i]) * w.weight2 +
+                matrices[w.boneIndex3].MultiplyPoint3x4(rest[i]) * w.weight3;
         }
-        // Positive lifts cannot invalidate another support constraint.
-        for (int i = 0; i < probes.Length; i++) probes[i].Solve(offsets, lifts[i]);
-        for (int i = 0; i < sectors * 2; i++)
-            for (int j = 0; j < sectors; j++)
+        // A shared local displacement field keeps pleats and inner/outer
+        // surfaces together. Independent projections collapse thick cloth.
+        Array.Clear(offsets, 0, offsets.Length);
+        for (int iteration = 0; iteration < (coat ? 2 : 4); iteration++)
+        {
+            for (int j = 0; j < rest.Length; j++)
             {
-                int distance = Math.Abs(i % sectors - j);
-                distance = Math.Min(distance, sectors - distance);
-                offsets[i] = Mathf.Max(offsets[i], offsets[i / sectors * sectors + j] - distance * .07f);
+                int i = iteration % 2 == 0 ? j : rest.Length - 1 - j;
+                if (mobility[i] <= 0) continue;
+                Vector3 point = guide[i] + Offset(i);
+                Vector3 delta = (legs.Project(point, padding) - point) * mobility[i];
+                if (delta.sqrMagnitude > 1e-12f) Move(i, delta / stencils[i].Weights.sqrMagnitude);
             }
-        for (int i = 0; i < sectors; i++)
-        {
-            bones[first + i].localPosition += Vector3.up * offsets[i];
-            bones[first + sectors + i].localPosition += Quaternion.Inverse(bones[first + i].localRotation) *
-                (Vector3.up * (offsets[sectors + i] - offsets[i]));
+            if (!coat) foreach (Edge edge in edges)
+            {
+                int a = edge.A, b = edge.B;
+                Vector3 point = (guide[a] + Offset(a) + guide[b] + Offset(b)) * .5f;
+                Vector3 delta = legs.Project(point, padding) - point;
+                if (delta.sqrMagnitude < 1e-12f) continue;
+                Move(a, delta * .5f * mobility[a] / stencils[a].Weights.sqrMagnitude);
+                Move(b, delta * .5f * mobility[b] / stencils[b].Weights.sqrMagnitude);
+            }
         }
+        for (int i = 0; i < rest.Length; i++)
+        {
+            Vector3 delta = Offset(i);
+            corrected[i] = rest[i];
+            if (delta.sqrMagnitude < 1e-12f) continue;
+            BoneWeight w = weights[i];
+            Vector3 x = Axis(w, Vector3.right), y = Axis(w, Vector3.up), z = Axis(w, Vector3.forward);
+            float determinant = Vector3.Dot(x, Vector3.Cross(y, z));
+            if (Mathf.Abs(determinant) > 1e-6f)
+                corrected[i] += new Vector3(Vector3.Dot(delta, Vector3.Cross(y, z)),
+                    Vector3.Dot(delta, Vector3.Cross(z, x)), Vector3.Dot(delta, Vector3.Cross(x, y))) / determinant;
+        }
+        for (int i = 0; i < output.Length; i++)
+            if (vertexMap[i] >= 0) output[i] = corrected[vertexMap[i]];
+        Mesh.vertices = output;
     }
 
-    private sealed class Probe
+    private Vector3 Offset(int i)
     {
-        private readonly Vector3 a, b;
-        private readonly BoneWeight wa, wb;
-        private readonly int[] indices;
-        internal readonly bool Free;
-
-        internal Probe(Vector3 a, BoneWeight wa, Vector3 b, BoneWeight wb, int first)
-        {
-            this.a = a; this.b = b; this.wa = wa; this.wb = wb;
-            var values = new Dictionary<int, float>();
-            Collect(values, wa, first); Collect(values, wb, first);
-            indices = new int[values.Count];
-            int i = 0; float total = 0;
-            foreach (var pair in values)
-            {
-                indices[i++] = pair.Key;
-                total += pair.Value;
-            }
-            Free = total > .99f;
-        }
-
-        private static void Collect(Dictionary<int, float> values, BoneWeight w, int first)
-        {
-            Add(values, w.boneIndex0 - first, w.weight0 * .5f);
-            Add(values, w.boneIndex1 - first, w.weight1 * .5f);
-            Add(values, w.boneIndex2 - first, w.weight2 * .5f);
-            Add(values, w.boneIndex3 - first, w.weight3 * .5f);
-        }
-
-        private static void Add(Dictionary<int, float> values, int index, float weight)
-        { if (index >= 0 && weight > 0) { values.TryGetValue(index, out float old); values[index] = old + weight; } }
-
-        internal Vector3 Pose(Matrix4x4[] m) => (Skin(a, wa, m) + Skin(b, wb, m)) * .5f;
-        private static Vector3 Skin(Vector3 p, BoneWeight w, Matrix4x4[] m) =>
-            m[w.boneIndex0].MultiplyPoint3x4(p) * w.weight0 + m[w.boneIndex1].MultiplyPoint3x4(p) * w.weight1 +
-            m[w.boneIndex2].MultiplyPoint3x4(p) * w.weight2 + m[w.boneIndex3].MultiplyPoint3x4(p) * w.weight3;
-
-        internal void Solve(float[] offsets, float required)
-        {
-            for (int i = 0; i < indices.Length; i++) offsets[indices[i]] = Mathf.Max(offsets[indices[i]], required / .99f);
-        }
+        Stencil s = stencils[i]; Vector4 w = s.Weights;
+        return (offsets[s.A] * w.x + offsets[s.B] * w.y + offsets[s.C] * w.z + offsets[s.D] * w.w) * mobility[i];
     }
+
+    private void Move(int i, Vector3 delta)
+    {
+        Stencil s = stencils[i]; Vector4 w = s.Weights;
+        offsets[s.A] += delta * w.x; offsets[s.B] += delta * w.y;
+        offsets[s.C] += delta * w.z; offsets[s.D] += delta * w.w;
+    }
+
+    private struct Stencil { internal int A, B, C, D; internal Vector4 Weights; }
+
+    private Vector3 Axis(BoneWeight w, Vector3 axis) => matrices[w.boneIndex0].MultiplyVector(axis) * w.weight0 +
+        matrices[w.boneIndex1].MultiplyVector(axis) * w.weight1 + matrices[w.boneIndex2].MultiplyVector(axis) * w.weight2 +
+        matrices[w.boneIndex3].MultiplyVector(axis) * w.weight3;
+
+    public void Dispose() { if (Mesh != null) UnityEngine.Object.Destroy(Mesh); }
+    private struct Edge { internal int A, B; }
 }

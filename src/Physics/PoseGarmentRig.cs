@@ -16,14 +16,12 @@ internal sealed class PoseGarmentRig : IDisposable
     private readonly Transform[] hems = new Transform[Sectors];
     private readonly Vector3[] directions = new Vector3[Sectors];
     private readonly Vector3[] restDirections = new Vector3[Sectors];
-    private readonly Vector3[] restTips = new Vector3[Sectors];
     private readonly float[] flareAngles = new float[Sectors];
     private readonly Matrix4x4[] bindposes;
     private readonly float top;
     private readonly float bottom;
     private readonly float hinge;
     private readonly GarmentLegClearance legClearance;
-    private GarmentSurfaceClearance surfaceClearance;
     private readonly float[] openings = new float[Sectors];
     private readonly bool preserveCoatShape;
     internal Transform Reference { get; }
@@ -52,14 +50,13 @@ internal sealed class PoseGarmentRig : IDisposable
             bottom = Mathf.Min(bottom, vertex.y);
         }
         hinge = top - .025f;
-        legClearance = new GarmentLegClearance(bodyMesh, bones, hinge, Sectors);
+        legClearance = new GarmentLegClearance(bodyMesh, bones);
         var flareCounts = new int[Sectors];
         foreach (Vector3 vertex in skirtVertices)
         {
             if (vertex.y > Mathf.Lerp(bottom, hinge, .35f)) continue;
             int sector = Mathf.RoundToInt(Mathf.Repeat(Mathf.Atan2(vertex.x, vertex.z) / (2f * Mathf.PI), 1f) * Sectors) % Sectors;
             flareAngles[sector] += Mathf.Atan2(Mathf.Max(0, new Vector2(vertex.x, vertex.z).magnitude - .14f), Mathf.Max(.01f, hinge - vertex.y));
-            restTips[sector] += vertex;
             flareCounts[sector]++;
         }
         Reference = new GameObject("Miku garment pose frame").transform;
@@ -74,7 +71,6 @@ internal sealed class PoseGarmentRig : IDisposable
             directions[index] = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle));
             flareAngles[index] = flareCounts[index] > 0 ? flareAngles[index] / flareCounts[index] : .5f;
             restDirections[index] = Vector3.down * Mathf.Cos(flareAngles[index]) + directions[index] * Mathf.Sin(flareAngles[index]);
-            restTips[index] = flareCounts[index] > 0 ? restTips[index] / flareCounts[index] : directions[index] * .28f + Vector3.up * bottom;
             Transform bone = new GameObject("Miku skirt sector " + index).transform;
             bone.SetParent(Reference, false);
             bone.localPosition = directions[index] * .14f + new Vector3(0, hinge, 0);
@@ -97,7 +93,6 @@ internal sealed class PoseGarmentRig : IDisposable
                 entry.Coat == coat && entry.PreserveCoatShape == preserveCoatShape &&
                 entry.Pelvis == pelvis && entry.BoneCount == firstSector && entry.Mesh != null)
             {
-                if (!coat) PrepareClearance(entry.Mesh);
                 return entry.Mesh;
             }
         Mesh mesh = UnityEngine.Object.Instantiate(source);
@@ -177,7 +172,6 @@ internal sealed class PoseGarmentRig : IDisposable
         mesh.boneWeights = weights;
         mesh.bindposes = poses;
         mesh.RecalculateBounds();
-        if (!coat) PrepareClearance(mesh);
         Cache.Add(new CachedBinding { Source = source, Skirt = restSkirt, Outer = outer, Coat = coat,
             PreserveCoatShape = preserveCoatShape, Pelvis = pelvis, BoneCount = firstSector, Mesh = mesh });
         return mesh;
@@ -297,55 +291,34 @@ internal sealed class PoseGarmentRig : IDisposable
             float leftAngle = Opening(left, radial, clearance), rightAngle = Opening(right, radial, clearance);
             float angle = Mathf.Lerp(Mathf.Max(leftAngle * leftWeight, rightAngle * rightWeight),
                 leftAngle * leftWeight + rightAngle * rightWeight, seated);
-            float seatedLimit = Mathf.Max(0, Mathf.PI * .47f - flareAngles[index]);
+            float seatedLimit = Mathf.Max(0, Mathf.PI * .72f - flareAngles[index]);
             angle = Mathf.Lerp(angle, Mathf.Min(angle, seatedLimit), seated);
             Vector3 thigh = Vector3.Lerp(right, left, leftWeight).normalized;
-            float thighAngle = Mathf.Atan2(Mathf.Max(0, Vector3.Dot(thigh, radial)), Mathf.Max(.05f, -thigh.y));
-            float lapAngle = Mathf.Clamp(thighAngle - flareAngles[index] + .20f, 0, seatedLimit);
+            Vector3 horizontal = new Vector3(thigh.x, 0, thigh.z);
+            float tilt = Mathf.Atan2(horizontal.magnitude, -thigh.y);
+            float facing = Mathf.Max(0, Vector3.Dot(horizontal.normalized, radial));
+            float lapAngle = Mathf.Clamp(tilt - flareAngles[index] + .04f, 0, seatedLimit) * facing;
             angle = Mathf.Lerp(angle, lapAngle, drape);
-            if (!flying && drape < 1f)
-                angle = Mathf.Lerp(legClearance.Opening(index, radial, directions[index] * .14f + Vector3.up * hinge, angle), angle, drape);
             openings[index] = angle;
         }
         for (int index = 0; index < Sectors; index++)
         {
             Vector3 radial = directions[index];
-            float leftWeight = Mathf.SmoothStep(0, 1, (radial.x * leftSign + .35f) / .7f);
-            float angle = openings[index];
-            if (!flying && drape < 1f)
-                for (int neighbor = 0; neighbor < Sectors; neighbor++)
-                {
-                    int distance = Math.Abs(index - neighbor);
-                    distance = Math.Min(distance, Sectors - distance);
-                    angle = Mathf.Max(angle, Mathf.Lerp(openings[neighbor] - distance * .16f, angle, drape));
-                }
+            float angle = Mathf.Lerp(openings[index],
+                (openings[(index + Sectors - 1) % Sectors] + 2f * openings[index] + openings[(index + 1) % Sectors]) * .25f, drape);
             Vector3 down = Vector3.down * Mathf.Cos(angle) + radial * Mathf.Sin(angle);
             sectors[index].localPosition = directions[index] * .14f + Vector3.up * hinge;
             sectors[index].localRotation = Quaternion.FromToRotation(Vector3.down, down);
             Vector3 hemDirection = Quaternion.Inverse(sectors[index].localRotation) * gravity;
             hems[index].localRotation = Quaternion.Slerp(Quaternion.identity,
-                Quaternion.FromToRotation(restDirections[index], hemDirection), drape * .75f);
+                Quaternion.FromToRotation(restDirections[index], hemDirection), drape * .15f);
             Vector3 restHem = restDirections[index] * ((hinge - bottom) * .82f / Mathf.Cos(flareAngles[index]));
             hems[index].localPosition = restHem;
-            Vector3 tip = restTips[index];
-            Vector3 relative = tip - sectors[index].localPosition;
-            Vector3 deformed = sectors[index].localPosition + sectors[index].localRotation *
-                (restHem + hems[index].localRotation * (relative - restHem));
-            float front = Mathf.Sqrt(Mathf.Max(0, radial.z));
-            Vector3 knee = Vector3.Lerp(rightKnee, leftKnee, leftWeight);
-            Vector3 target = new Vector3(tip.x + (leftKnee.x + rightKnee.x) * .5f * front,
-                Mathf.Lerp(tip.y - .06f, knee.y - .025f, front), Mathf.Lerp(tip.z, knee.z + .13f, front));
-            hems[index].localPosition += Quaternion.Inverse(sectors[index].localRotation) * ((target - deformed) * drape);
         }
-        if (!flying && seated > .01f)
-            surfaceClearance?.Apply(Reference, Bones, bindposes, firstSector, legClearance);
     }
 
-    private void PrepareClearance(Mesh mesh)
-    {
-        legClearance.PrepareSurface(mesh);
-        surfaceClearance = new GarmentSurfaceClearance(mesh, firstSector, Sectors);
-    }
+    internal GarmentSurfaceClearance CreateSurface(Mesh mesh, bool coat = false)
+        => new GarmentSurfaceClearance(mesh, Reference, Bones, legClearance, hinge, coat);
 
     private static float Opening(Vector3 leg, Vector3 radial, float clearance)
     {
