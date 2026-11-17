@@ -107,9 +107,7 @@ internal sealed class SkinAssets : IDisposable
     {
         long totalPixels = 0;
         LoadTexture(resources, "body-albedo", "BodyAlbedo", false, ref totalPixels);
-        LoadTexture(resources, "body-specular", "BodySpecular", true, ref totalPixels);
         LoadTexture(resources, "face-albedo", "FaceAlbedo", false, ref totalPixels);
-        LoadTexture(resources, "face-specular", "FaceSpecular", true, ref totalPixels);
         LoadTexture(resources, "icon", "Icon", false, ref totalPixels);
     }
 

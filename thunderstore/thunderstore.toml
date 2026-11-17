@@ -4,7 +4,7 @@ schemaVersion = "1.2.0"
 [package]
 namespace = "Gelofrat"
 name = "MikuGlider"
-versionNumber = "0.12.19"
+versionNumber = "0.12.37"
 description = "Adds 3 Hatsune Miku skins for Glider."
 websiteUrl = "https://github.com/Gelofrat/MikuGlider"
 containsNsfwContent = false

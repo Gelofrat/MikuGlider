@@ -13,6 +13,8 @@ internal sealed class CharacterCapture : IDisposable
 {
     private readonly DiagnosticOptions options;
     private readonly PropertyInfo runtimeProperty;
+    private readonly Type poseCorrectionType;
+    private readonly PropertyInfo sourceBonesProperty;
     private readonly Dictionary<string, string> bindings = new Dictionary<string, string>();
     private Mesh baked;
     private double nextGeometry;
@@ -25,6 +27,8 @@ internal sealed class CharacterCapture : IDisposable
         this.options = options;
         runtimeProperty = source.GetType("MikuGlider.MikuGliderPlugin")?
             .GetProperty("Runtime", BindingFlags.Static | BindingFlags.NonPublic);
+        poseCorrectionType = source.GetType("MikuGlider.ModelPoseCorrections");
+        sourceBonesProperty = poseCorrectionType?.GetProperty("SourceBones", BindingFlags.Instance | BindingFlags.NonPublic);
     }
 
     internal void Begin(CaptureSession value)
@@ -110,6 +114,13 @@ internal sealed class CharacterCapture : IDisposable
             Add(target.Coat, "coat");
             Add(target.Sleeves, "sleeves");
             Add(target.Body, "body");
+            // The orbit-view weapon is a separate mesh-only copy. Capturing
+            // only WeaponRoot records the first-person geometry instead.
+            if (target.Host != null)
+                foreach (Transform node in target.Host.GetComponentsInChildren<Transform>(false))
+                    if (node.name == "MikuThirdPersonWeapon")
+                        foreach (Renderer renderer in node.GetComponentsInChildren<Renderer>(false))
+                            Add(renderer, "weapon_third_person");
         }
         frame.renderers = renderers.ToArray();
         if (geometry)
@@ -167,6 +178,10 @@ internal sealed class CharacterCapture : IDisposable
                 if (skinned != null)
                 {
                     item.boneMatrices = Matrices(skinned.bones.Select(bone => bone != null ? bone.localToWorldMatrix : Matrix4x4.zero));
+                    var correction = poseCorrectionType != null ? skinned.GetComponent(poseCorrectionType) : null;
+                    var sources = correction != null ? sourceBonesProperty?.GetValue(correction) as Transform[] : null;
+                    if (sources != null)
+                        item.sourceBoneMatrices = Matrices(sources.Select(bone => bone != null ? bone.localToWorldMatrix : Matrix4x4.zero));
                     item.blendShapes = Enumerable.Range(0, mesh.blendShapeCount).Select(skinned.GetBlendShapeWeight).ToArray();
                 }
                 item.geometryStatus = !geometry ? "not_due" : !item.enabled || !item.active || item.forceRenderingOff ? "hidden" :

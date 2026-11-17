@@ -9,7 +9,7 @@ namespace MikuGlider;
 public sealed class MikuGliderPlugin : BaseUnityPlugin
 {
     public const string Guid = "horse.mycopunk.mikuglider";
-    public const string Version = "0.12.29";
+    public const string Version = BuildInfo.Version;
 
     internal static ModRuntime Runtime { get; private set; }
 
@@ -24,6 +24,7 @@ public sealed class MikuGliderPlugin : BaseUnityPlugin
             Runtime ??= new ModRuntime(Logger, SkinCatalog.Variants, Config);
             harmony.PatchAll(typeof(MikuGliderPlugin).Assembly);
             active = true;
+            Runtime.StartSession();
             PlayerData.AddRegisterUpgradesCallback(RegisterSkins);
         }
         catch (Exception error)
@@ -39,8 +40,6 @@ public sealed class MikuGliderPlugin : BaseUnityPlugin
             return;
 
         Runtime.RegisterSkins(Global.Instance.GliderCharacter);
-        if (Runtime.Skins.Count == 0)
-            Deactivate();
     }
 
     private void Update()
@@ -54,11 +53,18 @@ public sealed class MikuGliderPlugin : BaseUnityPlugin
         Deactivate();
     }
 
+    private void OnEnable()
+    {
+        if (active) Runtime?.StartSession();
+    }
+
+    private void OnDisable() => Runtime?.StopSession();
+
     private void Deactivate()
     {
         active = false;
         enabled = false;
-        Runtime?.Camera.Stop();
+        Runtime?.StopSession();
         if (Runtime == null || Runtime.Skins.Count == 0)
         {
             harmony?.UnpatchSelf();

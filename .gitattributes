@@ -6,3 +6,6 @@
 *.glb binary
 *.bundle binary
 *.mikumesh binary
+*.mikuhair binary
+*.mp3 binary
+*.wav binary

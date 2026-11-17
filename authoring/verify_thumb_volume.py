@@ -1,20 +1,4 @@
-"""Check release assets, baked targets and the latest native-animation lab runs."""
-import json,hashlib,runpy,subprocess,statistics,datetime
+﻿"""Current hand validation. Historical verifier: hand-repair/original/verify_thumb_volume.py."""
+import runpy
 from pathlib import Path
-import numpy as np
-R=Path(__file__).resolve().parents[1];M=runpy.run_path(str(R/'authoring/retarget_first_person_hands.py'));sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();meta=json.loads((R/'authoring/thumb-volume-grip.json').read_text());payload=np.load(R/'authoring/thumb-volume-grip.npz');result={'version':'0.12.29','checkpoint':'checkpoint/grip-transition-0.12.28 (8572dd6)','assets':{},'unitySuites':[]}
-for var,path in M['PATHS'].items():
- raw=subprocess.check_output(['git','show','8572dd6:'+path],cwd=R);assert hashlib.sha256(raw).hexdigest()==meta['inputs'][var];parts=M['chunks'](raw);_,before,b,ss=M['read'](parts['arm-left']);after=payload[var+'-base'];assert np.array_equal(before['uv'],after['uv']);parts['arm-left']=M['write']('arm-left',after,b,ss);assert M['archive'](parts)==(R/path).read_bytes();profile=json.loads(((R/path).parent/'corrections.json').read_text());poses=next(m for m in profile['meshes'] if m['key']=='arm-left wrist transition')['poses'];errors={}
- for weapon,pose in zip(['cycler','shotgun','plate'],poses):
-  target=after['p'].astype(float).copy();target[pose['vertices']]+=np.array([[d['x'],d['y'],d['z']] for d in pose['deltas']]);error=float(np.abs(target-payload[var+'-'+weapon]).max());assert error<2e-7;(errors.update({weapon:error}));manifest=json.loads((R/f'authoring/thumb-volume-{weapon}.json').read_text());assert manifest['models'][var]['pose']==pose;assert manifest['models'][var]['sha256']==sha(R/path)
- result['assets'][var]={'sha256':sha(R/path),'correctionsSha256':sha((R/path).parent/'corrections.json'),'payloadReplaysExactly':True,'uvTopologyBindposesAndOtherChunksUnchanged':True,'targetRoundtripMaxError':errors}
- candidates=[]
- for p in (R/'simulation/Reports').glob('arms-*-process.json'):
-  j=json.loads(p.read_text(encoding='utf-8-sig'))
-  if j.get('variant')==var and j.get('firstPerson'):candidates.append((j['completedUtc'],p,j))
- _,process,j=max(candidates);r=json.loads(Path(j['report']).read_text(encoding='utf-8-sig'));assert j['testCompleted'] and j['testPassed'] and r['passed'] and not r['errors'];completed=datetime.datetime.fromisoformat(j['completedUtc'].replace('Z','+00:00'));assert completed.timestamp()>(R/'simulation/Build/MikuPhysicsLab_Data/resources.assets').stat().st_mtime
- result['unitySuites'].append({'variant':var,'report':Path(j['report']).relative_to(R).as_posix(),'completedUtc':j['completedUtc'],'passed':True,'configurations':r['testedConfigurations'],'frames':r['renderedFrames']})
-result['bakes']=json.loads((R/'authoring/thumb-grip-bake/unity-validation.json').read_text());assert all(x['passed'] and x['clips']==56 for x in result['bakes'])
-result['runtime']=[{'variant':x['variant'],'residentShapes':x['shapes'],'allocatedBytes':x['allocatedBytes'],'changingAllocatedBytes':x['changingAllocatedBytes'],'medianMilliseconds':statistics.median(x['millisecondsPerUpdate']),'medianChangingMillisecondsIncludingDriverWrite':statistics.median(x['changingMillisecondsIncludingDriverWrite'])} for x in json.loads((R/'authoring/thumb-volume-runtime-validation.json').read_text())];assert all(x['allocatedBytes']==x['changingAllocatedBytes']==0 for x in result['runtime'])
-transitions=json.loads((R/'authoring/recoil-transition-validation.json').read_text());assert len(transitions)==72 and all(x['passed'] for x in transitions);result['recoil']={'cases':len(transitions),'maximumHandOffsetBefore':max(x['handOffsetBefore'] for x in transitions),'maximumBoneOffsetAfter':max(x['maximumBoneOffsetAfter'] for x in transitions)}
-result['normalValidation']=json.loads((R/'authoring/thumb-volume-normal-validation.json').read_text());result['dllSha256']=sha(R/'bin/Release/MikuGlider.dll');result['build']={'errors':0,'warnings':0};result['limitations']=meta['limitations'];(R/'authoring/thumb-volume-build-validation.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+runpy.run_path(str(Path(__file__).with_name('verify_hand_acceptance.py')), run_name='__main__')

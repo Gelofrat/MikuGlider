@@ -15,6 +15,32 @@ internal sealed class SkinAppearanceController
         this.skins = skins;
     }
 
+    internal static void ReleaseVisualBinding(Renderer renderer)
+    {
+        if (!(renderer is SkinnedMeshRenderer surface)) return;
+        ModelPoseCorrections.PrepareMeshChange(surface);
+    }
+
+    internal static void PrepareSkinChange(PlayerAnimation animator, bool firstPersonView)
+    {
+        // Native skin replacement swaps meshes, but does not restore renderer.bones.
+        // Remove our temporary bone layout before a different mesh can use it.
+        Transform firstPerson = firstPersonView ? animator.FirstPersonRoot : null;
+        if (firstPerson != null && firstPerson.childCount >= 3)
+        {
+            ReleaseVisualBinding(firstPerson.GetChild(1).GetComponent<SkinnedMeshRenderer>());
+            ReleaseVisualBinding(firstPerson.GetChild(2).GetComponent<SkinnedMeshRenderer>());
+        }
+        PrepareRigSkinChange(animator.ThirdPersonRig);
+        if (animator.SelfThirdPersonAnimator != null) PrepareRigSkinChange(NativeSkinAccess.GetSelfRig(animator.SelfThirdPersonAnimator));
+    }
+
+    internal static void PrepareRigSkinChange(ThirdPersonRig rig)
+    {
+        if (rig != null && rig.SkinRenderers != null && rig.SkinRenderers.Length != 0)
+            ReleaseVisualBinding(rig.SkinRenderers[0]);
+    }
+
     internal void RefreshPlayer(Player player)
     {
         if (player == null || player.Animator == null)
@@ -149,7 +175,7 @@ internal sealed class SkinAppearanceController
             AnimatedHairVisual.Attach(rig.gameObject, body, rig.HeadBone, rig.MainRendererIndex, skin, player);
         if (skin?.Definition.PoseSkirt == true)
             SkirtGarmentVisual.Attach(rig.gameObject, body, rig.MainRendererIndex, skin, player);
-        ModelPoseCorrections.Attach(body, skin?.Assets.Corrections);
+        ModelPoseCorrections.Attach(body, skin?.Assets.Corrections, player?.Animator?.WeaponRoot);
     }
 
     internal void EnsurePreviewVisuals(MenuRig menu, Transform head)

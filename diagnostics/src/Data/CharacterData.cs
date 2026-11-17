@@ -56,6 +56,7 @@ internal sealed class RendererFrame
     public int vertexCount;
     public float[] localToWorld;
     public float[] boneMatrices;
+    public float[] sourceBoneMatrices;
     public float[] blendShapes;
     public string geometryStatus;
     public string error;

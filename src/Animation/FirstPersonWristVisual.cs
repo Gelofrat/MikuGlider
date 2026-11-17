@@ -23,6 +23,8 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
     private Vector3 restStart;
     private Vector3 restEnd;
     private Quaternion forearmRestRotation;
+    private RendererBoneBinding binding;
+    internal ModelPoseCorrections PoseOwner { get; set; }
 
     internal static void Attach(SkinnedMeshRenderer renderer, Mesh expected, SkinModelDefinition definition = null)
     {
@@ -32,11 +34,11 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
         float twistLength = definition?.firstPersonWristTwistLength ?? 0f;
         var current = renderer.GetComponent<FirstPersonWristVisual>();
         if (current != null && current.original == expected && expected != null &&
-            current.twistLength == twistLength)
+            current.twistLength == twistLength && current.binding != null && current.binding.Matches(renderer.bones))
         {
             renderer.sharedMesh = current.corrected;
             current.enabled = true;
-            current.UpdatePose();
+            if (current.PoseOwner == null || !current.PoseOwner.UpdatesWrist) current.UpdatePose();
             return;
         }
         if (current != null) current.Release();
@@ -106,7 +108,8 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
         corrected.name = source.name + " wrist transition";
         corrected.bindposes = poses;
         corrected.boneWeights = weights;
-        renderer.bones = extended;
+        binding = RendererBoneBinding.For(renderer);
+        binding.SetWrist(extended);
         renderer.sharedMesh = corrected;
         enabled = true;
         UpdatePose();
@@ -118,15 +121,15 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
     private void LateUpdate()
     {
         if (surface == null || surface.sharedMesh != corrected) { Release(); return; }
-        UpdatePose();
+        if (PoseOwner == null || !PoseOwner.UpdatesWrist) UpdatePose();
     }
 
-    internal void UpdatePose()
+    internal void UpdatePose(Transform palmOverride = null)
     {
         if (originalBones == null || originalBones[0] == null || originalBones[1] == null ||
             originalBones[2] == null || originalBones[3] == null) return;
         Matrix4x4 forearm = originalBones[1].localToWorldMatrix * forearmBind;
-        Matrix4x4 palm = originalBones[3].localToWorldMatrix * palmBind;
+        Matrix4x4 palm = (palmOverride != null ? palmOverride : originalBones[3]).localToWorldMatrix * palmBind;
         Vector3 startPoint = forearm.MultiplyPoint3x4(restStart);
         Vector3 endPoint = palm.MultiplyPoint3x4(restEnd);
         float length = ForearmBlendLength + PalmBlendLength;
@@ -181,11 +184,15 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
 
     private void Release()
     {
+        // Grip copies can reference our extra stations; release that layer first.
+        if (PoseOwner != null) PoseOwner.ResetShapes();
         if (surface != null && originalBones != null)
         {
             if (surface.sharedMesh == corrected) surface.sharedMesh = original;
-            surface.bones = originalBones;
         }
+        binding?.ReleaseWrist();
+        binding = null;
+        PoseOwner = null;
         for (int i = 0; i < joints.Length; i++)
         {
             if (joints[i] != null) Destroy(joints[i].gameObject);

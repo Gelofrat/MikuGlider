@@ -19,7 +19,7 @@ namespace MikuGlider.Diagnostics;
 public sealed class DiagnosticsPlugin : BaseUnityPlugin
 {
     public const string Guid = "horse.mycopunk.mikuglider.diagnostics";
-    public const string Version = "0.4.3";
+    public const string Version = "0.4.5";
     private DiagnosticOptions options;
     private SkirtTargets discovery;
     private LocalControl control;

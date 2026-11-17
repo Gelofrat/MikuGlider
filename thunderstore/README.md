@@ -32,3 +32,17 @@ Change the keys in `BepInEx/config/horse.mycopunk.mikuglider.cfg`. Set a key to 
 *Model renders. Appearance may vary in game.*
 
 [View all artwork](https://github.com/Gelofrat/MikuGlider/tree/main/arts) - [Credits](https://github.com/Gelofrat/MikuGlider/blob/main/ATTRIBUTION.md)
+
+## Contact
+
+For questions or suggestions, feel free to contact me on [Discord](https://discord.com/users/970246624985120828).
+
+## Author
+
+Gelofrat
+
+Created with AI assistance.
+
+## License
+
+MIT. See the included LICENSE file.

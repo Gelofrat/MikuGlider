@@ -3,7 +3,7 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>MikuGlider.Diagnostics</AssemblyName>
     <RootNamespace>MikuGlider.Diagnostics</RootNamespace>
-    <Version>0.4.3</Version>
+    <Version>0.4.5</Version>
     <LangVersion>latest</LangVersion>
     <PathMap>$(MSBuildProjectDirectory)=/_/MikuGlider.Diagnostics</PathMap>
     <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>

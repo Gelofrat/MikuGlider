@@ -5,6 +5,13 @@ using UnityEngine;
 
 namespace MikuGlider;
 
+[HarmonyPatch(typeof(PlayerAnimation), nameof(PlayerAnimation.OverrideSkinnedMeshes))]
+internal static class NativeSkinMeshReplacementPatch
+{
+    private static void Prefix(PlayerAnimation __instance, bool ___isFirstPerson) =>
+        SkinAppearanceController.PrepareSkinChange(__instance, ___isFirstPerson);
+}
+
 [HarmonyPatch(typeof(Player), nameof(Player.ApplySkins))]
 internal static class PlayerSkinsAppliedPatch
 {
@@ -19,6 +26,9 @@ internal static class PlayerSkinsAppliedPatch
 [HarmonyPatch(typeof(ThirdPersonAnimator), nameof(ThirdPersonAnimator.UpdateMesh))]
 internal static class SelfMeshUpdatedPatch
 {
+    private static void Prefix(ThirdPersonAnimator __instance) =>
+        SkinAppearanceController.PrepareRigSkinChange(NativeSkinAccess.GetSelfRig(__instance));
+
     private static void Postfix(ThirdPersonAnimator __instance)
     {
         ThirdPersonRig rig = NativeSkinAccess.GetSelfRig(__instance);
@@ -44,9 +54,19 @@ internal static class MenuRigUpdatePatch
 [HarmonyPatch(typeof(CharacterSelectWindow), "ApplySkin")]
 internal static class CharacterPreviewMaterialsPatch
 {
-    private static void Prefix(List<Material> mats, Mesh mesh)
+    private static void Prefix(Renderer renderer, List<Material> mats, Mesh mesh)
     {
+        SkinAppearanceController.ReleaseVisualBinding(renderer);
         MikuGliderPlugin.Runtime?.Appearance.PreparePreviewMaterials(mesh, mats);
+    }
+}
+
+[HarmonyPatch(typeof(GearSelectionWindow), nameof(GearSelectionWindow.SetupSkinMaterials))]
+internal static class GearPreviewSkinReplacementPatch
+{
+    private static void Prefix(GameObject root)
+    {
+        if (root != null) SkinAppearanceController.ReleaseVisualBinding(root.GetComponentInChildren<SkinnedMeshRenderer>());
     }
 }
 

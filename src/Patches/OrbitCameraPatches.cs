@@ -18,7 +18,8 @@ internal static class ThirdPersonEnabledPatch
 {
     private static void Prefix(PlayerLook __instance)
     {
-        MikuGliderPlugin.Runtime?.Camera.BeforeEnable(__instance);
+        var runtime = MikuGliderPlugin.Runtime;
+        if (runtime?.SessionEnabled == true) runtime.Camera.BeforeEnable(__instance);
     }
 }
 
@@ -27,12 +28,14 @@ internal static class CameraControlPatch
 {
     private static void Prefix(PlayerLook __instance)
     {
-        MikuGliderPlugin.Runtime?.Camera.BeforeCameraUpdate(__instance);
+        var runtime = MikuGliderPlugin.Runtime;
+        if (runtime?.SessionEnabled == true) runtime.Camera.BeforeCameraUpdate(__instance);
     }
 
     private static void Postfix(PlayerLook __instance)
     {
-        MikuGliderPlugin.Runtime?.Camera.AfterCameraUpdate(__instance);
+        var runtime = MikuGliderPlugin.Runtime;
+        if (runtime?.SessionEnabled == true) runtime.Camera.AfterCameraUpdate(__instance);
     }
 
     private static Exception Finalizer(PlayerLook __instance, Exception __exception)
@@ -47,6 +50,7 @@ internal static class ThirdPersonInterruptsPatch
 {
     private static bool Prefix(ThirdPersonAnimator __instance)
     {
-        return MikuGliderPlugin.Runtime?.Camera.ControlsAnimator(__instance) != true;
+        var runtime = MikuGliderPlugin.Runtime;
+        return runtime?.SessionEnabled != true || !runtime.Camera.ControlsAnimator(__instance);
     }
 }

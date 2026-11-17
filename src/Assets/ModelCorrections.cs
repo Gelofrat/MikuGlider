@@ -130,6 +130,47 @@ internal sealed class ModelCorrections
                     !Finite(norm) || Mathf.Abs(norm - 1) > .001f)
                     throw new InvalidDataException("Invalid pose driver.");
             }
+            if (pose.boneRotations == null) throw new InvalidDataException("Missing pose bone rotations.");
+            if (pose.gripAnchor != null)
+            {
+                var anchor = pose.gripAnchor;
+                float maxReleaseDistance = correction.key == "arm-right" && bones == 28 ? .35f : .1f;
+                var q = anchor.rotation;
+                float norm = q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w;
+                if (anchor.bone != 3 || string.IsNullOrEmpty(anchor.name) || string.IsNullOrEmpty(anchor.path) ||
+                    !Finite(anchor.position.x) || !Finite(anchor.position.y) || !Finite(anchor.position.z) ||
+                    !Finite(norm) || Mathf.Abs(norm-1)>.001f || !Finite(anchor.innerDistance) ||
+                    !Finite(anchor.outerDistance) || anchor.innerDistance<=0 || anchor.outerDistance<=anchor.innerDistance ||
+                    anchor.outerDistance>maxReleaseDistance)
+                    throw new InvalidDataException("Invalid hand grip anchor.");
+                if (anchor.followArm && (correction.key != "arm-right" || bones != 28 || anchor.name != "jnt_R_handRoot_01"))
+                    throw new InvalidDataException("Arm alignment requires the first-person right-hand rig.");
+            }
+            var editedBones = new HashSet<int>();
+            foreach (PoseBoneRotation edit in pose.boneRotations)
+            {
+                bool bodyFinger = correction.key == "body" && bones == 72 && edit != null &&
+                    (edit.bone >= 17 && edit.bone <= 35 || edit.bone >= 40 && edit.bone <= 58) &&
+                    edit.name != null && edit.name.StartsWith("joint_", StringComparison.Ordinal);
+                bool palm = bones == 28 && correction.key == "arm-right" && edit != null && edit.bone == 3 && edit.name == "jnt_R_handRoot_01";
+                bool fingerRoot = bones == 28 && correction.key == "arm-right" && edit != null &&
+                    (edit.bone == 4 && edit.name == "jnt_R_IndexA" || edit.bone == 19 && edit.name == "jnt_R_PinkyA");
+                bool wrist = bones == 28 && correction.key == "arm-right" && edit != null && edit.bone == 2 &&
+                    edit.name == "jnt_R_hand_01" && pose.gripAnchor?.followArm == true;
+                if (edit == null || (!bodyFinger && !palm && !wrist && (edit.bone < 4 || edit.bone >= Math.Min(28, bones))) ||
+                    string.IsNullOrEmpty(edit.name) || !editedBones.Add(edit.bone))
+                    throw new InvalidDataException("Invalid finger pose bone.");
+                Quaternion q = edit.rotation;
+                float norm = q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w;
+                if (!Finite(norm) || Mathf.Abs(norm - 1) > .001f || (!edit.absolute && Quaternion.Angle(Quaternion.identity, q) > 90))
+                    throw new InvalidDataException("Invalid finger pose rotation.");
+                if (edit.position.HasValue)
+                {
+                    Vector3 p = edit.position.Value;
+                    if ((!bodyFinger && !palm && !fingerRoot) || !Finite(p.x) || !Finite(p.y) || !Finite(p.z) || p.magnitude > .5f)
+                        throw new InvalidDataException("Invalid hand joint position.");
+                }
+            }
             vertices.Clear();
             for (int i = 0; i < pose.vertices.Length; i++)
             {
@@ -169,8 +210,41 @@ internal sealed class PoseShapeEdit
     // Empty inherits the mesh scope, preserving existing correction profiles.
     public string weapon = "";
     public PoseShapeDriver[] drivers = Array.Empty<PoseShapeDriver>();
+    // Independent regions (e.g. thumb and four-finger grip) must not halve each
+    // other's weights. Empty preserves the original shared normalization group.
+    public string group = "";
     public int[] vertices = Array.Empty<int>();
     public Vector3[] deltas = Array.Empty<Vector3>();
+    public PoseBoneRotation[] boneRotations = Array.Empty<PoseBoneRotation>();
+    public PoseGripAnchor gripAnchor = null;
+}
+
+[Serializable]
+internal sealed class PoseGripAnchor
+{
+    public int bone = 3;
+    public string name = "";
+    public string path = "";
+    public Vector3 position = Vector3.zero;
+    public Quaternion rotation = Quaternion.identity;
+    // A closed viewmodel grip must carry the forearm with it, rather than
+    // pulling the palm away from a robot wrist that twists independently.
+    public bool followArm = false;
+    // In model units. Release the contact smoothly when the animation moves
+    // the hand away; never pin a detached hand to the weapon.
+    public float innerDistance = .02f;
+    public float outerDistance = .06f;
+}
+
+[Serializable]
+internal sealed class PoseBoneRotation
+{
+    public int bone = 0;
+    public string name = "";
+    public Quaternion rotation = Quaternion.identity;
+    public bool absolute = false;
+    // Optional authored joint centre on the renderer copy, in parent space.
+    public Vector3? position = null;
 }
 
 [Serializable]

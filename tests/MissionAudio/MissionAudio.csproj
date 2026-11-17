@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/Audio/*.cs" />
+    <Compile Include="../../src/Configuration/AudioSettings.cs" />
+    <Compile Include="../../src/Assets/EmbeddedResources.cs" />
+    <Compile Include="../../src/Patches/MissionIntroAudioPatch.cs" />
+    <EmbeddedResource Include="../../assets/sounds/Dalek-Exterminate.wav" LogicalName="MikuGlider.Audio.DalekExterminate" />
+    <Reference Include="BepInEx"><HintPath>$(MikuGliderGameRoot)/BepInEx/core/BepInEx.dll</HintPath></Reference>
+    <Reference Include="0Harmony"><HintPath>$(MikuGliderGameRoot)/BepInEx/core/0Harmony.dll</HintPath></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(MikuGliderGameRoot)/Mycopunk_Data/Managed/UnityEngine.dll</HintPath></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(MikuGliderGameRoot)/Mycopunk_Data/Managed/UnityEngine.CoreModule.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

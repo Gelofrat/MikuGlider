@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-PATHS = {'v1': 'assets/MikuGlider.mikumesh',
+PATHS = {'v1': 'assets/V1/MikuGlider.mikumesh',
          'v2': 'assets/v2/MikuGliderV2.mikumesh',
          'v3': 'assets/v3/MikuGliderV3.mikumesh'}
 DT = np.dtype([('p','<f4',3),('n','<f4',3),('uv','<f4',2),('w','<f4',4),('ids','<i4',4)])

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Doubles.cs" />
+    <Compile Include="../../src/Runtime/ModRuntime.cs" />
+    <Compile Include="../../src/Configuration/AudioSettings.cs" />
+    <Compile Include="../../src/Camera/WeaponVisibility.cs" />
+    <Compile Include="../../src/Configuration/HotkeySettings.cs" />
+    <Compile Include="../../src/Skins/SkinCatalog.cs" />
+    <Compile Include="../../src/Skins/SkinRegistry.cs" />
+    <Compile Include="../../src/Skins/RegisteredSkin.cs" />
+    <Compile Include="../../src/Skins/SkinInventory.cs" />
+    <Compile Include="../../src/Appearance/SkinMaterialOrder.cs" />
+    <Compile Include="../../src/Camera/OrbitCameraController.cs" />
+    <Compile Include="../../src/Camera/ThirdPersonCameraMode.cs" />
+    <Compile Include="../../src/Camera/CameraFrameOverrides.cs" />
+  </ItemGroup>
+</Project>

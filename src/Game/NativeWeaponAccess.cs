@@ -9,6 +9,9 @@ internal static class NativeWeaponAccess
     private static readonly FieldInfo ThirdPersonData = Find("thirdPersonData");
     private static readonly FieldInfo ThirdPersonScale = Find("thirdPersonScaleMultiplier");
     private static readonly FieldInfo Held = Find("isGunHeld");
+    private static readonly FieldInfo SecondMagazine = Find("mag1Model");
+
+    internal static Transform Mag1Model(Gun gun) => gun != null ? SecondMagazine.GetValue(gun) as Transform : null;
 
     internal static bool TryGet(Gun gun, Character character, out Gun.ThirdPersonData data, out Vector3 scale)
     {

@@ -3,7 +3,7 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>MikuGlider</AssemblyName>
     <RootNamespace>MikuGlider</RootNamespace>
-    <Version>0.12.29</Version>
+    <Version>0.12.37</Version>
     <LangVersion>latest</LangVersion>
     <EnableDefaultItems>false</EnableDefaultItems>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
@@ -17,36 +17,32 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\**\*.cs" />
-    <EmbeddedResource Include="assets\corrections.json" LogicalName="MikuGlider.Corrections" />
+    <EmbeddedResource Include="assets\sounds\Dalek-Exterminate.wav" LogicalName="MikuGlider.Audio.DalekExterminate" />
+    <EmbeddedResource Include="assets\V1\corrections.json" LogicalName="MikuGlider.Corrections" />
     <EmbeddedResource Include="assets\v2\corrections.json" LogicalName="MikuGliderV2.Corrections" />
     <EmbeddedResource Include="assets\v3\corrections.json" LogicalName="MikuGliderV3.Corrections" />
-    <EmbeddedResource Include="assets\MikuGlider.mikumesh" LogicalName="MikuGlider.Model" />
-    <EmbeddedResource Include="assets\textures\body-albedo.png" LogicalName="MikuGlider.Texture.BodyAlbedo" />
-    <EmbeddedResource Include="assets\textures\body-specular.png" LogicalName="MikuGlider.Texture.BodySpecular" />
-    <EmbeddedResource Include="assets\textures\face-albedo.png" LogicalName="MikuGlider.Texture.FaceAlbedo" />
-    <EmbeddedResource Include="assets\textures\face-specular.png" LogicalName="MikuGlider.Texture.FaceSpecular" />
-    <EmbeddedResource Include="assets\MikuGlider.mikuhair" LogicalName="MikuGlider.Hair" />
-    <EmbeddedResource Include="assets\textures\icon.png" LogicalName="MikuGlider.Texture.Icon" />
-    <EmbeddedResource Include="assets\definition.json" LogicalName="MikuGlider.Definition" />
+    <EmbeddedResource Include="assets\V1\MikuGlider.mikumesh" LogicalName="MikuGlider.Model" />
+    <EmbeddedResource Include="assets\V1\textures\body-albedo.png" LogicalName="MikuGlider.Texture.BodyAlbedo" />
+    <EmbeddedResource Include="assets\V1\textures\face-albedo.png" LogicalName="MikuGlider.Texture.FaceAlbedo" />
+    <EmbeddedResource Include="assets\V1\MikuGlider.mikuhair" LogicalName="MikuGlider.Hair" />
+    <EmbeddedResource Include="assets\V1\textures\icon.png" LogicalName="MikuGlider.Texture.Icon" />
+    <EmbeddedResource Include="assets\V1\definition.json" LogicalName="MikuGlider.Definition" />
     <EmbeddedResource Include="assets\v2\MikuGliderV2.mikumesh" LogicalName="MikuGliderV2.Model" />
     <EmbeddedResource Include="assets\v2\MikuGliderV2.mikuhair" LogicalName="MikuGliderV2.Hair" />
     <EmbeddedResource Include="assets\v2\definition.json" LogicalName="MikuGliderV2.Definition" />
     <EmbeddedResource Include="assets\v3\MikuGliderV3.mikumesh" LogicalName="MikuGliderV3.Model" />
     <EmbeddedResource Include="assets\v3\MikuGliderV3.mikuhair" LogicalName="MikuGliderV3.Hair" />
     <EmbeddedResource Include="assets\v3\textures\body-albedo.png" LogicalName="MikuGliderV3.Texture.BodyAlbedo" />
-    <EmbeddedResource Include="assets\v3\textures\body-specular.png" LogicalName="MikuGliderV3.Texture.BodySpecular" />
     <EmbeddedResource Include="assets\v3\textures\face-albedo.png" LogicalName="MikuGliderV3.Texture.FaceAlbedo" />
-    <EmbeddedResource Include="assets\v3\textures\face-specular.png" LogicalName="MikuGliderV3.Texture.FaceSpecular" />
     <EmbeddedResource Include="assets\v3\textures\icon.png" LogicalName="MikuGliderV3.Texture.Icon" />
     <EmbeddedResource Include="assets\v3\definition.json" LogicalName="MikuGliderV3.Definition" />
     <EmbeddedResource Include="assets\v2\textures\body-albedo.png" LogicalName="MikuGliderV2.Texture.BodyAlbedo" />
-    <EmbeddedResource Include="assets\v2\textures\body-specular.png" LogicalName="MikuGliderV2.Texture.BodySpecular" />
     <EmbeddedResource Include="assets\v2\textures\face-albedo.png" LogicalName="MikuGliderV2.Texture.FaceAlbedo" />
-    <EmbeddedResource Include="assets\v2\textures\face-specular.png" LogicalName="MikuGliderV2.Texture.FaceSpecular" />
     <EmbeddedResource Include="assets\v2\textures\icon.png" LogicalName="MikuGliderV2.Texture.Icon" />
     <Reference Include="BepInEx"><HintPath>$(MikuGliderGameRoot)\BepInEx\core\BepInEx.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="0Harmony"><HintPath>$(MikuGliderGameRoot)\BepInEx\core\0Harmony.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Assembly-CSharp"><HintPath>$(ManagedRoot)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="AK.Wwise.Unity.API"><HintPath>$(ManagedRoot)\AK.Wwise.Unity.API.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Newtonsoft.Json"><HintPath>$(ManagedRoot)\Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine"><HintPath>$(ManagedRoot)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedRoot)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
@@ -60,6 +56,12 @@
     <Reference Include="Unity.Netcode.Runtime"><HintPath>$(ManagedRoot)\Unity.Netcode.Runtime.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Unity.Collections"><HintPath>$(ManagedRoot)\Unity.Collections.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
+  <Target Name="GenerateBuildVersion" BeforeTargets="CoreCompile">
+    <WriteLinesToFile File="$(IntermediateOutputPath)BuildInfo.g.cs"
+      Lines="namespace MikuGlider { internal static class BuildInfo { internal const string Version = &quot;$(Version)&quot;%3B } }"
+      Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup><Compile Include="$(IntermediateOutputPath)BuildInfo.g.cs" /></ItemGroup>
+  </Target>
   <Target Name="CheckGameReferences" BeforeTargets="ResolveAssemblyReferences">
     <Error Condition="'$(GameRoot)' == ''" Text="Set GameRoot in Directory.Build.local.props, MYCOPUNK_GAME_ROOT, or -p:GameRoot=... . See Directory.Build.local.props.example." />
     <Error Condition="'$(GameRoot)' != '' and !Exists('$(ManagedRoot)\Assembly-CSharp.dll')" Text="GameRoot must contain Mycopunk_Data\Managed\Assembly-CSharp.dll: $(MikuGliderGameRoot)" />

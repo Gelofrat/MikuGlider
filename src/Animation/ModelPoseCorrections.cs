@@ -9,30 +9,44 @@ namespace MikuGlider;
 [DefaultExecutionOrder(1400)]
 internal sealed class ModelPoseCorrections : MonoBehaviour
 {
-    private static readonly ConditionalWeakTable<Mesh, AppliedMesh> Applied = new ConditionalWeakTable<Mesh, AppliedMesh>();
-    private static readonly ConditionalWeakTable<Mesh, object> Rejected = new ConditionalWeakTable<Mesh, object>();
-    private static readonly Action<Mesh, string, float, Vector3[], Vector3[], Vector3[]> AddShape =
-        (Action<Mesh, string, float, Vector3[], Vector3[], Vector3[]>)Delegate.CreateDelegate(
-            typeof(Action<Mesh, string, float, Vector3[], Vector3[], Vector3[]>),
-            typeof(Mesh).GetMethod("AddBlendShapeFrame", new[] { typeof(string), typeof(float), typeof(Vector3[]), typeof(Vector3[]), typeof(Vector3[]) }));
+    private static readonly ConditionalWeakTable<SkinnedMeshRenderer, RejectedBinding> Rejected =
+        new ConditionalWeakTable<SkinnedMeshRenderer, RejectedBinding>();
     private SkinnedMeshRenderer surface;
-    private AppliedMesh state;
+    private ModelCorrectionMeshes.AppliedMesh state;
+    private ModelCorrections profile;
     private Transform[] bones;
     private float[] activations;
     private float[] appliedWeights;
+    private int[] poseGroups;
+    private float[] groupTotals;
     private Transform weaponRoot;
     private string weaponNamePrefix = "";
     private Transform[] weaponChildren = Array.Empty<Transform>();
     private string[] weaponNames = Array.Empty<string>();
+    private Transform[] gripBones;
+    private Transform[] renderedBones;
+    private Quaternion[] gripOffsets;
+    private bool gripBound;
+    private Transform[] anchorTargets;
+    private bool anchorsDirty = true;
+    private FirstPersonWristVisual wrist;
+    private RendererBoneBinding binding;
 
-    internal sealed class AppliedMesh
+    internal bool UpdatesWrist => enabled && state != null && surface != null && GetApplied(surface.sharedMesh) == state &&
+        gripBones != null && gripBones.Length > 3 && gripBones[3] != null;
+
+    // Animation and capture code must read these, not feed the already-corrected
+    // renderer copies back into the pose drivers on the next frame.
+    internal Transform[] SourceBones => bones;
+
+    internal static ModelCorrectionMeshes.AppliedMesh GetApplied(Mesh mesh) => ModelCorrectionMeshes.GetApplied(mesh);
+
+    internal static void PrepareMeshChange(SkinnedMeshRenderer renderer)
     {
-        internal MeshCorrection Correction;
-        internal BoneWeight[] OriginalWeights;
-        internal int[] Shapes;
+        if (renderer == null) return;
+        renderer.GetComponent<ModelPoseCorrections>()?.ResetShapes();
+        FirstPersonWristVisual.Attach(renderer, null);
     }
-
-    internal static AppliedMesh GetApplied(Mesh mesh) => mesh != null && Applied.TryGetValue(mesh, out var state) ? state : null;
 
     internal static void Attach(SkinnedMeshRenderer renderer, ModelCorrections profile, Transform weaponRoot = null, string weaponNamePrefix = "")
     {
@@ -43,23 +57,47 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
             return;
         }
         Mesh candidate = renderer.sharedMesh;
-        if (Rejected.TryGetValue(candidate, out _)) return;
+        if (Rejected.TryGetValue(renderer, out var failure) && failure.Matches(candidate, profile, renderer.bones)) return;
         try
         {
             AttachValidated(renderer, profile);
             var component = renderer.GetComponent<ModelPoseCorrections>();
+            if (failure != null && component != null && component.state != null) Rejected.Remove(renderer);
             if (component != null && (component.weaponRoot != weaponRoot || component.weaponNamePrefix != weaponNamePrefix))
             {
                 component.weaponRoot = weaponRoot;
                 component.weaponNamePrefix = weaponNamePrefix;
                 component.weaponChildren = Array.Empty<Transform>();
                 component.weaponNames = Array.Empty<string>();
+                component.anchorsDirty = true;
             }
         }
         catch (Exception error) when (error is InvalidDataException || error is InvalidOperationException)
         {
-            Rejected.Add(candidate, new object());
+            renderer.GetComponent<ModelPoseCorrections>()?.ResetShapes();
+            Rejected.Remove(renderer);
+            Rejected.Add(renderer, new RejectedBinding(candidate, profile, renderer.bones));
             Debug.LogWarning("Miku Glider skipped incompatible manual corrections for " + candidate.name + ": " + error.Message);
+        }
+    }
+
+    private sealed class RejectedBinding
+    {
+        private readonly Mesh mesh;
+        private readonly ModelCorrections profile;
+        private readonly Transform[] bones;
+        private readonly string[] names;
+        internal RejectedBinding(Mesh mesh, ModelCorrections profile, Transform[] bones)
+        {
+            this.mesh = mesh; this.profile = profile; this.bones = bones;
+            names = Array.ConvertAll(bones, bone => bone != null ? bone.name : null);
+        }
+        internal bool Matches(Mesh mesh, ModelCorrections profile, Transform[] current)
+        {
+            if (this.mesh != mesh || this.profile != profile || bones.Length != current.Length) return false;
+            for (int i = 0; i < bones.Length; i++)
+                if (bones[i] != current[i] || names[i] != (current[i] != null ? current[i].name : null)) return false;
+            return true;
         }
     }
 
@@ -67,54 +105,199 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     {
         var previous = renderer.GetComponent<ModelPoseCorrections>();
         Mesh mesh = renderer.sharedMesh;
+        var known = GetApplied(mesh);
         if (previous != null && previous.state != null && previous.surface.sharedMesh == mesh &&
-            Applied.TryGetValue(mesh, out var known) && known == previous.state)
+            known == previous.state && previous.profile == profile && previous.MatchesSource(renderer.bones))
         {
-            previous.bones = renderer.bones;
+            previous.BindGripBones(true);
             previous.enabled = known.Shapes.Length > 0;
             return;
         }
-        MeshCorrection correction = mesh != null ? profile?.Find(mesh) : null;
+        MeshCorrection correction = profile.Find(mesh);
         if (correction == null)
         {
             if (previous != null) previous.ResetShapes();
             return;
         }
-        bool cached = Applied.TryGetValue(mesh, out var applied);
-        if (!cached) ModelCorrections.Validate(mesh, correction);
+        if (previous != null) previous.ReleaseGripBones();
+        if (!ModelCorrectionMeshes.Validate(mesh, correction)) return;
         Transform[] targets = renderer.bones;
+        if (targets.Length < mesh.bindposes.Length)
+            throw new InvalidOperationException("Correction skeleton has fewer bones than its mesh: " + correction.key);
         foreach (PoseShapeEdit pose in correction.poses)
+        {
+            if (pose.gripAnchor != null && (targets.Length <= 3 || targets[3] == null || targets[3].name != pose.gripAnchor.name))
+                throw new InvalidOperationException("Grip anchor skeleton differs: " + correction.key);
+            if (pose.gripAnchor?.followArm == true && targets[0] == null)
+                throw new InvalidOperationException("Grip anchor requires an arm root: " + correction.key);
             foreach (PoseShapeDriver driver in pose.drivers)
                 if (driver == null || driver.bone < 0 || driver.bone >= targets.Length || targets[driver.bone] == null || targets[driver.bone].name != driver.name)
                     throw new InvalidOperationException("Pose correction skeleton differs: " + correction.key);
-        if (!cached)
-        {
-            applied = new AppliedMesh { Correction = correction, OriginalWeights = mesh.boneWeights, Shapes = new int[correction.poses.Length] };
-            var weights = (BoneWeight[])applied.OriginalWeights.Clone();
-            foreach (VertexWeightEdit edit in correction.weights) weights[edit.vertex] = edit.value;
-            for (int i = 0; i < correction.poses.Length; i++)
-            {
-                PoseShapeEdit pose = correction.poses[i];
-                var deltas = new Vector3[mesh.vertexCount];
-                for (int v = 0; v < pose.vertices.Length; v++) deltas[pose.vertices[v]] = pose.deltas[v];
-                Vector3[] basis = mesh.vertices;
-                var points = (Vector3[])basis.Clone();
-                for (int v = 0; v < points.Length; v++) points[v] += deltas[v];
-                Vector3[] normalDeltas = CalculateNormalDeltas(basis, points, mesh.normals, mesh.triangles);
-                applied.Shapes[i] = mesh.blendShapeCount;
-                AddShape(mesh, "MikuManual:" + pose.name, 100, deltas, normalDeltas, null);
-            }
-            mesh.boneWeights = weights;
-            Applied.Add(mesh, applied);
+            foreach (PoseBoneRotation edit in pose.boneRotations)
+                if (edit.bone < 0 || edit.bone >= targets.Length || targets[edit.bone] == null || targets[edit.bone].name != edit.name)
+                    throw new InvalidOperationException("Finger correction skeleton differs: " + correction.key);
         }
+        var applied = ModelCorrectionMeshes.Prepare(mesh, correction);
         var component = previous ?? renderer.gameObject.AddComponent<ModelPoseCorrections>();
         component.surface = renderer;
         component.state = applied;
+        component.profile = profile;
         component.bones = renderer.bones;
+        component.wrist = renderer.GetComponent<FirstPersonWristVisual>();
+        if (component.wrist != null) component.wrist.PoseOwner = component;
+        component.anchorsDirty = true;
+        component.CreateGripBones();
         component.activations = new float[applied.Shapes.Length];
         component.appliedWeights = new float[applied.Shapes.Length];
+        component.poseGroups = new int[applied.Shapes.Length];
+        var groups = new Dictionary<string, int>();
+        for (int i = 0; i < applied.Shapes.Length; i++)
+        {
+            string key = correction.poses[i].group ?? "";
+            if (!groups.TryGetValue(key, out int group)) groups.Add(key, group = groups.Count);
+            component.poseGroups[i] = group;
+        }
+        component.groupTotals = new float[groups.Count];
         for (int i = 0; i < component.appliedWeights.Length; i++) component.appliedWeights[i] = float.NaN;
         component.enabled = applied.Shapes.Length > 0;
+    }
+
+    private bool MatchesSource(Transform[] current)
+    {
+        // A shared mesh/profile does not identify a skeleton instance. Only reuse
+        // copies while this renderer still refers to those copies or their source.
+        return RendererBoneBinding.SameBones(current, renderedBones) || RendererBoneBinding.SameBones(current, bones);
+    }
+
+    private void CreateGripBones()
+    {
+        var affected = new bool[bones.Length];
+        bool any = false;
+        foreach (PoseShapeEdit pose in state.Correction.poses)
+        {
+            foreach (PoseBoneRotation edit in pose.boneRotations) { affected[edit.bone] = true; any = true; }
+            if (pose.gripAnchor != null)
+            {
+                affected[pose.gripAnchor.followArm ? 0 : pose.gripAnchor.bone] = true;
+                any = true;
+            }
+        }
+        if (!any) return;
+        // Include descendants so changing a knuckle moves the following joints
+        // while retaining their native local translations and segment lengths.
+        for (int pass = 0; pass < bones.Length; pass++)
+            for (int i = 0; i < bones.Length; i++)
+            {
+                if (bones[i] == null || affected[i]) continue;
+                int parent = Array.IndexOf(bones, bones[i].parent);
+                if (parent >= 0 && affected[parent]) affected[i] = true;
+            }
+        gripBones = new Transform[bones.Length];
+        gripOffsets = new Quaternion[bones.Length];
+        renderedBones = (Transform[])bones.Clone();
+        for (int i = 0; i < bones.Length; i++)
+            if (affected[i])
+            {
+                var copy = new GameObject("Miku grip " + bones[i].name).transform;
+                copy.gameObject.hideFlags = HideFlags.DontSave;
+                gripBones[i] = renderedBones[i] = copy;
+            }
+        for (int i = 0; i < bones.Length; i++)
+            if (gripBones[i] != null)
+            {
+                int parent = Array.IndexOf(bones, bones[i].parent);
+                gripBones[i].SetParent(parent >= 0 && gripBones[parent] != null ? gripBones[parent] : bones[i].parent, false);
+                CopyGripBone(i, Quaternion.identity);
+            }
+        BindGripBones();
+    }
+
+    private void BindGripBones(bool force = false)
+    {
+        if (surface != null && renderedBones != null && (force || !gripBound))
+        {
+            binding = RendererBoneBinding.For(surface);
+            binding.SetGrip(renderedBones);
+            gripBound = true;
+        }
+    }
+
+    private void CopyGripBone(int i, Quaternion offset)
+    {
+        gripBones[i].localPosition = bones[i].localPosition;
+        gripBones[i].localRotation = bones[i].localRotation * offset;
+        gripBones[i].localScale = bones[i].localScale;
+    }
+
+    private void UpdateGripBones()
+    {
+        if (gripBones == null) return;
+        for (int i = 0; i < gripOffsets.Length; i++) gripOffsets[i] = Quaternion.identity;
+        for (int p = 0; p < activations.Length; p++)
+            if (activations[p] > 0)
+                foreach (PoseBoneRotation edit in state.Correction.poses[p].boneRotations)
+                {
+                    Quaternion offset = edit.absolute ? Quaternion.Inverse(bones[edit.bone].localRotation) * edit.rotation : edit.rotation;
+                    gripOffsets[edit.bone] *= Quaternion.Slerp(Quaternion.identity, offset,
+                        activations[p] / Mathf.Max(1, groupTotals[poseGroups[p]]));
+                }
+        for (int i = 0; i < gripBones.Length; i++)
+            if (gripBones[i] != null) CopyGripBone(i, gripOffsets[i]);
+        for (int p = 0; p < activations.Length; p++)
+            if (activations[p] > 0)
+                foreach (PoseBoneRotation edit in state.Correction.poses[p].boneRotations)
+                    if (edit.position.HasValue)
+                        gripBones[edit.bone].localPosition += (edit.position.Value - bones[edit.bone].localPosition)
+                            * (activations[p] / Mathf.Max(1, groupTotals[poseGroups[p]]));
+        for (int p = 0; p < activations.Length; p++)
+        {
+            var anchor = state.Correction.poses[p].gripAnchor;
+            if (anchor == null || anchorTargets == null || anchorTargets[p] == null || activations[p] <= 0) continue;
+            Transform source = bones[anchor.bone], target = anchorTargets[p], copy = gripBones[anchor.bone];
+            Vector3 position = target.TransformPoint(anchor.position);
+            float scale = Mathf.Max(.0001f, source.lossyScale.x);
+            float distance = Vector3.Distance(source.position, position) / scale;
+            float t = Mathf.InverseLerp(anchor.innerDistance, anchor.outerDistance, distance);
+            float weight = activations[p] / Mathf.Max(1, groupTotals[poseGroups[p]]) * (1 - t*t*(3-2*t));
+            if (anchor.followArm)
+            {
+                Quaternion rotation = Quaternion.Slerp(copy.rotation, target.rotation * anchor.rotation, weight);
+                Quaternion delta = rotation * Quaternion.Inverse(copy.rotation);
+                Vector3 translation = Vector3.Lerp(copy.position, position, weight) - delta * copy.position;
+                Transform root = gripBones[0];
+                root.SetPositionAndRotation(delta * root.position + translation, delta * root.rotation);
+                continue;
+            }
+            copy.SetPositionAndRotation(Vector3.Lerp(source.position, position, weight),
+                Quaternion.Slerp(source.rotation, target.rotation * anchor.rotation, weight));
+        }
+        if (wrist != null && gripBones.Length > 3 && gripBones[3] != null) wrist.UpdatePose(gripBones[3]);
+        // Reattach after OnDisable, or an ordinary renderer rebind. The native
+        // animation transforms themselves are never modified.
+        BindGripBones();
+    }
+
+    private void RestoreSourceBones()
+    {
+        gripBound = false;
+        binding?.ReleaseGrip();
+        binding = null;
+        if (wrist != null) wrist.UpdatePose();
+    }
+
+    private void ReleaseGripBones()
+    {
+        RestoreSourceBones();
+        if (wrist != null && wrist.PoseOwner == this) wrist.PoseOwner = null;
+        if (gripBones != null)
+            for (int i = 0; i < gripBones.Length; i++)
+                if (gripBones[i] != null)
+                {
+                    if (Application.isPlaying) Destroy(gripBones[i].gameObject);
+                    else DestroyImmediate(gripBones[i].gameObject);
+                }
+        gripBones = null; renderedBones = null; gripOffsets = null;
+        anchorTargets = null; anchorsDirty = true;
     }
 
     // Bake once at mesh creation. UV splits must not become new shading seams
@@ -176,18 +359,18 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     {
         if (surface == null || state == null || GetApplied(surface.sharedMesh) != state) { enabled = false; return; }
         UpdateWeaponCache();
-        float total = 0;
+        Array.Clear(groupTotals, 0, groupTotals.Length);
         for (int i = 0; i < activations.Length; i++)
         {
             PoseShapeEdit pose = state.Correction.poses[i];
             string weapon = string.IsNullOrEmpty(pose.weapon) ? state.Correction.weapon : pose.weapon;
             activations[i] = MatchesWeapon(weapon) ? Activation(pose, bones) : 0;
-            total += activations[i];
+            groupTotals[poseGroups[i]] += activations[i];
         }
-        float scale = 100f / Mathf.Max(1, total);
+        UpdateGripBones();
         for (int i = 0; i < activations.Length; i++)
         {
-            float weight = activations[i] * scale;
+            float weight = activations[i] * 100f / Mathf.Max(1, groupTotals[poseGroups[i]]);
             if (appliedWeights[i] == weight) continue;
             surface.SetBlendShapeWeight(state.Shapes[i], weight);
             appliedWeights[i] = weight;
@@ -202,6 +385,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         {
             weaponChildren = new Transform[count];
             weaponNames = new string[count];
+            anchorsDirty = true;
         }
         for (int i = 0; i < count; i++)
         {
@@ -209,11 +393,31 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
             if (weaponChildren[i] != child)
             {
                 weaponChildren[i] = child;
+                anchorsDirty = true;
                 // Names are read only when the weapon model changes, not every frame.
                 string name = child.name;
                 weaponNames[i] = name.StartsWith(weaponNamePrefix, StringComparison.Ordinal)
                     ? name.Substring(weaponNamePrefix.Length) : name;
             }
+        }
+        if (anchorsDirty)
+        {
+            anchorTargets = new Transform[state.Correction.poses.Length];
+            for (int i = 0; i < anchorTargets.Length; i++)
+            {
+                var anchor = state.Correction.poses[i].gripAnchor;
+                if (anchor == null) continue;
+                anchorTargets[i] = weaponRoot.Find(anchor.path);
+                // The lab names extracted meshes explicitly; the game uses
+                // the original MagRoot/Handle hierarchy above.
+                if (anchorTargets[i] == null && !string.IsNullOrEmpty(weaponNamePrefix))
+                {
+                    string leaf = anchor.path.Substring(anchor.path.LastIndexOf('/')+1);
+                    foreach (var child in weaponRoot.GetComponentsInChildren<Transform>(true))
+                        if (child.name == weaponNamePrefix + leaf) { anchorTargets[i] = child; break; }
+                }
+            }
+            anchorsDirty = false;
         }
     }
 
@@ -226,19 +430,24 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         return false;
     }
 
-    private void ResetShapes()
+    internal void ResetShapes()
     {
         if (surface != null && state != null && GetApplied(surface.sharedMesh) == state)
             foreach (int shape in state.Shapes) surface.SetBlendShapeWeight(shape, 0);
+        ReleaseGripBones();
         state = null;
+        profile = null;
         enabled = false;
     }
 
     private void OnDisable()
     {
+        RestoreSourceBones();
         if (surface != null && state != null && GetApplied(surface.sharedMesh) == state)
             foreach (int shape in state.Shapes) surface.SetBlendShapeWeight(shape, 0);
         if (appliedWeights != null)
             for (int i = 0; i < appliedWeights.Length; i++) appliedWeights[i] = float.NaN;
     }
+
+    private void OnDestroy() => ReleaseGripBones();
 }

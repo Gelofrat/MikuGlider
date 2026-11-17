@@ -35,11 +35,6 @@ internal sealed class OrbitCameraController
     {
         if (owner != null && (activeLook == null || ShouldStop()))
             Stop();
-        if (owner != null && Mode == ThirdPersonCameraMode.FreeOrbit)
-        {
-            ReleaseMovementInput();
-            owner.ModifyRawMoveInput += AdjustMovementInput;
-        }
         if (IsThirdPersonActive && CanUseInput(PlayerLook.Instance) && hotkeys.WeaponPressed)
             weaponVisibility.Toggle();
         weaponVisibility.Update(Player.LocalPlayer, IsThirdPersonActive);

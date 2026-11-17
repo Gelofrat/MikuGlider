@@ -4,9 +4,9 @@
     "clips": 16,
     "frames": 945,
     "newDegenerateTriangleFrames": 0,
-    "minimumTriangleAreaRatio": 0.20578444389174536,
-    "maximumWorldDisplacement": 0.015472845302956449,
-    "maximumActivationStepAt60Hz": 0.01993438410543935,
+    "minimumTriangleAreaRatio": 0.4456285981820263,
+    "maximumWorldDisplacement": 0.00030000020478268595,
+    "maximumActivationStepAt60Hz": 0.019981398219773017,
     "baseline": "Current base mesh with corrective disabled",
     "activationByClip": {
       "clip-312": {
@@ -77,7 +77,7 @@
       "weapon-plate-launcher-inspect": {
         "minimum": 0.9047432704455847,
         "maximum": 1.0,
-        "maximumStep": 0.01993438410543935
+        "maximumStep": 0.019981398219773017
       },
       "weapon-plate-launcher-fire-1": {
         "minimum": 1.0,
@@ -90,17 +90,116 @@
         "maximumStep": 0.0
       }
     },
+    "maximumCorrectiveJumpOverPalmWidth": 0.00024891737482449526,
+    "minimumEdgeLengthRatio": 0.8599298334063323,
+    "maximumEdgeLengthRatio": 1.1350534795186238,
+    "largeNormalRotationTriangleFrames": 0,
+    "baselineDegenerateTriangles": 0,
+    "sourceSha256": "055e8ec2843446ad2ca4a14b64432d7c3559d69a8a0f074e604f757b9cff5f32",
+    "correctionsSha256": "cda95a21b1b4471df14805ee1a4e6a7ec7c1e36bbe6ca75b814d7937641dfad3",
+    "clipCatalogSha256": "988a2ead5e8bc0026b696dd77379027a2c91a61f0f5806b6e6eb8c7593e7b3d8",
+    "clipBonesSha256": "58cf066ecd61e427b781ce789ca497756be6bef94a1b415432a485641fdbe555",
+    "worstSamples": {
+      "minimumEdgeLengthRatio": {
+        "clip": "weapon-plate-launcher-inspect",
+        "frame": 203,
+        "timeSeconds": 3.375372708235294,
+        "triangle": [
+          2656,
+          2655,
+          2644
+        ],
+        "value": 0.8599298334063323,
+        "edge": [
+          2655,
+          2656
+        ]
+      },
+      "maximumEdgeLengthRatio": {
+        "clip": "clip-317",
+        "frame": 30,
+        "timeSeconds": 0.4901961764705882,
+        "triangle": [
+          2656,
+          2655,
+          2644
+        ],
+        "value": 1.1350534795186238,
+        "edge": [
+          2604,
+          2615
+        ]
+      },
+      "correctiveJump": {
+        "clip": "weapon-plate-launcher-inspect",
+        "frame": 23,
+        "value": 0.00024891737482449526
+      },
+      "maximumActivationStepAt60Hz": {
+        "clip": "weapon-plate-launcher-inspect",
+        "frame": 23,
+        "timeSeconds": 0.38243139058823533,
+        "value": 0.019981398219773017
+      }
+    },
+    "limits": {
+      "minimumTriangleAreaRatio": 0.35,
+      "minimumEdgeLengthRatio": 0.5,
+      "maximumEdgeLengthRatio": 2.0,
+      "maximumCorrectiveJumpOverPalmWidth": 0.02
+    },
+    "anatomyStatus": "not_checked",
+    "unchecked": [
+      "right hand",
+      "uncorrected base anatomy",
+      "joint limits",
+      "thumb thickness",
+      "self intersections",
+      "weapon contact",
+      "runtime transitions",
+      "matched Glider visual review"
+    ],
     "smallestAreaSample": {
       "clip": "weapon-plate-launcher-inspect",
-      "frame": 132,
-      "activation": 1.0,
+      "frame": 31,
+      "activation": 0.9402607052054406,
       "triangle": [
-        2683,
-        2678,
-        2690
+        2805,
+        2785,
+        2812
       ],
-      "beforeDoubleArea": 4.759034886344547e-06,
-      "afterDoubleArea": 9.793353475478282e-07
-    }
+      "beforeDoubleArea": 5.926996767866385e-08,
+      "afterDoubleArea": 2.641239261093698e-08
+    },
+    "failures": [],
+    "passed": true
+  },
+  {
+    "variant": "v2",
+    "passed": true,
+    "correctionStatus": "not_applicable",
+    "anatomyStatus": "not_checked",
+    "sourceSha256": "0ba7d2e4b09dbce08770f25e78dc0588adca1b8148699779598328165a9eb55a",
+    "correctionsSha256": "7a35ba75e226c758f2feb5d770a6d95d655da2f0ba1e5e59dd3e9cfe9f991deb",
+    "clipCatalogSha256": "f875d39df2ad21eaa1f52b0fa80925e246b8f4e2c7e3a1aa8df2f937e24400c3",
+    "clipBonesSha256": "58cf066ecd61e427b781ce789ca497756be6bef94a1b415432a485641fdbe555",
+    "failures": [],
+    "unchecked": [
+      "base hand anatomy is checked by audit_hand_surface.py"
+    ]
+  },
+  {
+    "variant": "v3",
+    "passed": true,
+    "correctionStatus": "not_applicable",
+    "anatomyStatus": "not_checked",
+    "sourceSha256": "ae58ccc2672539205d847481ff01a0aecb5f44b9ca470a54fefe98a4239ef0eb",
+    "correctionsSha256": "3d8dbfdd08c923baf7e2ca17a6cdae60cd2764c2e67e93bc7bd3a7a637621450",
+    "clipCatalogSha256": "988a2ead5e8bc0026b696dd77379027a2c91a61f0f5806b6e6eb8c7593e7b3d8",
+    "clipBonesSha256": "58cf066ecd61e427b781ce789ca497756be6bef94a1b415432a485641fdbe555",
+    "failures": [],
+    "unchecked": [
+      "base hand anatomy is checked by audit_hand_surface.py"
+    ]
   }
 ]

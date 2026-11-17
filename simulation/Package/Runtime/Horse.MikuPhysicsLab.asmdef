@@ -1,0 +1,6 @@
+{
+  "name": "Horse.MikuPhysicsLab",
+  "rootNamespace": "Horse.MikuPhysicsLab",
+  "references": ["Unity.Newtonsoft.Json"],
+  "autoReferenced": true
+}

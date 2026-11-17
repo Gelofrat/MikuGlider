@@ -1,0 +1,6 @@
+{
+  "name": "Horse.MikuPhysicsLab.Editor",
+  "rootNamespace": "Horse.MikuPhysicsLab.Editor",
+  "references": ["Horse.MikuPhysicsLab", "Unity.Newtonsoft.Json"],
+  "includePlatforms": ["Editor"]
+}
