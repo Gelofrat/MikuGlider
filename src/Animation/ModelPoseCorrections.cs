@@ -31,6 +31,9 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     private bool anchorsDirty = true;
     private FirstPersonWristVisual wrist;
     private RendererBoneBinding binding;
+    private AnatomicalHandRig handRig;
+    private Func<string, bool> weaponMatch;
+    internal AnatomicalHandRig HandRig => handRig;
 
     internal bool UpdatesWrist => enabled && state != null && surface != null && GetApplied(surface.sharedMesh) == state &&
         gripBones != null && gripBones.Length > 3 && gripBones[3] != null;
@@ -110,7 +113,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
             known == previous.state && previous.profile == profile && previous.MatchesSource(renderer.bones))
         {
             previous.BindGripBones(true);
-            previous.enabled = known.Shapes.Length > 0;
+            previous.enabled = known.Shapes.Length > 0 || known.Correction.handRig != null;
             return;
         }
         MeshCorrection correction = profile.Find(mesh);
@@ -137,11 +140,26 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
                 if (edit.bone < 0 || edit.bone >= targets.Length || targets[edit.bone] == null || targets[edit.bone].name != edit.name)
                     throw new InvalidOperationException("Finger correction skeleton differs: " + correction.key);
         }
+        if (correction.handRig != null)
+        {
+            for (int i = 0; i < 4; i++)
+                if (targets[i] == null || (i > 0 && targets[i].parent != targets[i-1]))
+                    throw new InvalidOperationException("Anatomical arm chain differs: " + correction.key);
+            foreach (var joint in correction.handRig.joints)
+                if (joint.bone >= targets.Length || targets[joint.bone] == null || targets[joint.bone].name != joint.name ||
+                    targets[joint.bone].parent != targets[joint.parent])
+                    throw new InvalidOperationException("Anatomical hand skeleton differs: " + correction.key);
+            foreach (var grip in correction.handRig.grips)
+                foreach (var driver in grip.intent)
+                    if (targets[driver.bone].name != driver.name)
+                        throw new InvalidOperationException("Anatomical grip driver differs: " + correction.key);
+        }
         var applied = ModelCorrectionMeshes.Prepare(mesh, correction);
         var component = previous ?? renderer.gameObject.AddComponent<ModelPoseCorrections>();
         component.surface = renderer;
         component.state = applied;
         component.profile = profile;
+        component.weaponMatch = component.MatchesWeapon;
         component.bones = renderer.bones;
         component.wrist = renderer.GetComponent<FirstPersonWristVisual>();
         if (component.wrist != null) component.wrist.PoseOwner = component;
@@ -159,7 +177,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         }
         component.groupTotals = new float[groups.Count];
         for (int i = 0; i < component.appliedWeights.Length; i++) component.appliedWeights[i] = float.NaN;
-        component.enabled = applied.Shapes.Length > 0;
+        component.enabled = applied.Shapes.Length > 0 || correction.handRig != null;
     }
 
     private bool MatchesSource(Transform[] current)
@@ -173,6 +191,11 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     {
         var affected = new bool[bones.Length];
         bool any = false;
+        if (state.Correction.handRig != null)
+        {
+            for (int i = 0; i < 28; i++) affected[i] = true;
+            any = true;
+        }
         foreach (PoseShapeEdit pose in state.Correction.poses)
         {
             foreach (PoseBoneRotation edit in pose.boneRotations) { affected[edit.bone] = true; any = true; }
@@ -210,6 +233,8 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
                 CopyGripBone(i, Quaternion.identity);
             }
         BindGripBones();
+        if (state.Correction.handRig != null)
+            handRig = new AnatomicalHandRig(state.Correction.handRig, bones, renderedBones);
     }
 
     private void BindGripBones(bool force = false)
@@ -229,7 +254,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         gripBones[i].localScale = bones[i].localScale;
     }
 
-    private void UpdateGripBones()
+    private void UpdateGripBones(float deltaTime)
     {
         if (gripBones == null) return;
         for (int i = 0; i < gripOffsets.Length; i++) gripOffsets[i] = Quaternion.identity;
@@ -271,6 +296,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
             copy.SetPositionAndRotation(Vector3.Lerp(source.position, position, weight),
                 Quaternion.Slerp(source.rotation, target.rotation * anchor.rotation, weight));
         }
+        handRig?.Evaluate(weaponMatch, activations, deltaTime);
         if (wrist != null && gripBones.Length > 3 && gripBones[3] != null) wrist.UpdatePose(gripBones[3]);
         // Reattach after OnDisable, or an ordinary renderer rebind. The native
         // animation transforms themselves are never modified.
@@ -287,6 +313,8 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
 
     private void ReleaseGripBones()
     {
+        handRig?.Dispose();
+        handRig = null;
         RestoreSourceBones();
         if (wrist != null && wrist.PoseOwner == this) wrist.PoseOwner = null;
         if (gripBones != null)
@@ -355,7 +383,9 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         return weight;
     }
 
-    private void LateUpdate()
+    private void LateUpdate() => EvaluatePose(Application.isPlaying ? Time.deltaTime : 0);
+
+    internal void EvaluatePose(float deltaTime)
     {
         if (surface == null || state == null || GetApplied(surface.sharedMesh) != state) { enabled = false; return; }
         UpdateWeaponCache();
@@ -367,7 +397,10 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
             activations[i] = MatchesWeapon(weapon) ? Activation(pose, bones) : 0;
             groupTotals[poseGroups[i]] += activations[i];
         }
-        UpdateGripBones();
+        UpdateGripBones(deltaTime);
+        // Hand skin correctives follow the solved grasp, not the legacy pose gate.
+        Array.Clear(groupTotals, 0, groupTotals.Length);
+        for (int i = 0; i < activations.Length; i++) groupTotals[poseGroups[i]] += activations[i];
         for (int i = 0; i < activations.Length; i++)
         {
             float weight = activations[i] * 100f / Mathf.Max(1, groupTotals[poseGroups[i]]);
@@ -402,6 +435,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         }
         if (anchorsDirty)
         {
+            handRig?.ResolveAnchors(weaponRoot, weaponNamePrefix);
             anchorTargets = new Transform[state.Correction.poses.Length];
             for (int i = 0; i < anchorTargets.Length; i++)
             {
@@ -442,6 +476,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
 
     private void OnDisable()
     {
+        handRig?.Reset();
         RestoreSourceBones();
         if (surface != null && state != null && GetApplied(surface.sharedMesh) == state)
             foreach (int shape in state.Shapes) surface.SetBlendShapeWeight(shape, 0);

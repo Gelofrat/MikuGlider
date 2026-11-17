@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / 'simulation/Package'
 RESOURCES = PACKAGE / 'Resources/MikuPhysicsLab'
 SHARED = [
+    'src/Assets/HandRigDefinition.cs', 'src/Animation/HandKinematics.cs', 'src/Animation/AnatomicalHandRig.cs',
     'src/Camera/WeaponModelCopy.cs',
     'src/Assets/ModelCorrections.cs', 'src/Animation/ModelPoseCorrections.cs',
     'src/Animation/ModelCorrectionMeshes.cs', 'src/Animation/RendererBoneBinding.cs',

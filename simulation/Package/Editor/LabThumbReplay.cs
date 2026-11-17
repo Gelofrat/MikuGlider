@@ -27,6 +27,7 @@ namespace Horse.MikuPhysicsLab.Editor
             var frame=JObject.Parse(File.ReadLines(Path.Combine(capture,"frames.jsonl")).Skip(index).First());var ch=frame["character"];
             var cp=ch["camera"]["position"].ToObject<float[]>();var origin=originRelative?new Vector3(cp[0],cp[1],cp[2]):Vector3.zero;
             var actor=new LabActor(new LabVariant{key=variant,label="Recorded thumb"},true,false);
+            Mesh profileMesh=null;
             try
             {
                 var catalog=JsonUtility.FromJson<ClipCatalog>(Resources.Load<TextAsset>("MikuPhysicsLab/animations").text).clips;
@@ -41,6 +42,18 @@ namespace Horse.MikuPhysicsLab.Editor
                 var nativeSources=arm.GetComponent<ModelPoseCorrections>()?.SourceBones ?? arm.bones;
                 for(int i=0;i<28;i++)SetWorld(nativeSources[i],JArray.FromObject(matrices.Skip(i*16).Take(16).ToArray()),origin);
                 if(candidate!=null)LabHandReview.Candidate(arm,candidate);
+                else if(corrections!=null)
+                {
+                    // Candidate profiles require an unprepared mesh; a mesh that
+                    // already owns cached shapes would otherwise keep the old profile.
+                    ModelPoseCorrections.PrepareMeshChange(arm);
+                    var original=actor.Skin.Assets.GetMesh("arm-"+side);
+                    var prepared=ModelPoseCorrections.GetApplied(original);
+                    var copy=UnityEngine.Object.Instantiate(original);copy.name=original.name;copy.ClearBlendShapes();
+                    profileMesh=copy;
+                    if(prepared!=null)copy.boneWeights=prepared.OriginalWeights;
+                    arm.sharedMesh=copy;
+                }
                 if(side=="left")
                 {
                     FirstPersonWristVisual.Attach(arm,arm.sharedMesh,new SkinModelDefinition{firstPersonWristTwistLength=variant=="v3"?.24f:0});
@@ -82,6 +95,9 @@ namespace Horse.MikuPhysicsLab.Editor
                         boneNames=nativeSources.Take(28).Select(t=>t.name).ToArray(),boneParents=nativeSources.Take(28).Select(t=>Array.IndexOf(nativeSources,t.parent)).ToArray(),
                         bones=(correction!=null?correction.SourceBones:arm.bones).Take(28).Select(t=>Matrix(t.localToWorldMatrix)).ToArray(),
                         posedBones=arm.bones.Take(28).Select(t=>Matrix(t.localToWorldMatrix)).ToArray(),
+                        anatomicalBones=correction?.HandRig?.Controls.Select(t=>Matrix(t.localToWorldMatrix)).ToArray(),
+                        anatomicalGripWeight=correction?.HandRig?.Weight,
+                        anatomicalContactError=correction?.HandRig?.ContactError,
                         positions=baked.vertices.Select(p=>arm.transform.TransformPoint(p)).Select(p=>new[]{p.x,p.y,p.z}).ToArray(),
                         triangles=baked.triangles,uv=arm.sharedMesh.uv.Select(p=>new[]{p.x,p.y}).ToArray(),
                         shapeWeights=Enumerable.Range(0,arm.sharedMesh.blendShapeCount).Select(i=>arm.GetBlendShapeWeight(i)).ToArray(),
@@ -91,7 +107,7 @@ namespace Horse.MikuPhysicsLab.Editor
                 }
                 finally{UnityEngine.Object.DestroyImmediate(baked);}
             }
-            finally{actor.Dispose();UnityEngine.Object.DestroyImmediate(actor.Root);}
+            finally{actor.Dispose();UnityEngine.Object.DestroyImmediate(actor.Root);if(profileMesh!=null)UnityEngine.Object.DestroyImmediate(profileMesh);}
             return output;
         }
     }

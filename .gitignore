@@ -157,6 +157,17 @@ art/model/previews/*
 !/authoring/fit_compact_grip.py
 !/authoring/fit_grip_thumb.py
 !/authoring/pose_corrections.py
+!/authoring/build_anatomical_hand.py
+!/authoring/review_anatomical_hand.py
+!/authoring/check_anatomical_hand.py
+!/authoring/anatomical-hand/
+/authoring/anatomical-hand/*
+!/authoring/anatomical-hand/v1-corrections.json
+!/authoring/anatomical-hand/v3-corrections.json
+!/authoring/anatomical-hand/calibration.json
+!/authoring/anatomical-hand/acceptance.json
+!/authoring/anatomical-hand/math-checks.json
+!/authoring/anatomical-hand/binding-checks.json
 !/authoring/check_human_grip.py
 !/authoring/export_compact_grip.py
 !/simulation/Package/Editor/LabGripChecks.cs

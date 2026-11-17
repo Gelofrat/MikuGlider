@@ -1,0 +1,149 @@
+{
+  "recordedReplayPassed": false,
+  "anatomyStatus": "failed",
+  "inputSha256": {
+    "src/Animation/AnatomicalHandRig.cs": "70890fd8f1aa8d697b25ab0c4146461b8ddbfc8729e6e292c6dfc6a67924c478",
+    "src/Animation/HandKinematics.cs": "f555aa6aa3ffd8dfb5395b40cec8d80a885c9326aac84d97976dce6bdb62c55f",
+    "src/Animation/ModelPoseCorrections.cs": "a37aa5bd35fbb0125b7f398851627a7f8a50ae90fa7eb9556ea2ef14540490f8",
+    "src/Assets/HandRigDefinition.cs": "28e2ce2d11b52e1fbe5944af6494d10ea207cf6adbca58c632f06a3d77d04d9b",
+    "src/Assets/ModelCorrections.cs": "d305685c75e0ff5232f868da64ad11390884ee9bb5b6f2c00bf96923712631fd",
+    "simulation/Package/Editor/LabHandRigChecks.cs": "972da4d26b26d9515a2bea51d521b90bb969d7bb23c39d0418044010ddf18a43",
+    "simulation/Package/Editor/LabThumbReplay.cs": "57cfe908613a95e116fda36e4cff44ac2cc48b0f64582a8d6b7e8c649bf91a68",
+    "authoring/build_anatomical_hand.py": "2fa43844d9f5ce33b7190d133fe0d0e7866d3867e18d925a7da6ac8289b2238d",
+    "authoring/review_anatomical_hand.py": "3211733099418f56e14fb99c4069f2c59e39e3f9696ce32f9ed5c60a6f136817",
+    "authoring/check_anatomical_hand.py": "992fc8e4dc192d2e82a8669e9cdedda10eb1445b82bcc435fd18c978f10094fa",
+    "authoring/audit_hand_surface.py": "a45b44e5a65ce780699deadef5670aee09d10815aca25337b58c17a674a7e4ed",
+    "authoring/check_thumb_return.py": "034c6a726fbc1cfc8612a4dbe276963440a13c600f810de329df82d69fa7b3d0",
+    "authoring/thumb_contact.py": "eb6ae2991b0c460f229be291db2e04b09d087fd8a1abecf34c81ec031a53cadd",
+    "assets/V1/MikuGlider.mikumesh": "055e8ec2843446ad2ca4a14b64432d7c3559d69a8a0f074e604f757b9cff5f32",
+    "assets/V1/corrections.json": "9047fe08b76f102e64e280f479374f0bba4619033248e3ffb84b0b1b182b37aa",
+    "authoring/anatomical-hand/v1-corrections.json": "71d7a25910a48580158d83b474a02643c55894db18a4cf5ec8faa0f8c9006113",
+    "authoring/anatomical-hand/v1-original-corrections.json": "9047fe08b76f102e64e280f479374f0bba4619033248e3ffb84b0b1b182b37aa",
+    "authoring/anatomical-hand/v1-baseline.json": "9b65cebd404e21888e9272cb9cc254cbf99d9940402e3a978de1a2abbab87c48",
+    "authoring/anatomical-hand/v1-nails.json": "6796819aa525bf62ed2932b36cc13daf16e7923e8d522c598b9bed00d74c980b",
+    "assets/v3/MikuGliderV3.mikumesh": "ae58ccc2672539205d847481ff01a0aecb5f44b9ca470a54fefe98a4239ef0eb",
+    "assets/v3/corrections.json": "0e25dd9b7d060a2f5b8245774c33e98eab50c9dd1792470681f9b2d92a395f24",
+    "authoring/anatomical-hand/v3-corrections.json": "e20121df049fc977730da1357c515bd0cc15e7511e7d1692d4ba320c28b60b7d",
+    "authoring/anatomical-hand/v3-original-corrections.json": "0e25dd9b7d060a2f5b8245774c33e98eab50c9dd1792470681f9b2d92a395f24",
+    "authoring/anatomical-hand/v3-baseline.json": "f11da0407358e913fdf56f3ea0b404e9dfbef23fa097730fb3d40d22e9b2e6ed",
+    "authoring/anatomical-hand/v3-nails.json": "342d50614616b99fa35fdbc8e372cd5233242fd01bc353baafe401bb7b5e77c0",
+    "captures/20261116-180944-759-d974ee": "0f1ee1e090e5521c495fdc1456fb8ea434f895210ce5946e86aacd31434c55e0",
+    "captures/20261116-162906-805-0aca39": "3ab31ab563e8fa06fc46eb4968dab5c403c57d7951b295191cde5c6911ba2244",
+    "captures/20261116-181646-129-73fa08": "fe869be94084b9d69a0c7d0307f025ee801a40f187b02d576b6913b2fa95a057"
+  },
+  "frames": 1079,
+  "runtime": [
+    {
+      "variant": "v1",
+      "capture": "20261116-180944-759-d974ee",
+      "frames": 373,
+      "vertices": 3997,
+      "sourceError": 0.0,
+      "shoulderError": 0.0,
+      "lengthError": 0.0,
+      "nailError": 1.527369e-07,
+      "contactError": 0.000204535565,
+      "maxWeightStep": 0.03588576,
+      "steadyStateAllocatedBytes": 0,
+      "stable": true,
+      "released": true,
+      "rebound": true,
+      "passed": true
+    },
+    {
+      "variant": "v1",
+      "capture": "20261116-162906-805-0aca39",
+      "frames": 351,
+      "vertices": 3997,
+      "sourceError": 0.0,
+      "shoulderError": 0.0,
+      "lengthError": 0.0,
+      "nailError": 1.54890586e-07,
+      "contactError": 2.36405758e-05,
+      "maxWeightStep": 1.98591952e-05,
+      "steadyStateAllocatedBytes": 0,
+      "stable": true,
+      "released": true,
+      "rebound": true,
+      "passed": true
+    },
+    {
+      "variant": "v3",
+      "capture": "20261116-181646-129-73fa08",
+      "frames": 355,
+      "vertices": 3839,
+      "sourceError": 0.0,
+      "shoulderError": 0.0,
+      "lengthError": 0.0,
+      "nailError": 1.50757842e-07,
+      "contactError": 7.53245956e-07,
+      "maxWeightStep": 0.05473417,
+      "steadyStateAllocatedBytes": 0,
+      "stable": true,
+      "released": true,
+      "rebound": true,
+      "passed": true
+    }
+  ],
+  "surfaces": [
+    {
+      "variant": "v1",
+      "capture": "20261116-180944-759-d974ee",
+      "legacy": false,
+      "frames": 373,
+      "selfFrames": 16,
+      "contactFrames": 3,
+      "maximumPlaneStraddleDepthMeters": 0.0016752424754637506
+    },
+    {
+      "variant": "v1",
+      "capture": "20261116-180944-759-d974ee",
+      "legacy": true,
+      "frames": 373,
+      "selfFrames": 0,
+      "contactFrames": 2,
+      "maximumPlaneStraddleDepthMeters": 0.0016747646730787904
+    },
+    {
+      "variant": "v1",
+      "capture": "20261116-162906-805-0aca39",
+      "legacy": false,
+      "frames": 351,
+      "selfFrames": 0,
+      "contactFrames": 1,
+      "maximumPlaneStraddleDepthMeters": 0.0012384849986223107
+    },
+    {
+      "variant": "v1",
+      "capture": "20261116-162906-805-0aca39",
+      "legacy": true,
+      "frames": 351,
+      "selfFrames": 0,
+      "contactFrames": 1,
+      "maximumPlaneStraddleDepthMeters": 0.001240404268519252
+    },
+    {
+      "variant": "v3",
+      "capture": "20261116-181646-129-73fa08",
+      "legacy": false,
+      "frames": 355,
+      "selfFrames": 10,
+      "contactFrames": 0,
+      "maximumPlaneStraddleDepthMeters": 0.0
+    },
+    {
+      "variant": "v3",
+      "capture": "20261116-181646-129-73fa08",
+      "legacy": true,
+      "frames": 355,
+      "selfFrames": 0,
+      "contactFrames": 0,
+      "maximumPlaneStraddleDepthMeters": 0.0
+    }
+  ],
+  "limitations": [
+    "Only the listed v1 left / Plate Launcher and v3 right / Gunship recordings are covered.",
+    "Triangle tests exclude tangent, adjacent and sub-tolerance contacts; they are not continuous collision detection.",
+    "No approval of other weapons, v2, third-person hands, visual anatomy or interrupted live transitions."
+  ]
+}

@@ -180,6 +180,9 @@ internal sealed class ModelCorrections
                     throw new InvalidDataException("Invalid pose displacement.");
             }
         }
+        if (correction.handRig != null && correction.key != "arm-left wrist transition" && correction.key != "arm-right")
+            throw new InvalidDataException("Anatomical controls require a first-person hand mesh.");
+        correction.handRig?.Validate(bones, correction.poses);
     }
 
     private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
@@ -193,6 +196,7 @@ internal sealed class MeshCorrection
     public string weapon = "";
     public VertexWeightEdit[] weights = Array.Empty<VertexWeightEdit>();
     public PoseShapeEdit[] poses = Array.Empty<PoseShapeEdit>();
+    public HandRigDefinition handRig = null;
 }
 
 [Serializable]
