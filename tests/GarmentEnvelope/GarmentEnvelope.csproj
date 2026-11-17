@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><TargetFramework>net48</TargetFramework><OutputType>Exe</OutputType><LangVersion>latest</LangVersion><EnableDefaultItems>false</EnableDefaultItems></PropertyGroup>
-  <ItemGroup>
-    <Compile Include="Program.cs" />
-    <Compile Include="../../src/Physics/SkirtLayerEnvelope.cs" />
-    <Reference Include="UnityEngine.CoreModule"><HintPath>$(MikuGliderGameRoot)/Mycopunk_Data/Managed/UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
-  </ItemGroup>
-</Project>
