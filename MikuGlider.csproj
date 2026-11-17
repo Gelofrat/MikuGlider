@@ -3,7 +3,7 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>MikuGlider</AssemblyName>
     <RootNamespace>MikuGlider</RootNamespace>
-    <Version>0.12.41</Version>
+    <Version>0.12.42</Version>
     <LangVersion>latest</LangVersion>
     <EnableDefaultItems>false</EnableDefaultItems>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
