@@ -158,20 +158,24 @@ internal sealed class SeatedHandClearance
             // Do not pull an already clear hand down onto the lap (steering,
             // gestures, or a transition away from sitting).
             float overlap = float.NegativeInfinity;
-            for (int probe = -1; probe < 3; probe++)
+            for (int probe = -1; probe < probes.GetLength(1); probe++)
             {
                 Transform p = probe < 0 ? wrist : probes[side, probe];
                 if (p == null) continue;
-                float height = SurfaceHeight(p.position, .015f * scale);
+                float height = ContactHeight(p.position, .025f * scale, .12f * scale);
                 if (height > p.position.y - .32f * scale && height < p.position.y + .32f * scale)
-                    overlap = Mathf.Max(overlap, height + .025f * scale - p.position.y);
+                    overlap = Mathf.Max(overlap, height + .030f * scale - p.position.y);
             }
-            if (overlap <= 0 && RequiredElbowLift(side, scale) <= 0) { lifts[side] = elbowAngles[side] = 0; continue; }
+            if (overlap <= 0 && RequiredElbowLift(side, scale) <= 0 &&
+                lifts[side] < .0001f * scale && elbowAngles[side] < .00001f)
+            { lifts[side] = elbowAngles[side] = 0; continue; }
             for (int joint = 0; joint < 3; joint++) original[side, joint] = arms[side, joint].localRotation;
-            if (probes[side, 2] != null)
+            // Preserve the animated palm orientation instead of retipping it
+            // when the sampled cloth tangent changes across a seam.
+            if (!preserveHandHeading && probes[side, 2] != null)
             {
                 Vector3 direction = probes[side, 2].position - wrist.position;
-                Vector3 ahead = !preserveHandHeading && knees[0] != null && knees[1] != null ?
+                Vector3 ahead = knees[0] != null && knees[1] != null ?
                     (knees[0].position + knees[1].position) * .5f - wrist.position : direction;
                 ahead = Vector3.ProjectOnPlane(ahead, Vector3.up).normalized;
                 Vector3 start = wrist.position + ahead * .06f * scale;
@@ -184,20 +188,26 @@ internal sealed class SeatedHandClearance
                 if (tangent.sqrMagnitude > .000001f)
                     wrist.rotation = Quaternion.RotateTowards(Quaternion.identity,
                         Quaternion.FromToRotation(direction, tangent),
-                        (preserveHandHeading ? 15f : 75f) * Mathf.SmoothStep(0, 1, seated / .7f)) * wrist.rotation;
+                        75f * Mathf.SmoothStep(0, 1, seated / .7f) *
+                        Mathf.SmoothStep(0, 1, Mathf.Max(0, overlap) / (.06f * scale))) * wrist.rotation;
             }
-            float lift = float.NegativeInfinity;
-            for (int probe = -1; probe < probes.GetLength(1); probe++)
+            // With the native palm orientation the activation query already
+            // found this exact bound. Only a retipped hand needs another scan.
+            float lift = preserveHandHeading ? overlap : float.NegativeInfinity;
+            for (int probe = -1; !preserveHandHeading && probe < probes.GetLength(1); probe++)
             {
                 Transform contact = probe < 0 ? wrist : probes[side, probe];
                 if (contact == null) continue;
                 Vector3 point = contact.position;
-                float height = SurfaceHeight(point, .025f * scale);
+                float height = ContactHeight(point, .025f * scale, .12f * scale);
                 if (height > point.y - .32f * scale && height < point.y + .32f * scale)
                     lift = Mathf.Max(lift, height + .030f * scale - point.y);
             }
-            lift = float.IsNegativeInfinity(lift) ? 0f : Mathf.Clamp(lift, 0, .32f * scale) * Mathf.SmoothStep(0, 1, seated / .7f);
-            lifts[side] = Mathf.Lerp(lifts[side], lift, 1 - Mathf.Exp(-deltaTime * 18));
+            lift = float.IsNegativeInfinity(lift) ? 0f : Mathf.Clamp(lift, 0, .32f * scale);
+            // The surface is a lower bound, not a delayed target: filtering an
+            // increasing lift lets the descending hand pass through the cloth.
+            // Smooth only the release while maintaining clearance this frame.
+            lifts[side] = Mathf.Max(lift, Mathf.Lerp(lifts[side], lift, 1 - Mathf.Exp(-deltaTime * 18)));
             MoveWrist(arms[side, 0], arms[side, 1], wrist, wrist.position + Vector3.up * lifts[side]);
             ClearForearm(side, scale, seated, deltaTime);
             for (int joint = 0; joint < 3; joint++) applied[side, joint] = arms[side, joint].localRotation;
@@ -259,14 +269,20 @@ internal sealed class SeatedHandClearance
         return required;
     }
 
-    private float SurfaceHeight(Vector3 point, float radius)
+    private float SurfaceHeight(Vector3 point, float radius) => ContactHeight(point, radius, 0);
+
+    // A sloped approach outside the cloth edge lets the hand rise before
+    // crossing its silhouette. A hard edge alone would introduce a step in
+    // the required lift even when the animation moves smoothly sideways.
+    private float ContactHeight(Vector3 point, float radius, float approach)
     {
         float height = float.NegativeInfinity;
+        float reach = radius + approach;
         for (int i = 0; i < triangles.Length; i += 3)
         {
             SurfaceBounds bounds = triangleBounds[i / 3];
-            if (point.x < bounds.minX - radius || point.x > bounds.maxX + radius ||
-                point.z < bounds.minZ - radius || point.z > bounds.maxZ + radius) continue;
+            if (point.x < bounds.minX - reach || point.x > bounds.maxX + reach ||
+                point.z < bounds.minZ - reach || point.z > bounds.maxZ + reach) continue;
             Vector3 a = world[triangles[i]], b = world[triangles[i + 1]], c = world[triangles[i + 2]];
             Vector3 ab = b - a, ac = c - a, ap = point - a;
             float determinant = ab.x * ac.z - ab.z * ac.x;
@@ -275,22 +291,24 @@ internal sealed class SeatedHandClearance
             float v = (ab.x * ap.z - ab.z * ap.x) / determinant;
             if (u >= 0 && v >= 0 && u + v <= 1)
                 height = Mathf.Max(height, a.y + u * ab.y + v * ac.y);
-            height = Mathf.Max(height, EdgeHeight(point, a, b, radius));
-            height = Mathf.Max(height, EdgeHeight(point, b, c, radius));
-            height = Mathf.Max(height, EdgeHeight(point, c, a, radius));
+            height = Mathf.Max(height, EdgeHeight(point, a, b, radius, reach));
+            height = Mathf.Max(height, EdgeHeight(point, b, c, radius, reach));
+            height = Mathf.Max(height, EdgeHeight(point, c, a, radius, reach));
         }
         return height;
     }
 
     private struct SurfaceBounds { internal float minX, maxX, minZ, maxZ; }
 
-    private static float EdgeHeight(Vector3 point, Vector3 a, Vector3 b, float radius)
+    private static float EdgeHeight(Vector3 point, Vector3 a, Vector3 b, float radius, float reach)
     {
         Vector2 edge = new Vector2(b.x - a.x, b.z - a.z);
         Vector2 offset = new Vector2(point.x - a.x, point.z - a.z);
         float t = edge.sqrMagnitude > 1e-10f ? Mathf.Clamp01(Vector2.Dot(offset, edge) / edge.sqrMagnitude) : 0;
-        return (offset - edge * t).sqrMagnitude <= radius * radius
-            ? Mathf.Lerp(a.y, b.y, t) : float.NegativeInfinity;
+        float distanceSquared = (offset - edge * t).sqrMagnitude;
+        if (distanceSquared <= radius * radius) return Mathf.Lerp(a.y, b.y, t);
+        return distanceSquared <= reach * reach
+            ? Mathf.Lerp(a.y, b.y, t) - 3f * (Mathf.Sqrt(distanceSquared) - radius) : float.NegativeInfinity;
     }
 
     private static void MoveWrist(Transform shoulder, Transform elbow, Transform wrist, Vector3 target)

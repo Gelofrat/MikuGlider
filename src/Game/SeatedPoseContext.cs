@@ -22,7 +22,9 @@ internal sealed class SeatedPoseContext
         {
             clip = state.Clip;
             string name = clip.name;
-            sitting = name.StartsWith("Sit ", StringComparison.Ordinal) || name.StartsWith("Glider Sit ", StringComparison.Ordinal);
+            // "Glider Sitting" is the lowering transition before "Glider Sit Idle".
+            // Contact must already be active while the hand approaches the lap.
+            sitting = name.StartsWith("Sit ", StringComparison.Ordinal) || name.StartsWith("Glider Sit", StringComparison.Ordinal);
         }
         return sitting ? Mathf.Clamp01(state.Weight) : 0;
     }
