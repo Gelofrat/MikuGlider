@@ -62,7 +62,7 @@ internal sealed class SleevePoseRig : IDisposable
                 int low = Mathf.Min(Stations - 2, Mathf.FloorToInt(station));
                 float fraction = station - low;
                 weights[vertex] = BendWeights(weights[vertex], elbows[side], wristIndex,
-                    hands[side], offset + low, fraction);
+                    offset + low, fraction);
             }
         }
         Mesh = UnityEngine.Object.Instantiate(source);
@@ -72,8 +72,9 @@ internal sealed class SleevePoseRig : IDisposable
         UpdatePose();
     }
 
-    private static BoneWeight BendWeights(BoneWeight source, int elbow, int wrist, int hand,
-        int joint, float fraction) => SkinWeightBlend.Replace(source, elbow, wrist, hand, joint, fraction);
+    // Palm and finger weights remain anatomical; cuff smoothing must not bend skin.
+    private static BoneWeight BendWeights(BoneWeight source, int elbow, int wrist,
+        int joint, float fraction) => SkinWeightBlend.Replace(source, elbow, wrist, -1, joint, fraction);
 
     internal void UpdatePose()
     {
