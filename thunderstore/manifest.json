@@ -1,6 +1,6 @@
 {
   "name": "MikuGlider",
-  "version_number": "0.12.45",
+  "version_number": "0.12.46",
   "website_url": "https://github.com/Gelofrat/MikuGlider",
   "description": "Adds 3 Hatsune Miku skins for Glider.",
   "dependencies": [
