@@ -12,6 +12,8 @@ internal sealed class SkinModelDefinition
     public bool coatEnvelope = false;
     public bool preserveSourceGarmentShape = false;
     public bool preserveSeatedHandHeading = false;
+    public bool standingArmClearance = false;
+    public bool standingHipClearance = false;
     public float firstPersonWristTwistLength = 0f;
     public Vector3 torsoHoldPosition = Vector3.zero;
     public Vector3 torsoHoldRotation = Vector3.zero;

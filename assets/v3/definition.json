@@ -22,5 +22,7 @@
   },
   "coatEnvelope": true,
   "preserveSourceGarmentShape": true,
+  "standingHipClearance": true,
+  "standingArmClearance": true,
   "firstPersonWristTwistLength": 0.24
 }

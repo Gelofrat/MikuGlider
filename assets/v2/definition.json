@@ -22,5 +22,6 @@
   },
   "coatEnvelope": true,
   "preserveSeatedHandHeading": true,
+  "standingArmClearance": true,
   "coatCullMode": 1
 }

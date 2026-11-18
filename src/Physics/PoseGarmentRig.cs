@@ -24,13 +24,16 @@ internal sealed class PoseGarmentRig : IDisposable
     private readonly GarmentLegClearance legClearance;
     private readonly float[] openings = new float[Sectors];
     private readonly bool preserveCoatShape;
+    private readonly bool standingHipClearance;
     internal Transform Reference { get; }
     internal Transform[] Bones { get; }
     internal float SeatedBlend { get; private set; }
+    internal float StandingBlend { get; private set; }
 
-    internal PoseGarmentRig(Transform[] bones, Mesh skirt, Mesh bodyMesh, bool preserveCoatShape = false)
+    internal PoseGarmentRig(Transform[] bones, Mesh skirt, Mesh bodyMesh, bool preserveCoatShape = false, bool standingHipClearance = false)
     {
         this.preserveCoatShape = preserveCoatShape;
+        this.standingHipClearance = standingHipClearance;
         body = new CharacterBodyBones(bones);
         restSkirt = skirt;
         if (!body.HasLegs || body.Pelvis == null)
@@ -279,9 +282,10 @@ internal sealed class PoseGarmentRig : IDisposable
         float pelvisTilt = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.85f, .35f, Vector3.Dot(gravity, Vector3.down)));
         seated = flying ? 0f : Mathf.Max(seated, pelvisTilt);
         SeatedBlend = seated;
+        StandingBlend = flying ? 0 : Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.65f, .9f, Mathf.Min(-left.y, -right.y)));
         float drape = Mathf.SmoothStep(0, 1, seated / .7f);
         legClearance.UpdateLegs(inverse.MultiplyPoint3x4(body.LeftThigh.position), leftKnee,
-            inverse.MultiplyPoint3x4(body.RightThigh.position), rightKnee);
+            inverse.MultiplyPoint3x4(body.RightThigh.position), rightKnee, standingHipClearance ? StandingBlend : 0);
         for (int index = 0; index < Sectors; index++)
         {
             Vector3 radial = directions[index];

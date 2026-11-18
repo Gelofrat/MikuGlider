@@ -11,9 +11,10 @@ internal sealed class SeatedArmRig : IDisposable
     private readonly Transform[] source, copies;
     private readonly int[] order;
     private readonly SeatedHandClearance contact;
+    private readonly GarmentArmClearance standingContact;
     internal Transform[] Bones { get; }
 
-    internal SeatedArmRig(SkinnedMeshRenderer renderer, Transform[] source, Transform[] garmentBones, Mesh skirt, Mesh coat, Mesh handMesh = null)
+    internal SeatedArmRig(SkinnedMeshRenderer renderer, Transform[] source, Transform[] garmentBones, Mesh skirt, Mesh coat, Mesh handMesh = null, bool standingArmClearance = false)
     {
         this.renderer = renderer;
         this.source = source;
@@ -38,6 +39,7 @@ internal sealed class SeatedArmRig : IDisposable
         indices.Sort((a, b) => Depth(source[a]).CompareTo(Depth(source[b])));
         order = indices.ToArray();
         CopyPose(source);
+        if (standingArmClearance) standingContact = new GarmentArmClearance(Bones, skirt);
         contact = new SeatedHandClearance(Bones, garmentBones, skirt, coat, true, handMesh ?? renderer.sharedMesh, renderer.sharedMesh);
     }
 
@@ -63,16 +65,18 @@ internal sealed class SeatedArmRig : IDisposable
 
     internal void BindSleeves(Mesh sourceMesh, SleevePoseRig sleeves) => contact.BindSleeves(Bones, sourceMesh, sleeves);
 
-    internal void Apply(Transform reference, float weight, float deltaTime)
+    internal void Apply(Transform reference, float weight, float deltaTime, float standingWeight = 0)
     {
         CopyPose(RendererBoneBinding.BeforeSeated(renderer, source));
+        standingContact?.Apply(reference.localToWorldMatrix, deltaTime, standingWeight);
         contact.Apply(reference, weight, deltaTime);
-        if (weight > 0) RendererBoneBinding.For(renderer).SetSeated(Bones);
+        if (weight > 0 || standingContact?.IsActive == true) RendererBoneBinding.For(renderer).SetSeated(Bones);
         else RendererBoneBinding.ReleaseSeated(renderer);
     }
 
     internal void Reset()
     {
+        standingContact?.ResetCorrections();
         contact.Apply(null, 0, 0);
         RendererBoneBinding.ReleaseSeated(renderer);
         CopyPose(source);

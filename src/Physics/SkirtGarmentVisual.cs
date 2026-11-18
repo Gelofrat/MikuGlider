@@ -58,7 +58,7 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
             Mesh source = skin.Assets.GetMesh("skirt");
             bool preserveShape = skin.Assets.ModelDefinition.preserveSourceGarmentShape;
             Transform[] nativeBones = RendererBoneBinding.NativeBones(body);
-            poseRig = new PoseGarmentRig(nativeBones, source, body.sharedMesh, preserveShape);
+            poseRig = new PoseGarmentRig(nativeBones, source, body.sharedMesh, preserveShape, skin.Assets.ModelDefinition.standingHipClearance);
             skin.Assets.TryGetMesh("coat-flaps", out Mesh overlay);
             skirtMesh = poseRig.Bind(source, false, overlay);
             skirt = CreateGarment(root.gameObject, skirtMesh);
@@ -75,7 +75,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
                 coat = CreateGarment(garment, coatSurface.Mesh);
             }
             skin.Assets.TryGetMesh("sleeves", out Mesh sleeveMesh);
-            seatedArms = new SeatedArmRig(body, nativeBones, poseRig.Bones, skirtSurface.Mesh, coatSurface?.Mesh, sleeveMesh);
+            seatedArms = new SeatedArmRig(body, nativeBones, poseRig.Bones, skirtSurface.Mesh, coatSurface?.Mesh, sleeveMesh,
+                skin.Assets.ModelDefinition.standingArmClearance);
             if (sleeveMesh != null)
             {
                 var garment = new GameObject(skin.Definition.Key + " sleeves");
@@ -116,7 +117,9 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         return renderer;
     }
 
-    private void LateUpdate()
+    private void LateUpdate() => UpdatePose(Time.deltaTime);
+
+    internal void UpdatePose(float deltaTime)
     {
         if (!ready || body == null || poseRig == null) return;
         bool visible = skin.OwnsBody(body.sharedMesh) && body.enabled;
@@ -128,7 +131,8 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
         poseRig.UpdatePose(GliderEquipment.FindWingsuit(owner)?.IsFlying == true);
         skirtSurface?.Apply();
         coatSurface?.Apply();
-        seatedArms?.Apply(poseRig.Reference, seatedContext.Weight(owner, body), Time.deltaTime);
+        float seated = seatedContext.Weight(owner, body);
+        seatedArms?.Apply(poseRig.Reference, seated, deltaTime, poseRig.StandingBlend * (1 - seated));
         sleeveRig?.UpdatePose();
         PoseUpdateMilliseconds = (System.Diagnostics.Stopwatch.GetTimestamp() - started) *
             1000.0 / System.Diagnostics.Stopwatch.Frequency;

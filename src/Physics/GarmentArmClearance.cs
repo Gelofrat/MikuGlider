@@ -47,8 +47,11 @@ internal sealed class GarmentArmClearance
         corrections[1] = Quaternion.identity;
     }
 
-    internal void Apply(Matrix4x4 referenceToWorld, float deltaTime)
+    internal bool IsActive => active[0] || active[1];
+
+    internal void Apply(Matrix4x4 referenceToWorld, float deltaTime, float weight = 1)
     {
+        if (weight <= 0 && !IsActive) return;
         Matrix4x4 inverse = referenceToWorld.inverse;
         for (int side = 0; side < 2; side++)
         {
@@ -63,12 +66,14 @@ internal sealed class GarmentArmClearance
             float lateral = Mathf.Clamp01((Mathf.Abs(hand.x) - .10f) / .10f);
             float depth = Mathf.Clamp01((.30f - Mathf.Abs(hand.z)) / .10f);
             float correction = Mathf.Clamp(width + .060f - sign * hand.x, 0, .090f) * vertical * lateral * depth;
-            Vector3 target = hand + Vector3.right * (correction * sign);
-            Quaternion turn = Quaternion.RotateTowards(Quaternion.identity,
-                Quaternion.FromToRotation(hand - pivot, target - pivot), 9f);
+            Vector3 target = hand + Vector3.right * (correction * sign * weight);
+            Quaternion turn = correction * weight > 0
+                ? Quaternion.RotateTowards(Quaternion.identity,
+                    Quaternion.FromToRotation(hand - pivot, target - pivot), 9f)
+                : Quaternion.identity;
             corrections[side] = Quaternion.Slerp(corrections[side], turn, 1 - Mathf.Exp(-deltaTime * 18));
-            if (Quaternion.Angle(Quaternion.identity, corrections[side]) < .001f)
-                continue;
+            active[side] = false;
+            if (Quaternion.Angle(Quaternion.identity, corrections[side]) < .001f) continue;
             original[side] = shoulder.localRotation;
             Quaternion referenceRotation = referenceToWorld.rotation;
             shoulder.rotation = referenceRotation * corrections[side] * Quaternion.Inverse(referenceRotation) * shoulder.rotation;

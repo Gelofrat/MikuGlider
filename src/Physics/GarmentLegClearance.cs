@@ -15,6 +15,8 @@ internal sealed class GarmentLegClearance
     private Vector3 rightAxis;
     private float leftLength;
     private float rightLength;
+    private float proximalStart = .12f;
+    private float proximalFull = .35f;
 
     internal GarmentLegClearance(Mesh bodyMesh, Transform[] bones)
     {
@@ -62,7 +64,7 @@ internal sealed class GarmentLegClearance
         }
     }
 
-    internal void UpdateLegs(Vector3 leftStart, Vector3 leftEnd, Vector3 rightStart, Vector3 rightEnd)
+    internal void UpdateLegs(Vector3 leftStart, Vector3 leftEnd, Vector3 rightStart, Vector3 rightEnd, float standingWeight = 0)
     {
         leftHip = leftStart;
         leftAxis = leftEnd - leftStart;
@@ -72,6 +74,9 @@ internal sealed class GarmentLegClearance
         rightAxis = rightEnd - rightStart;
         rightLength = rightAxis.magnitude;
         rightAxis /= Mathf.Max(.001f, rightLength);
+        float standing = Mathf.Clamp01(standingWeight);
+        proximalStart = Mathf.Lerp(.12f, -.08f, standing);
+        proximalFull = Mathf.Lerp(.35f, .10f, standing);
     }
 
     internal Vector3 Project(Vector3 point, float padding)
@@ -85,16 +90,17 @@ internal sealed class GarmentLegClearance
         if (length < .001f) return point;
         float x = point.x - hip.x, y = point.y - hip.y, z = point.z - hip.z;
         float along = x * axis.x + y * axis.y + z * axis.z;
-        // Exclude the hip joint inside the pelvis before the thigh proxy fades in.
-        if (along <= .12f * length) return point;
-        float distance = along < length ? along : length;
+        // Upright thighs need clearance near the hip as well. Keep the original
+        // proximal fade for bent legs and flight so it cannot lift the waist.
+        if (along <= proximalStart * length) return point;
+        float distance = Mathf.Clamp(along, 0, length);
         float dx = x - axis.x * distance, dy = y - axis.y * distance, dz = z - axis.z * distance;
         float square = dx * dx + dy * dy + dz * dz;
         // Reject against the largest possible radius before evaluating taper
         // and the hip fade. This conservative test does not remove contacts.
         float limit = maximumRadius + padding;
         if (square >= limit * limit) return point;
-        float proximal = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(.12f, .35f, along / length));
+        float proximal = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(proximalStart, proximalFull, along / length));
         float sample = Mathf.Clamp(distance / length * Samples - .5f, 0, Samples - 1);
         int first = (int)sample;
         float radius = (Mathf.Lerp(radii[first], radii[first < Samples - 1 ? first + 1 : first], sample - first) + padding) * proximal;
