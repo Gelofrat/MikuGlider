@@ -17,19 +17,29 @@ internal sealed class SeatedHandClearance
     private readonly Matrix4x4[] bindposes;
     private readonly Matrix4x4[] matrices;
     private readonly Vector3[] vertices;
-    private readonly Vector3[] world;
+    private readonly Vector3[] world, nextWorld;
+    private bool surfaceReady, gridReady;
+    private readonly Vector3[] gridHands = new Vector3[2];
     private readonly BoneWeight[] weights;
     private readonly int[] triangles;
     private readonly SurfaceBounds[] triangleBounds;
+    private readonly SurfaceNode[] surfaceNodes;
+    private int nodeCount;
+    private const int GridSize = 128;
+    private readonly float[] heightGrid = new float[GridSize * GridSize];
+    private float gridX, gridZ, gridStep;
+    private Transform rasterReference;
     private readonly bool preserveHandHeading;
     private readonly Mesh skirtMesh, coatMesh;
     private readonly int[] vertexSources;
     private readonly List<Vector3> skirtVertices, coatVertices;
+    private readonly SeatedPalmContact palmContact;
 
     internal SeatedHandClearance(Transform[] body, Transform[] garmentBones, Mesh skirt, Mesh coat,
-        bool preserveHandHeading = false)
+        bool preserveHandHeading = false, Mesh handMesh = null, Mesh bodyMesh = null)
     {
         this.preserveHandHeading = preserveHandHeading;
+        if (handMesh != null) palmContact = new SeatedPalmContact(body, handMesh, bodyMesh, PalmHeight);
         skirtMesh = skirt;
         coatMesh = coat;
         skirtVertices = new List<Vector3>(skirt.vertexCount);
@@ -40,6 +50,9 @@ internal sealed class SeatedHandClearance
         BuildSurface(skirt, coat, out vertices, out weights, out triangles, out vertexSources);
         triangleBounds = new SurfaceBounds[triangles.Length / 3];
         world = new Vector3[vertices.Length];
+        nextWorld = new Vector3[vertices.Length];
+        surfaceNodes = new SurfaceNode[triangles.Length];
+        BuildTree(0, triangles.Length / 3);
         for (int side = 0; side < 2; side++)
         {
             string suffix = side == 0 ? "_L" : "_R";
@@ -81,7 +94,7 @@ internal sealed class SeatedHandClearance
             {
                 Vector3 p = vertices[i];
                 map[i] = -1;
-                Vector3Int cell = Vector3Int.RoundToInt(p / .02f);
+                Vector3Int cell = Vector3Int.RoundToInt(p / .004f);
                 if (!cells.TryGetValue(cell, out int index))
                 {
                     index = positions.Count;
@@ -119,12 +132,16 @@ internal sealed class SeatedHandClearance
         }
     }
 
+    internal void BindSleeves(Transform[] bones, Mesh source, SleevePoseRig sleeves)
+        => palmContact?.BindSleeves(bones, source, sleeves.Mesh, sleeves.Bones, sleeves.UpdatePose);
+
     internal void Apply(Transform reference, float seated, float deltaTime)
     {
         if (seated < .15f)
         {
             lifts[0] = lifts[1] = 0;
             elbowAngles[0] = elbowAngles[1] = 0;
+            palmContact?.Reset(0); palmContact?.Reset(1);
             return;
         }
         float scale = reference.lossyScale.x;
@@ -133,28 +150,60 @@ internal sealed class SeatedHandClearance
         skirtMesh.GetVertices(skirtVertices);
         if (coatMesh != null) coatMesh.GetVertices(coatVertices);
         for (int i = 0; i < bones.Length; i++) matrices[i] = bones[i].localToWorldMatrix * bindposes[i];
+        bool refresh = !surfaceReady;
         for (int i = 0; i < vertices.Length; i++)
         {
             BoneWeight w = weights[i];
             int source = vertexSources[i];
             Vector3 p = source >= 0 ? skirtVertices[source] : coatVertices[-source - 1];
-            world[i] = matrices[w.boneIndex0].MultiplyPoint3x4(p) * w.weight0 +
-                matrices[w.boneIndex1].MultiplyPoint3x4(p) * w.weight1 +
-                matrices[w.boneIndex2].MultiplyPoint3x4(p) * w.weight2 +
-                matrices[w.boneIndex3].MultiplyPoint3x4(p) * w.weight3;
+            Vector3 value = matrices[w.boneIndex0].MultiplyPoint3x4(p) * w.weight0;
+            if (w.weight1 > 0) value += matrices[w.boneIndex1].MultiplyPoint3x4(p) * w.weight1;
+            if (w.weight2 > 0) value += matrices[w.boneIndex2].MultiplyPoint3x4(p) * w.weight2;
+            if (w.weight3 > 0) value += matrices[w.boneIndex3].MultiplyPoint3x4(p) * w.weight3;
+            nextWorld[i] = value;
+            if ((value - world[i]).sqrMagnitude > .00000016f * scale * scale) refresh = true;
         }
-        for (int i = 0; i < triangleBounds.Length; i++)
+        if (refresh)
         {
-            Vector3 a = world[triangles[i * 3]], b = world[triangles[i * 3 + 1]], c = world[triangles[i * 3 + 2]];
-            triangleBounds[i] = new SurfaceBounds { minX = Mathf.Min(a.x, Mathf.Min(b.x, c.x)), maxX = Mathf.Max(a.x, Mathf.Max(b.x, c.x)),
-                minZ = Mathf.Min(a.z, Mathf.Min(b.z, c.z)), maxZ = Mathf.Max(a.z, Mathf.Max(b.z, c.z)) };
+            System.Array.Copy(nextWorld, world, world.Length);
+            for (int i = 0; i < triangleBounds.Length; i++)
+            {
+                Vector3 a = world[triangles[i * 3]], b = world[triangles[i * 3 + 1]], c = world[triangles[i * 3 + 2]];
+                triangleBounds[i] = new SurfaceBounds
+                {
+                    minX = Mathf.Min(a.x, Mathf.Min(b.x, c.x)),
+                    maxX = Mathf.Max(a.x, Mathf.Max(b.x, c.x)),
+                    minZ = Mathf.Min(a.z, Mathf.Min(b.z, c.z)),
+                    maxZ = Mathf.Max(a.z, Mathf.Max(b.z, c.z))
+                };
+            }
+            RefitTree();
+            surfaceReady = true;
+        }
+        rasterReference = reference;
+        bool patchMoved = !gridReady;
+        for (int side = 0; side < 2; side++) if (probes[side, 0] != null && (probes[side, 0].position - gridHands[side]).sqrMagnitude > .0004f * scale * scale) patchMoved = true;
+        if (palmContact != null && (refresh || patchMoved))
+        {
+            UpdateContactGrid(); gridReady = true;
+            for (int side = 0; side < 2; side++) if (probes[side, 0] != null) gridHands[side] = probes[side, 0].position;
         }
         for (int side = 0; side < 2; side++)
         {
             Transform wrist = arms[side, 2];
             if (wrist == null || arms[side, 0] == null || arms[side, 1] == null) continue;
             Vector3 local = reference.InverseTransformPoint(wrist.position);
-            if (local.z < .1f) { lifts[side] = elbowAngles[side] = 0; continue; }
+            if (local.z < .1f) { lifts[side] = elbowAngles[side] = 0; palmContact?.Reset(side); continue; }
+            for (int joint = 0; joint < 3; joint++) original[side, joint] = arms[side, joint].localRotation;
+            if (palmContact != null && palmContact.Apply(side, reference, seated, deltaTime, lifts[side]))
+            {
+                lifts[side] = 0;
+                ClearForearm(side, scale, seated, deltaTime);
+                palmContact.Settle(side, reference);
+                for (int joint = 0; joint < 3; joint++) applied[side, joint] = arms[side, joint].localRotation;
+                changed[side] = true;
+                continue;
+            }
             // Do not pull an already clear hand down onto the lap (steering,
             // gestures, or a transition away from sitting).
             float overlap = float.NegativeInfinity;
@@ -269,6 +318,66 @@ internal sealed class SeatedHandClearance
         return required;
     }
 
+    // A conservative height grid includes thin folds that a point-sampled
+    // height map can miss. Rebuild only when cloth or the hand patch moves.
+    private void UpdateContactGrid()
+    {
+        SurfaceBounds bounds = new SurfaceBounds { minX = float.PositiveInfinity, minZ = float.PositiveInfinity, maxX = float.NegativeInfinity, maxZ = float.NegativeInfinity };
+        for (int side = 0; side < 2; side++)
+        {
+            if (arms[side, 2] == null || rasterReference.InverseTransformPoint(arms[side, 2].position).z < .1f) continue;
+            for (int i = 0; i < probes.GetLength(1); i++) if (probes[side, i] != null)
+            {
+                Vector3 p = probes[side, i].position;
+                bounds.minX = Mathf.Min(bounds.minX, p.x); bounds.maxX = Mathf.Max(bounds.maxX, p.x);
+                bounds.minZ = Mathf.Min(bounds.minZ, p.z); bounds.maxZ = Mathf.Max(bounds.maxZ, p.z);
+            }
+        }
+        if (float.IsPositiveInfinity(bounds.minX)) bounds = surfaceNodes[0].bounds;
+        float padding = .08f * rasterReference.lossyScale.x;
+        bounds.minX -= padding; bounds.minZ -= padding; bounds.maxX += padding; bounds.maxZ += padding;
+        gridX = bounds.minX; gridZ = bounds.minZ;
+        gridStep = Mathf.Max(.001f, Mathf.Max(bounds.maxX - gridX, bounds.maxZ - gridZ) / (GridSize - 2));
+        for (int i = 0; i < heightGrid.Length; i++) heightGrid[i] = float.NegativeInfinity;
+        float half = gridStep * .5f;
+        for (int face = 0; face < triangleBounds.Length; face++)
+        {
+            int i = face * 3; Vector3 a = world[triangles[i]], b = world[triangles[i + 1]], c = world[triangles[i + 2]];
+            Vector3 ab = b - a, ac = c - a;
+            float determinant = ab.x * ac.z - ab.z * ac.x;
+            if (Mathf.Abs(determinant) < 1e-9f) continue;
+            float dx = (ab.y * ac.z - ac.y * ab.z) / determinant, dz = (ab.x * ac.y - ac.x * ab.y) / determinant;
+            float margin = half * (Mathf.Abs(dx) + Mathf.Abs(dz)), top = Mathf.Max(a.y, Mathf.Max(b.y, c.y));
+            float sign = Mathf.Sign(determinant);
+            SurfaceBounds box = triangleBounds[face];
+            int x0 = Mathf.Max(0, Mathf.FloorToInt((box.minX - gridX) / gridStep));
+            int x1 = Mathf.Min(GridSize - 1, Mathf.FloorToInt((box.maxX - gridX) / gridStep));
+            int z0 = Mathf.Max(0, Mathf.FloorToInt((box.minZ - gridZ) / gridStep));
+            int z1 = Mathf.Min(GridSize - 1, Mathf.FloorToInt((box.maxZ - gridZ) / gridStep));
+            for (int z = z0; z <= z1; z++) for (int x = x0; x <= x1; x++)
+            {
+                float px = gridX + (x + .5f) * gridStep, pz = gridZ + (z + .5f) * gridStep;
+                if (OutsideCell(a, b, px, pz, half, sign) || OutsideCell(b, c, px, pz, half, sign) || OutsideCell(c, a, px, pz, half, sign)) continue;
+                int cell = z * GridSize + x;
+                heightGrid[cell] = Mathf.Max(heightGrid[cell], Mathf.Min(top, a.y + dx * (px - a.x) + dz * (pz - a.z) + margin));
+            }
+        }
+    }
+
+    private static bool OutsideCell(Vector3 a, Vector3 b, float x, float z, float half, float sign)
+        => sign * ((b.x - a.x) * (z - a.z) - (b.z - a.z) * (x - a.x)) < -half * (Mathf.Abs(b.x - a.x) + Mathf.Abs(b.z - a.z));
+
+    private float PalmHeight(Vector3 point, float radius)
+    {
+        int x0 = Mathf.Max(0, Mathf.FloorToInt((point.x - radius - gridX) / gridStep));
+        int x1 = Mathf.Min(GridSize - 1, Mathf.FloorToInt((point.x + radius - gridX) / gridStep));
+        int z0 = Mathf.Max(0, Mathf.FloorToInt((point.z - radius - gridZ) / gridStep));
+        int z1 = Mathf.Min(GridSize - 1, Mathf.FloorToInt((point.z + radius - gridZ) / gridStep));
+        float height = float.NegativeInfinity;
+        for (int z = z0; z <= z1; z++) for (int x = x0; x <= x1; x++) height = Mathf.Max(height, heightGrid[z * GridSize + x]);
+        return height;
+    }
+
     private float SurfaceHeight(Vector3 point, float radius) => ContactHeight(point, radius, 0);
 
     // A sloped approach outside the cloth edge lets the hand rise before
@@ -276,26 +385,77 @@ internal sealed class SeatedHandClearance
     // the required lift even when the animation moves smoothly sideways.
     private float ContactHeight(Vector3 point, float radius, float approach)
     {
+        return triangles.Length == 0 ? float.NegativeInfinity : QueryTree(0, point, radius, radius + approach);
+    }
+
+    private float QueryTree(int nodeIndex, Vector3 point, float radius, float reach)
+    {
+        SurfaceNode node = surfaceNodes[nodeIndex];
+        if (point.x < node.bounds.minX - reach || point.x > node.bounds.maxX + reach ||
+            point.z < node.bounds.minZ - reach || point.z > node.bounds.maxZ + reach) return float.NegativeInfinity;
+        if (node.count == 0) return Mathf.Max(QueryTree(node.left, point, radius, reach), QueryTree(node.right, point, radius, reach));
         float height = float.NegativeInfinity;
-        float reach = radius + approach;
-        for (int i = 0; i < triangles.Length; i += 3)
+        for (int i = node.start * 3; i < (node.start + node.count) * 3; i += 3)
         {
             SurfaceBounds bounds = triangleBounds[i / 3];
             if (point.x < bounds.minX - reach || point.x > bounds.maxX + reach ||
                 point.z < bounds.minZ - reach || point.z > bounds.maxZ + reach) continue;
-            Vector3 a = world[triangles[i]], b = world[triangles[i + 1]], c = world[triangles[i + 2]];
-            Vector3 ab = b - a, ac = c - a, ap = point - a;
-            float determinant = ab.x * ac.z - ab.z * ac.x;
-            if (Mathf.Abs(determinant) < 1e-9f) continue;
-            float u = (ap.x * ac.z - ap.z * ac.x) / determinant;
-            float v = (ab.x * ap.z - ab.z * ap.x) / determinant;
-            if (u >= 0 && v >= 0 && u + v <= 1)
-                height = Mathf.Max(height, a.y + u * ab.y + v * ac.y);
-            height = Mathf.Max(height, EdgeHeight(point, a, b, radius, reach));
-            height = Mathf.Max(height, EdgeHeight(point, b, c, radius, reach));
-            height = Mathf.Max(height, EdgeHeight(point, c, a, radius, reach));
+            height = Mathf.Max(height, TriangleHeight(i / 3, point, radius, reach));
         }
         return height;
+    }
+
+    private float TriangleHeight(int face, Vector3 point, float radius, float reach)
+    {
+        SurfaceBounds bounds = triangleBounds[face];
+        if (point.x < bounds.minX - reach || point.x > bounds.maxX + reach || point.z < bounds.minZ - reach || point.z > bounds.maxZ + reach) return float.NegativeInfinity;
+        int i = face * 3;
+        Vector3 a = world[triangles[i]], b = world[triangles[i + 1]], c = world[triangles[i + 2]];
+        Vector3 ab = b - a, ac = c - a, ap = point - a;
+        float determinant = ab.x * ac.z - ab.z * ac.x;
+        if (Mathf.Abs(determinant) < 1e-9f) return float.NegativeInfinity;
+        float u = (ap.x * ac.z - ap.z * ac.x) / determinant, v = (ab.x * ap.z - ab.z * ap.x) / determinant;
+        float height = u >= 0 && v >= 0 && u + v <= 1 ? a.y + u * ab.y + v * ac.y : float.NegativeInfinity;
+        height = Mathf.Max(height, EdgeHeight(point, a, b, radius, reach));
+        height = Mathf.Max(height, EdgeHeight(point, b, c, radius, reach));
+        return Mathf.Max(height, EdgeHeight(point, c, a, radius, reach));
+    }
+
+    private struct SurfaceNode { internal int start, count, left, right; internal SurfaceBounds bounds; }
+
+    private int BuildTree(int start, int count)
+    {
+        int index = nodeCount++;
+        if (count <= 8) { surfaceNodes[index] = new SurfaceNode { start = start, count = count }; return index; }
+        Vector3 minimum = vertices[triangles[start * 3]], maximum = minimum;
+        for (int i = start * 3; i < (start + count) * 3; i++) { minimum = Vector3.Min(minimum, vertices[triangles[i]]); maximum = Vector3.Max(maximum, vertices[triangles[i]]); }
+        int axis = maximum.x - minimum.x > maximum.z - minimum.z ? 0 : 2;
+        var faces = new int[count]; for (int i = 0; i < count; i++) faces[i] = start + i;
+        System.Array.Sort(faces, (a, b) => ((vertices[triangles[a * 3]][axis] + vertices[triangles[a * 3 + 1]][axis] + vertices[triangles[a * 3 + 2]][axis])).CompareTo(
+            vertices[triangles[b * 3]][axis] + vertices[triangles[b * 3 + 1]][axis] + vertices[triangles[b * 3 + 2]][axis]));
+        var sorted = new int[count * 3]; for (int i = 0; i < count; i++) for (int j = 0; j < 3; j++) sorted[i * 3 + j] = triangles[faces[i] * 3 + j];
+        System.Array.Copy(sorted, 0, triangles, start * 3, sorted.Length);
+        int left = BuildTree(start, count / 2), right = BuildTree(start + count / 2, count - count / 2);
+        surfaceNodes[index] = new SurfaceNode { left = left, right = right }; return index;
+    }
+
+    private static SurfaceBounds Union(SurfaceBounds a, SurfaceBounds b) => new SurfaceBounds
+    {
+        minX = Mathf.Min(a.minX, b.minX),
+        maxX = Mathf.Max(a.maxX, b.maxX),
+        minZ = Mathf.Min(a.minZ, b.minZ),
+        maxZ = Mathf.Max(a.maxZ, b.maxZ)
+    };
+
+    private void RefitTree()
+    {
+        for (int i = nodeCount - 1; i >= 0; i--)
+        {
+            SurfaceNode node = surfaceNodes[i];
+            if (node.count == 0) node.bounds = Union(surfaceNodes[node.left].bounds, surfaceNodes[node.right].bounds);
+            else { node.bounds = triangleBounds[node.start]; for (int j = 1; j < node.count; j++) node.bounds = Union(node.bounds, triangleBounds[node.start + j]); }
+            surfaceNodes[i] = node;
+        }
     }
 
     private struct SurfaceBounds { internal float minX, maxX, minZ, maxZ; }
@@ -311,7 +471,7 @@ internal sealed class SeatedHandClearance
             ? Mathf.Lerp(a.y, b.y, t) - 3f * (Mathf.Sqrt(distanceSquared) - radius) : float.NegativeInfinity;
     }
 
-    private static void MoveWrist(Transform shoulder, Transform elbow, Transform wrist, Vector3 target)
+    internal static void MoveWrist(Transform shoulder, Transform elbow, Transform wrist, Vector3 target)
     {
         Quaternion handRotation = wrist.rotation;
         Vector3 origin = shoulder.position;

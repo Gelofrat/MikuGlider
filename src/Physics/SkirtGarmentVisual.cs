@@ -74,14 +74,16 @@ internal sealed class SkirtGarmentVisual : MonoBehaviour
                 coatSurface = poseRig.CreateSurface(coatMesh, true);
                 coat = CreateGarment(garment, coatSurface.Mesh);
             }
-            seatedArms = new SeatedArmRig(body, nativeBones, poseRig.Bones, skirtSurface.Mesh, coatSurface?.Mesh);
-            if (skin.Assets.TryGetMesh("sleeves", out Mesh sleeveMesh))
+            skin.Assets.TryGetMesh("sleeves", out Mesh sleeveMesh);
+            seatedArms = new SeatedArmRig(body, nativeBones, poseRig.Bones, skirtSurface.Mesh, coatSurface?.Mesh, sleeveMesh);
+            if (sleeveMesh != null)
             {
                 var garment = new GameObject(skin.Definition.Key + " sleeves");
                 garment.transform.SetParent(root, false);
                 sleeveRig = new SleevePoseRig(sleeveMesh, seatedArms.Bones, garment.transform);
                 sleeves = CreateGarment(garment, sleeveRig.Mesh);
                 sleeves.bones = sleeveRig.Bones;
+                seatedArms.BindSleeves(sleeveMesh, sleeveRig);
             }
             ModelPoseCorrections.Attach(surfaceRenderer, skin.Assets.Corrections);
             if (coat != null) ModelPoseCorrections.Attach(coat, skin.Assets.Corrections);

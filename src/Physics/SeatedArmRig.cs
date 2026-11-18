@@ -13,7 +13,7 @@ internal sealed class SeatedArmRig : IDisposable
     private readonly SeatedHandClearance contact;
     internal Transform[] Bones { get; }
 
-    internal SeatedArmRig(SkinnedMeshRenderer renderer, Transform[] source, Transform[] garmentBones, Mesh skirt, Mesh coat)
+    internal SeatedArmRig(SkinnedMeshRenderer renderer, Transform[] source, Transform[] garmentBones, Mesh skirt, Mesh coat, Mesh handMesh = null)
     {
         this.renderer = renderer;
         this.source = source;
@@ -38,7 +38,7 @@ internal sealed class SeatedArmRig : IDisposable
         indices.Sort((a, b) => Depth(source[a]).CompareTo(Depth(source[b])));
         order = indices.ToArray();
         CopyPose(source);
-        contact = new SeatedHandClearance(Bones, garmentBones, skirt, coat, true);
+        contact = new SeatedHandClearance(Bones, garmentBones, skirt, coat, true, handMesh ?? renderer.sharedMesh, renderer.sharedMesh);
     }
 
     private void CopyPose(Transform[] input)
@@ -60,6 +60,8 @@ internal sealed class SeatedArmRig : IDisposable
     }
 
     internal bool Matches(Transform[] bones) => RendererBoneBinding.SameBones(source, bones);
+
+    internal void BindSleeves(Mesh sourceMesh, SleevePoseRig sleeves) => contact.BindSleeves(Bones, sourceMesh, sleeves);
 
     internal void Apply(Transform reference, float weight, float deltaTime)
     {
