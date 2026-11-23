@@ -19,6 +19,7 @@ internal static class PlayerSkinsAppliedPatch
     {
         SkinAppearanceController appearance = MikuGliderPlugin.Runtime?.Appearance;
         appearance?.RefreshPlayer(__instance);
+        MikuGliderPlugin.Mask?.RefreshPlayer(__instance);
         appearance?.RefreshUtilities(__instance);
     }
 }
@@ -47,6 +48,7 @@ internal static class MenuRigUpdatePatch
 
     private static void Postfix(MenuRig __instance, Transform ___headBone)
     {
+        MikuGliderPlugin.Mask?.FinishPreview(__instance);
         MikuGliderPlugin.Runtime?.Appearance.EnsurePreviewVisuals(__instance, ___headBone);
     }
 }
@@ -75,6 +77,7 @@ internal static class MenuRigDisabledPatch
 {
     private static void Postfix(MenuRig __instance)
     {
+        MikuGliderPlugin.Mask?.HidePreview(__instance);
         MikuGliderPlugin.Runtime?.Appearance.ResetPreview(__instance);
     }
 }

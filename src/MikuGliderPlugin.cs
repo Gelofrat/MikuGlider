@@ -4,14 +4,15 @@ using HarmonyLib;
 
 namespace MikuGlider;
 
-[BepInPlugin(Guid, "Miku Glider", Version)]
-[MycoMod(null, (ModFlags)0)]
+[BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+[MycoMod(null, ModFlags.IsClientSide)]
 public sealed class MikuGliderPlugin : BaseUnityPlugin
 {
-    public const string Guid = "horse.mycopunk.mikuglider";
-    public const string Version = BuildInfo.Version;
+    public const string Guid = MyPluginInfo.PLUGIN_GUID;
+    public const string Version = MyPluginInfo.PLUGIN_VERSION;
 
     internal static ModRuntime Runtime { get; private set; }
+    internal static PorcelainMask Mask { get; private set; }
 
     private Harmony harmony;
     private bool active;
@@ -40,6 +41,15 @@ public sealed class MikuGliderPlugin : BaseUnityPlugin
             return;
 
         Runtime.RegisterSkins(Global.Instance.GliderCharacter);
+        if (Mask == null)
+        {
+            try
+            {
+                Mask = PorcelainMask.Register(Logger);
+                Runtime.Inventory.SetSharedHat(Mask.Upgrade, Global.Instance);
+            }
+            catch (Exception error) { Logger.LogError("Could not register Porcelain Mask: " + error); }
+        }
     }
 
     private void Update()
@@ -65,7 +75,7 @@ public sealed class MikuGliderPlugin : BaseUnityPlugin
         active = false;
         enabled = false;
         Runtime?.StopSession();
-        if (Runtime == null || Runtime.Skins.Count == 0)
+        if (Mask == null && (Runtime == null || Runtime.Skins.Count == 0))
         {
             harmony?.UnpatchSelf();
             Runtime = null;

@@ -4,6 +4,10 @@ Adds 3 **Hatsune Miku skins for Glider**.
 
 Choose **Hatsune Miku v1**, **v2** or **v3** in Glider's skin selection.
 
+Equip **Porcelain Mask** from the shared hat inventory. It fits all three Miku skins and the five base characters.
+
+For manual upgrades, remove the previous MikuGlider DLL before copying the new version to BepInEx/plugins.
+
 ## Controls
 
 - **J**: cycle first person, free orbit and shoulder camera.

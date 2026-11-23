@@ -10,9 +10,11 @@ internal sealed class RegisteredSkin
     internal Mesh Body { get; }
     internal Mesh BodyWithHat { get; }
     internal Material UtilityMaterial { get; }
+    internal Material[] DeathTorsoMaterials { get; }
+    internal Material[] DeathLegMaterials { get; }
 
     internal RegisteredSkin(SkinVariantDefinition definition, SkinUpgrade upgrade, SkinAssets assets,
-        Mesh body, Mesh bodyWithHat, Material utilityMaterial)
+        Mesh body, Mesh bodyWithHat, Material utilityMaterial, Material deathFaceMaterial, Material deathCoatMaterial, Material waistJoint)
     {
         Definition = definition;
         Upgrade = upgrade;
@@ -20,6 +22,9 @@ internal sealed class RegisteredSkin
         Body = body;
         BodyWithHat = bodyWithHat;
         UtilityMaterial = utilityMaterial;
+        DeathTorsoMaterials = deathCoatMaterial == null ? new[] { utilityMaterial, deathFaceMaterial, waistJoint }
+            : new[] { utilityMaterial, deathFaceMaterial, deathCoatMaterial, waistJoint };
+        DeathLegMaterials = new[] { utilityMaterial, waistJoint };
     }
 
     internal bool OwnsBody(Mesh mesh)
@@ -41,6 +46,8 @@ internal sealed class RegisteredSkin
         }
 
         Object.Destroy(UtilityMaterial);
+        for (int slot = 1; slot < DeathTorsoMaterials.Length; slot++)
+            Object.Destroy(DeathTorsoMaterials[slot]);
         Assets.Dispose();
     }
 }

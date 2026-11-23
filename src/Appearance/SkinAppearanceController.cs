@@ -62,7 +62,7 @@ internal sealed class SkinAppearanceController
             Upgrade upgrade = instance.Upgrade;
             if (upgrade == skin.Upgrade)
                 hasSkin = true;
-            if (upgrade is SkinUpgrade && SkinUpgrade.GetHat(player.Character, player, upgrade, out var hat) &&
+            if (upgrade is SkinUpgrade && upgrade != MikuGliderPlugin.Mask?.Upgrade && SkinUpgrade.GetHat(player.Character, player, upgrade, out var hat) &&
                 hat.GetInstance(player, out _, out _) != null)
                 hasHat = true;
         }
@@ -191,7 +191,7 @@ internal sealed class SkinAppearanceController
         if (head != null && skin?.Assets.Hair != null)
             AnimatedHairVisual.Attach(menu.gameObject, body, head, 1, skin, null);
         if (skin?.Definition.PoseSkirt == true)
-            SkirtGarmentVisual.Attach(menu.gameObject, body, 1, skin, null);
+            SkirtGarmentVisual.Attach(menu.gameObject, body, 1, skin, null, inventoryPreview: true);
         ModelPoseCorrections.Attach(body, skin?.Assets.Corrections);
     }
 
@@ -221,6 +221,13 @@ internal sealed class SkinAppearanceController
         return null;
     }
 
+    internal RegisteredSkin GetPreviewSkin(MenuRig menu)
+    {
+        // RefreshPreview has already located the displayed body before the native hat draw.
+        return previewBodies.TryGetValue(menu, out var body) && body.Renderer != null
+            ? skins.FindByBody(body.Renderer.sharedMesh) : null;
+    }
+
     private static PreviewBody CreatePreviewBody(MenuRig menu) => new PreviewBody();
 
     private sealed class PreviewBody
@@ -245,7 +252,7 @@ internal sealed class SkinAppearanceController
 
     private static bool HasHatProperty(UpgradeInstance instance)
     {
-        return instance != null && instance.Upgrade is SkinUpgrade skin &&
+        return instance != null && instance.Upgrade is SkinUpgrade skin && skin != MikuGliderPlugin.Mask?.Upgrade &&
             skin.FindProperty<SkinUpgradeProperty_Hat>() != null;
     }
 

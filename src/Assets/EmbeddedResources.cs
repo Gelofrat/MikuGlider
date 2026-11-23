@@ -14,11 +14,14 @@ internal sealed class EmbeddedResources
     }
 
     internal Stream Open(string suffix, int maximumBytes)
+        => OpenOptional(suffix, maximumBytes) ?? throw new InvalidDataException("Missing embedded resource: " + prefix + "." + suffix);
+
+    internal Stream OpenOptional(string suffix, int maximumBytes)
     {
         string name = prefix + "." + suffix;
         Stream stream = typeof(EmbeddedResources).Assembly.GetManifestResourceStream(name);
         if (stream == null)
-            throw new InvalidDataException("Missing embedded resource: " + name);
+            return null;
 
         if (stream.CanSeek && stream.Length > 0 && stream.Length <= maximumBytes)
             return stream;

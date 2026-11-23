@@ -43,7 +43,7 @@ internal sealed class CharacterBodyBones
         return Mathf.Max(0.001f, Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
     }
 
-    private static Transform Find(Transform[] bones, string name)
+    internal static Transform Find(Transform[] bones, string name)
     {
         foreach (Transform bone in bones)
         {

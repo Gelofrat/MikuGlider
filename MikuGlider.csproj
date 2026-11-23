@@ -3,24 +3,35 @@
     <TargetFramework>net48</TargetFramework>
     <AssemblyName>MikuGlider</AssemblyName>
     <RootNamespace>MikuGlider</RootNamespace>
-    <Version>0.12.46</Version>
+    <Version>0.12.66</Version>
     <LangVersion>latest</LangVersion>
     <EnableDefaultItems>false</EnableDefaultItems>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <Authors>MikuGlider contributors</Authors>
-    <Company>MikuGlider</Company>
+    <Description>Adds 3 Hatsune Miku skins for Glider and a wearable Porcelain Mask.</Description>
+    <Authors>Gelofrat</Authors>
+    <PluginGuid>horse.mycopunk.mikuglider</PluginGuid>
+    <Title>Miku Glider</Title>
+    <Company>$(Authors)</Company>
     <PathMap>$(MSBuildProjectDirectory)=/_/MikuGlider</PathMap>
     <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
     <ManagedRoot>$(MikuGliderGameRoot)\Mycopunk_Data\Managed</ManagedRoot>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <PluginFile>$(Authors)-$(AssemblyName)-$(Version).dll</PluginFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\**\*.cs" />
     <EmbeddedResource Include="assets\sounds\Dalek-Exterminate.wav" LogicalName="MikuGlider.Audio.DalekExterminate" />
+    <EmbeddedResource Include="assets\porcelain-mask\porcelain.mikumesh" LogicalName="MikuGlider.PorcelainMask.Model" />
+    <EmbeddedResource Include="assets\porcelain-mask\icon.png" LogicalName="MikuGlider.PorcelainMask.Texture.Icon" />
+    <EmbeddedResource Include="assets\porcelain-mask\porcelain-albedo.png" LogicalName="MikuGlider.PorcelainMask.Texture.Albedo" />
+    <EmbeddedResource Include="assets\shared\waist-joint.png" LogicalName="MikuGlider.Shared.Texture.WaistJoint" />
     <EmbeddedResource Include="assets\V1\corrections.json" LogicalName="MikuGlider.Corrections" />
     <EmbeddedResource Include="assets\v2\corrections.json" LogicalName="MikuGliderV2.Corrections" />
     <EmbeddedResource Include="assets\v3\corrections.json" LogicalName="MikuGliderV3.Corrections" />
+    <EmbeddedResource Include="assets\v3\seated-pose.mikuseat" LogicalName="MikuGliderV3.SeatedPose" />
+    <EmbeddedResource Include="assets\V1\seated-pose.mikuseat" LogicalName="MikuGlider.SeatedPose" />
+    <EmbeddedResource Include="assets\v2\seated-pose.mikuseat" LogicalName="MikuGliderV2.SeatedPose" />
     <EmbeddedResource Include="assets\V1\MikuGlider.mikumesh" LogicalName="MikuGlider.Model" />
     <EmbeddedResource Include="assets\V1\textures\body-albedo.png" LogicalName="MikuGlider.Texture.BodyAlbedo" />
     <EmbeddedResource Include="assets\V1\textures\face-albedo.png" LogicalName="MikuGlider.Texture.FaceAlbedo" />
@@ -57,10 +68,10 @@
     <Reference Include="Unity.Collections"><HintPath>$(ManagedRoot)\Unity.Collections.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
   <Target Name="GenerateBuildVersion" BeforeTargets="CoreCompile">
-    <WriteLinesToFile File="$(IntermediateOutputPath)BuildInfo.g.cs"
-      Lines="namespace MikuGlider { internal static class BuildInfo { internal const string Version = &quot;$(Version)&quot;%3B } }"
+    <WriteLinesToFile File="$(IntermediateOutputPath)MyPluginInfo.g.cs"
+      Lines="namespace MikuGlider { public static class MyPluginInfo { public const string PLUGIN_GUID = &quot;$(PluginGuid)&quot;%3B public const string PLUGIN_NAME = &quot;$(Title)&quot;%3B public const string PLUGIN_VERSION = &quot;$(Version)&quot;%3B } }"
       Overwrite="true" WriteOnlyWhenDifferent="true" />
-    <ItemGroup><Compile Include="$(IntermediateOutputPath)BuildInfo.g.cs" /></ItemGroup>
+    <ItemGroup><Compile Include="$(IntermediateOutputPath)MyPluginInfo.g.cs" /></ItemGroup>
   </Target>
   <Target Name="CheckGameReferences" BeforeTargets="ResolveAssemblyReferences">
     <Error Condition="'$(GameRoot)' == ''" Text="Set GameRoot in Directory.Build.local.props, MYCOPUNK_GAME_ROOT, or -p:GameRoot=... . See Directory.Build.local.props.example." />
@@ -68,9 +79,15 @@
     <Error Condition="'$(GameRoot)' != '' and !Exists('$(MikuGliderGameRoot)\BepInEx\core\BepInEx.dll')" Text="GameRoot must contain BepInEx\core\BepInEx.dll." />
     <Error Condition="'$(GameRoot)' != '' and !Exists('$(MikuGliderGameRoot)\BepInEx\core\0Harmony.dll')" Text="GameRoot must contain BepInEx\core\0Harmony.dll." />
   </Target>
+  <Target Name="CopyDistributablePlugin" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)dist/$(PluginFile)" SkipUnchangedFiles="true" />
+  </Target>
   <Target Name="Install" DependsOnTargets="Build">
     <Error Condition="!Exists('$(MikuGliderGameRoot)\BepInEx\plugins')" Text="Install BepInEx first. The existing BepInEx/plugins directory is required." />
-    <Error Condition="Exists('$(MikuGliderGameRoot)\BepInEx\plugins\MikuGlider\MikuGlider.dll')" Text="Remove the previous BepInEx/plugins/MikuGlider/MikuGlider.dll before installing to avoid loading the plugin twice." />
-    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MikuGliderGameRoot)\BepInEx\plugins\MikuGlider.dll" />
+    <ItemGroup>
+      <PreviousPlugin Include="$(MikuGliderGameRoot)/BepInEx/plugins/**/MikuGlider.dll;$(MikuGliderGameRoot)/BepInEx/plugins/**/Gelofrat-MikuGlider-*.dll" Exclude="$(MikuGliderGameRoot)/BepInEx/plugins/$(PluginFile)" />
+    </ItemGroup>
+    <Error Condition="'@(PreviousPlugin)' != ''" Text="Remove previous copies before installing: @(PreviousPlugin)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MikuGliderGameRoot)/BepInEx/plugins/$(PluginFile)" />
   </Target>
 </Project>

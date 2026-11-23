@@ -4,8 +4,8 @@ schemaVersion = "1.2.0"
 [package]
 namespace = "Gelofrat"
 name = "MikuGlider"
-versionNumber = "0.12.46"
-description = "Adds 3 Hatsune Miku skins for Glider."
+versionNumber = "0.12.66"
+description = "Adds 3 Hatsune Miku skins for Glider and a wearable Porcelain Mask."
 websiteUrl = "https://github.com/Gelofrat/MikuGlider"
 containsNsfwContent = false
 
@@ -18,8 +18,8 @@ readme = "README.md"
 outdir = "../release"
 
 [[build.copy]]
-source = "../bin/Release/MikuGlider.dll"
-target = "BepInEx/plugins/MikuGlider.dll"
+source = "../bin/Release/dist/Gelofrat-MikuGlider-0.12.66.dll"
+target = "BepInEx/plugins/Gelofrat-MikuGlider-0.12.66.dll"
 
 [[build.copy]]
 source = "CHANGELOG.md"

@@ -124,11 +124,11 @@ internal sealed class FirstPersonWristVisual : MonoBehaviour
         if (PoseOwner == null || !PoseOwner.UpdatesWrist) UpdatePose();
     }
 
-    internal void UpdatePose(Transform palmOverride = null)
+    internal void UpdatePose(Transform palmOverride = null, Transform forearmOverride = null)
     {
         if (originalBones == null || originalBones[0] == null || originalBones[1] == null ||
             originalBones[2] == null || originalBones[3] == null) return;
-        Matrix4x4 forearm = originalBones[1].localToWorldMatrix * forearmBind;
+        Matrix4x4 forearm = (forearmOverride != null ? forearmOverride : originalBones[1]).localToWorldMatrix * forearmBind;
         Matrix4x4 palm = (palmOverride != null ? palmOverride : originalBones[3]).localToWorldMatrix * palmBind;
         Vector3 startPoint = forearm.MultiplyPoint3x4(restStart);
         Vector3 endPoint = palm.MultiplyPoint3x4(restEnd);

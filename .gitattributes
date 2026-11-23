@@ -7,5 +7,6 @@
 *.bundle binary
 *.mikumesh binary
 *.mikuhair binary
+*.mikuseat binary
 *.mp3 binary
 *.wav binary

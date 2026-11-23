@@ -15,6 +15,8 @@ internal sealed class GarmentSurfaceClearance : IDisposable
     private readonly int[] activePoints, skinPoints, usedBones, outputVertices;
     private bool deformed;
     private readonly int[] nodeVersions, pointVersions, edgeVersions;
+    private readonly int[] offsetVersions;
+    private readonly Vector3[] cachedOffsets;
     private int version;
     private readonly float[] mobility;
     private readonly Edge[] edges;
@@ -88,6 +90,8 @@ internal sealed class GarmentSurfaceClearance : IDisposable
         edges = links.ToArray();
         nodeVersions = new int[offsets.Length];
         pointVersions = new int[rest.Length];
+        offsetVersions = new int[rest.Length];
+        cachedOffsets = new Vector3[rest.Length];
         edgeVersions = new int[edges.Length];
         var active = new List<int>(); var needed = new HashSet<int>();
         for (int i = 0; i < rest.Length; i++) if (mobility[i] > 0) { active.Add(i); needed.Add(i); }
@@ -129,6 +133,7 @@ internal sealed class GarmentSurfaceClearance : IDisposable
         // surfaces together. Independent projections collapse thick cloth.
         Array.Clear(offsets, 0, offsets.Length);
         Array.Clear(nodeVersions, 0, nodeVersions.Length);
+        Array.Clear(offsetVersions, 0, offsetVersions.Length);
         version = 0;
         bool changed = false;
         for (int iteration = 0; iteration < (coat ? 2 : 4); iteration++)
@@ -141,7 +146,7 @@ internal sealed class GarmentSurfaceClearance : IDisposable
                 int stamp = SampleVersion(i);
                 if (iteration > 0 && pointVersions[i] == stamp) continue;
                 pointVersions[i] = stamp;
-                Vector3 point = guide[i] + Offset(i);
+                Vector3 point = guide[i] + Offset(i, stamp);
                 Vector3 delta = (legs.Project(point, padding) - point) * mobility[i];
                 if (delta.sqrMagnitude > 1e-12f)
                 {
@@ -153,10 +158,11 @@ internal sealed class GarmentSurfaceClearance : IDisposable
             {
                 Edge edge = edges[edgeIndex];
                 int a = edge.A, b = edge.B;
-                int stamp = Math.Max(SampleVersion(a), SampleVersion(b));
+                int versionA = SampleVersion(a), versionB = SampleVersion(b);
+                int stamp = Math.Max(versionA, versionB);
                 if (iteration > 0 && edgeVersions[edgeIndex] == stamp) continue;
                 edgeVersions[edgeIndex] = stamp;
-                Vector3 point = (guide[a] + Offset(a) + guide[b] + Offset(b)) * .5f;
+                Vector3 point = (guide[a] + Offset(a, versionA) + guide[b] + Offset(b, versionB)) * .5f;
                 Vector3 delta = legs.Project(point, padding) - point;
                 if (delta.sqrMagnitude < 1e-12f) continue;
                 moved = true;
@@ -178,7 +184,7 @@ internal sealed class GarmentSurfaceClearance : IDisposable
         }
         foreach (int i in activePoints)
         {
-            Vector3 delta = Offset(i);
+            Vector3 delta = Offset(i, SampleVersion(i));
             corrected[i] = rest[i];
             if (delta.sqrMagnitude < 1e-12f) continue;
             corrected[i] += Unskin(delta, weights[i]);
@@ -188,12 +194,15 @@ internal sealed class GarmentSurfaceClearance : IDisposable
         deformed = true;
     }
 
-    private Vector3 Offset(int i)
+    private Vector3 Offset(int i, int stamp)
     {
+        if (stamp == 0) return Vector3.zero;
+        if (offsetVersions[i] == stamp) return cachedOffsets[i];
+        offsetVersions[i] = stamp;
         Stencil s = stencils[i]; Vector4 w = s.Weights;
         ref Vector3 a = ref offsets[s.A], b = ref offsets[s.B], c = ref offsets[s.C], d = ref offsets[s.D];
         float amount = mobility[i];
-        return new Vector3((a.x * w.x + b.x * w.y + c.x * w.z + d.x * w.w) * amount,
+        return cachedOffsets[i] = new Vector3((a.x * w.x + b.x * w.y + c.x * w.z + d.x * w.w) * amount,
             (a.y * w.x + b.y * w.y + c.y * w.z + d.y * w.w) * amount,
             (a.z * w.x + b.z * w.y + c.z * w.z + d.z * w.w) * amount);
     }

@@ -134,17 +134,30 @@ internal sealed class ModelCorrections
             if (pose.gripAnchor != null)
             {
                 var anchor = pose.gripAnchor;
+                Vector3 contact = anchor.contactPosition ?? anchor.position;
                 float maxReleaseDistance = correction.key == "arm-right" && bones == 28 ? .35f : .1f;
                 var q = anchor.rotation;
                 float norm = q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w;
                 if (anchor.bone != 3 || string.IsNullOrEmpty(anchor.name) || string.IsNullOrEmpty(anchor.path) ||
                     !Finite(anchor.position.x) || !Finite(anchor.position.y) || !Finite(anchor.position.z) ||
+                    !Finite(contact.x) || !Finite(contact.y) || !Finite(contact.z) ||
                     !Finite(norm) || Mathf.Abs(norm-1)>.001f || !Finite(anchor.innerDistance) ||
                     !Finite(anchor.outerDistance) || anchor.innerDistance<=0 || anchor.outerDistance<=anchor.innerDistance ||
                     anchor.outerDistance>maxReleaseDistance)
                     throw new InvalidDataException("Invalid hand grip anchor.");
-                if (anchor.followArm && (correction.key != "arm-right" || bones != 28 || anchor.name != "jnt_R_handRoot_01"))
-                    throw new InvalidDataException("Arm alignment requires the first-person right-hand rig.");
+                bool wristAlignment = correction.key == "arm-left wrist transition" && bones == 37 &&
+                    anchor.name == "jnt_L_handRoot_01" && anchor.rotateAtWrist;
+                if (anchor.followArm && !wristAlignment &&
+                    (correction.key != "arm-right" || bones != 28 || anchor.name != "jnt_R_handRoot_01"))
+                    throw new InvalidDataException("Arm alignment requires a first-person arm rig.");
+                if (anchor.rotateAtWrist && (!wristAlignment || !anchor.followArm))
+                    throw new InvalidDataException("Wrist rotation requires the aligned left forearm.");
+                if (anchor.followArm && anchor.weightOnly)
+                    throw new InvalidDataException("A weight-only contact cannot move the arm.");
+                if (anchor.releaseOnly && !anchor.weightOnly)
+                    throw new InvalidDataException("A release pose must use a weight-only grip anchor.");
+                if (anchor.sustainOnContact && (!anchor.weightOnly || anchor.releaseOnly))
+                    throw new InvalidDataException("A sustained correction requires a holding contact.");
             }
             var editedBones = new HashSet<int>();
             foreach (PoseBoneRotation edit in pose.boneRotations)
@@ -155,19 +168,24 @@ internal sealed class ModelCorrections
                 bool palm = bones == 28 && correction.key == "arm-right" && edit != null && edit.bone == 3 && edit.name == "jnt_R_handRoot_01";
                 bool fingerRoot = bones == 28 && correction.key == "arm-right" && edit != null &&
                     (edit.bone == 4 && edit.name == "jnt_R_IndexA" || edit.bone == 19 && edit.name == "jnt_R_PinkyA");
+                bool leftThumbRoot = bones == 37 && correction.key == "arm-left wrist transition" && edit != null &&
+                    edit.bone == 24 && edit.name == "jnt_L_ThumbA";
                 bool wrist = bones == 28 && correction.key == "arm-right" && edit != null && edit.bone == 2 &&
                     edit.name == "jnt_R_hand_01" && pose.gripAnchor?.followArm == true;
                 if (edit == null || (!bodyFinger && !palm && !wrist && (edit.bone < 4 || edit.bone >= Math.Min(28, bones))) ||
                     string.IsNullOrEmpty(edit.name) || !editedBones.Add(edit.bone))
                     throw new InvalidDataException("Invalid finger pose bone.");
-                Quaternion q = edit.rotation;
-                float norm = q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w;
-                if (!Finite(norm) || Mathf.Abs(norm - 1) > .001f || (!edit.absolute && Quaternion.Angle(Quaternion.identity, q) > 90))
+                if (!ValidRotation(edit.rotation, edit.absolute) || (edit.contactRotation.HasValue &&
+                    (pose.gripAnchor == null || !ValidRotation(edit.contactRotation.Value, edit.absolute))))
                     throw new InvalidDataException("Invalid finger pose rotation.");
+                if (!Finite(edit.motionFraction) || edit.motionFraction < 0 || edit.motionFraction > 1 ||
+                    (edit.motionReference.HasValue && (edit.absolute || !ValidRotation(edit.motionReference.Value, true))) ||
+                    (edit.motionFraction != 1 && !edit.motionReference.HasValue))
+                    throw new InvalidDataException("Invalid finger animation range.");
                 if (edit.position.HasValue)
                 {
                     Vector3 p = edit.position.Value;
-                    if ((!bodyFinger && !palm && !fingerRoot) || !Finite(p.x) || !Finite(p.y) || !Finite(p.z) || p.magnitude > .5f)
+                    if ((!bodyFinger && !palm && !fingerRoot && !leftThumbRoot) || !Finite(p.x) || !Finite(p.y) || !Finite(p.z) || p.magnitude > .5f)
                         throw new InvalidDataException("Invalid hand joint position.");
                 }
             }
@@ -180,6 +198,12 @@ internal sealed class ModelCorrections
                     throw new InvalidDataException("Invalid pose displacement.");
             }
         }
+    }
+
+    private static bool ValidRotation(Quaternion q, bool absolute)
+    {
+        float norm = q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w;
+        return Finite(norm) && Mathf.Abs(norm - 1) <= .001f && (absolute || Quaternion.Angle(Quaternion.identity, q) <= 90);
     }
 
     private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
@@ -226,10 +250,21 @@ internal sealed class PoseGripAnchor
     public string name = "";
     public string path = "";
     public Vector3 position = Vector3.zero;
+    // Native palm position on the handle, used when the fitted palm sits at a different angle.
+    // Native palm location on the handle, used to detect contact when a fitted grip shifts the palm.
+    public Vector3? contactPosition = null;
     public Quaternion rotation = Quaternion.identity;
     // A closed viewmodel grip must carry the forearm with it, rather than
     // pulling the palm away from a robot wrist that twists independently.
     public bool followArm = false;
+    // Translate the whole arm to the contact point and rotate at the existing wrist joint.
+    public bool rotateAtWrist = false;
+    // Use the distance to drive the pose weight without repositioning the palm.
+    public bool weightOnly = false;
+    // Fade release-specific finger corrections out as the hand takes the handle.
+    public bool releaseOnly = false;
+    // Keep the hand's calibrated soft tissue in its holding pose until release.
+    public bool sustainOnContact = false;
     // In model units. Release the contact smoothly when the animation moves
     // the hand away; never pin a detached hand to the weapon.
     public float innerDistance = .02f;
@@ -242,6 +277,11 @@ internal sealed class PoseBoneRotation
     public int bone = 0;
     public string name = "";
     public Quaternion rotation = Quaternion.identity;
+    // Optional rotation at full handle contact. The base rotation follows free movement.
+    public Quaternion? contactRotation = null;
+    // Fraction of the source finger's excursion from its recorded holding pose.
+    public Quaternion? motionReference = null;
+    public float motionFraction = 1f;
     public bool absolute = false;
     // Optional authored joint centre on the renderer copy, in parent space.
     public Vector3? position = null;

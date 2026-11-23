@@ -1,8 +1,8 @@
 {
   "name": "MikuGlider",
-  "version_number": "0.12.46",
+  "version_number": "0.12.66",
   "website_url": "https://github.com/Gelofrat/MikuGlider",
-  "description": "Adds 3 Hatsune Miku skins for Glider.",
+  "description": "Adds 3 Hatsune Miku skins for Glider and a wearable Porcelain Mask.",
   "dependencies": [
     "BepInEx-BepInExPack_Mycopunk-5.4.2403"
   ]

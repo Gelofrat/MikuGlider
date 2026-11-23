@@ -16,6 +16,7 @@ internal sealed class SkinAssets : IDisposable
     internal SkinModelDefinition ModelDefinition { get; private set; }
     internal HairAnimationData Hair { get; private set; }
     internal ModelCorrections Corrections { get; private set; }
+    internal SeatedArmProfile SeatedPose { get; private set; }
 
     private SkinAssets(SkinVariantDefinition variant)
     {
@@ -30,6 +31,15 @@ internal sealed class SkinAssets : IDisposable
         {
             assets.ModelDefinition = SkinModelDefinition.Parse(resources.ReadText("Definition", 128 * 1024));
             assets.Corrections = ModelCorrections.Parse(resources.ReadText("Corrections", 16 * 1024 * 1024));
+            try
+            {
+                using (var stream = resources.OpenOptional("SeatedPose", 256 * 1024))
+                    if (stream != null) assets.SeatedPose = SeatedArmProfile.Read(stream, variant.Key);
+            }
+            catch (Exception error) when (error is IOException || error is InvalidDataException || error is System.Text.DecoderFallbackException)
+            {
+                Debug.LogWarning("Miku Glider skipped the seated pose for " + variant.Key + ": " + error.Message);
+            }
             using (Stream stream = resources.Open("Model", MeshResourceReader.MaximumBytes))
             {
                 foreach (MeshData data in MeshResourceReader.Read(stream))
@@ -109,6 +119,7 @@ internal sealed class SkinAssets : IDisposable
         LoadTexture(resources, "body-albedo", "BodyAlbedo", false, ref totalPixels);
         LoadTexture(resources, "face-albedo", "FaceAlbedo", false, ref totalPixels);
         LoadTexture(resources, "icon", "Icon", false, ref totalPixels);
+        LoadTexture(new EmbeddedResources("MikuGlider.Shared"), "waist-joint", "WaistJoint", false, ref totalPixels);
     }
 
     private void ValidateHairMeshes()

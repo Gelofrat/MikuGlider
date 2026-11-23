@@ -17,6 +17,8 @@ internal static class SkinInstanceLookupPatch
     private static void Postfix(SkinInstance __instance, ref Upgrade __result)
     {
         if (__result == null)
-            __result = MikuGliderPlugin.Runtime?.Skins.FindById(__instance.upgradeID)?.Upgrade;
+            __result = __instance.upgradeID == PorcelainMask.NumericId
+                ? MikuGliderPlugin.Mask?.Upgrade
+                : MikuGliderPlugin.Runtime?.Skins.FindById(__instance.upgradeID)?.Upgrade;
     }
 }

@@ -23,5 +23,12 @@
   "coatEnvelope": true,
   "preserveSeatedHandHeading": true,
   "standingArmClearance": true,
+  "inventoryWaistPose": {
+    "wristPosition": { "x": 0.1912, "y": 1.3973, "z": 0.0074 },
+    "middleTipPosition": { "x": 0.0440, "y": 1.4503, "z": 0.1793 },
+    "shoulderDegrees": { "x": -2.582, "y": 11.634, "z": 4.434 },
+    "elbowDegrees": { "x": 9.078, "y": 1.234, "z": 5.25 },
+    "wristDegrees": { "x": 12.837, "y": -4.354, "z": -2.793 }
+  },
   "coatCullMode": 1
 }

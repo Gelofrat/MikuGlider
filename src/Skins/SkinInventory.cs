@@ -12,6 +12,8 @@ internal sealed class SkinInventory
     private readonly ConditionalWeakTable<PlayerData, ProfileProgress> profiles = new ConditionalWeakTable<PlayerData, ProfileProgress>();
     private readonly Func<DateTime> utcNow;
     private Character character;
+    private SkinUpgrade sharedHat;
+    private IUpgradable hatInventory;
 
     private sealed class ProfileProgress
     {
@@ -32,20 +34,29 @@ internal sealed class SkinInventory
         this.character = character;
     }
 
+    internal void SetSharedHat(SkinUpgrade hat, IUpgradable owner)
+    {
+        sharedHat = hat;
+        hatInventory = owner;
+    }
+
     internal void GrantForLoadedProfile()
     {
-        if (character == null || PlayerData.Instance == null || skins.Count == 0)
+        int itemCount = skins.Count + (sharedHat != null ? 1 : 0);
+        if (PlayerData.Instance == null || itemCount == 0)
             return;
 
         var progress = profiles.GetValue(PlayerData.Instance, _ => new ProfileProgress());
-        if ((progress.Processed.Count == skins.Count && !progress.SavePending) || utcNow() < progress.RetryAt)
+        if ((progress.Processed.Count == itemCount && !progress.SavePending) || utcNow() < progress.RetryAt)
             return;
 
         foreach (RegisteredSkin skin in skins.Registered)
         {
-            if (!progress.Processed.Contains(skin.Definition.NumericId) && GrantIfMissing(skin, progress))
-                progress.Processed.Add(skin.Definition.NumericId);
+            if (character != null)
+                GrantIfMissing(skin.Definition.NumericId, skin.Definition.DisplayName, skin.Upgrade, character, progress);
         }
+        if (sharedHat != null)
+            GrantIfMissing(sharedHat.NumberID, sharedHat.Name, sharedHat, hatInventory, progress);
         if (progress.SavePending)
         {
             try { PlayerData.SaveData(); progress.SavePending = false; }
@@ -55,27 +66,27 @@ internal sealed class SkinInventory
         progress.RetryAt = utcNow().AddSeconds(5);
     }
 
-    private bool GrantIfMissing(RegisteredSkin skin, ProfileProgress progress)
+    private void GrantIfMissing(int id, string name, SkinUpgrade upgrade, IUpgradable owner, ProfileProgress progress)
     {
+        if (progress.Processed.Contains(id)) return;
         try
         {
-            var unlocked = PlayerData.GetUnlockedInstances(skin.Upgrade);
-            if (unlocked?.Instances != null && unlocked.Instances.Count > 0)
-                return true;
-
-            // CollectInstance can mutate the profile before throwing.
-            progress.SavePending = true;
-            PlayerData.CollectInstance(character, skin.Upgrade, PlayerData.UnlockFlags.Hidden);
-            unlocked = PlayerData.GetUnlockedInstances(skin.Upgrade);
+            var unlocked = PlayerData.GetUnlockedInstances(upgrade);
             if (unlocked?.Instances == null || unlocked.Instances.Count == 0)
-                throw new InvalidOperationException("The game did not add the skin to the inventory.");
-            logger.LogInfo("Added " + skin.Definition.DisplayName + " to Glider's skin inventory.");
-            return true;
+            {
+                // CollectInstance can mutate the profile before throwing.
+                progress.SavePending = true;
+                PlayerData.CollectInstance(owner, upgrade, PlayerData.UnlockFlags.Hidden);
+                unlocked = PlayerData.GetUnlockedInstances(upgrade);
+                if (unlocked?.Instances == null || unlocked.Instances.Count == 0)
+                    throw new InvalidOperationException("The game did not add the cosmetic to the inventory.");
+                logger.LogInfo("Added " + name + " to the cosmetic inventory.");
+            }
+            progress.Processed.Add(id);
         }
         catch (Exception error)
         {
-            logger.LogError("Could not grant " + skin.Definition.DisplayName + ": " + error);
-            return false;
+            logger.LogError("Could not grant " + name + ": " + error);
         }
     }
 }

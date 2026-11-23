@@ -16,6 +16,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
     private ModelCorrections profile;
     private Transform[] bones;
     private float[] activations;
+    private float[] handleContacts;
     private float[] appliedWeights;
     private int[] poseGroups;
     private float[] groupTotals;
@@ -150,6 +151,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         component.anchorsDirty = true;
         component.CreateGripBones();
         component.activations = new float[applied.Shapes.Length];
+        component.handleContacts = new float[applied.Shapes.Length];
         component.appliedWeights = new float[applied.Shapes.Length];
         component.poseGroups = new int[applied.Shapes.Length];
         var groups = new Dictionary<string, int>();
@@ -178,7 +180,7 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         foreach (PoseShapeEdit pose in state.Correction.poses)
         {
             foreach (PoseBoneRotation edit in pose.boneRotations) { affected[edit.bone] = true; any = true; }
-            if (pose.gripAnchor != null)
+            if (pose.gripAnchor != null && !pose.gripAnchor.weightOnly)
             {
                 affected[pose.gripAnchor.followArm ? 0 : pose.gripAnchor.bone] = true;
                 any = true;
@@ -231,6 +233,16 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         gripBones[i].localScale = bones[i].localScale;
     }
 
+    private float HandleContact(PoseGripAnchor anchor, Transform target)
+    {
+        if (target == null || !target.gameObject.activeInHierarchy) return 0;
+        Transform palm = bones[anchor.bone];
+        float distance = Vector3.Distance(palm.position, target.TransformPoint(anchor.contactPosition ?? anchor.position))
+            / Mathf.Max(.0001f, palm.lossyScale.x);
+        float t = Mathf.InverseLerp(anchor.innerDistance, anchor.outerDistance, distance);
+        return 1f - t * t * (3f - 2f * t);
+    }
+
     private void UpdateGripBones()
     {
         if (gripBones == null) return;
@@ -239,7 +251,19 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
             if (activations[p] > 0)
                 foreach (PoseBoneRotation edit in state.Correction.poses[p].boneRotations)
                 {
-                    Quaternion offset = edit.absolute ? Quaternion.Inverse(bones[edit.bone].localRotation) * edit.rotation : edit.rotation;
+                    Quaternion rotation = edit.contactRotation.HasValue
+                        ? Quaternion.Slerp(edit.rotation, edit.contactRotation.Value, handleContacts[p]) : edit.rotation;
+                    Quaternion offset = edit.absolute ? Quaternion.Inverse(bones[edit.bone].localRotation) * rotation : rotation;
+                    if (edit.motionReference.HasValue)
+                    {
+                        Quaternion source = bones[edit.bone].localRotation;
+                        Quaternion reference = edit.motionReference.Value;
+                        // Small source variations come from locomotion while the fingers stay planted.
+                        float t = Mathf.InverseLerp(.5f, 2f, Quaternion.Angle(reference, source));
+                        float motion = edit.motionFraction * t * t * (3f - 2f * t);
+                        Quaternion animated = Quaternion.Slerp(reference, source, motion);
+                        offset = Quaternion.Inverse(source) * animated * rotation;
+                    }
                     gripOffsets[edit.bone] *= Quaternion.Slerp(Quaternion.identity, offset,
                         activations[p] / Mathf.Max(1, groupTotals[poseGroups[p]]));
                 }
@@ -254,26 +278,31 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         for (int p = 0; p < activations.Length; p++)
         {
             var anchor = state.Correction.poses[p].gripAnchor;
-            if (anchor == null || anchorTargets == null || anchorTargets[p] == null || activations[p] <= 0) continue;
+            if (anchor == null || anchor.weightOnly || anchorTargets == null || anchorTargets[p] == null || activations[p] <= 0) continue;
             Transform source = bones[anchor.bone], target = anchorTargets[p], copy = gripBones[anchor.bone];
             Vector3 position = target.TransformPoint(anchor.position);
-            float scale = Mathf.Max(.0001f, source.lossyScale.x);
-            float distance = Vector3.Distance(source.position, position) / scale;
-            float t = Mathf.InverseLerp(anchor.innerDistance, anchor.outerDistance, distance);
-            float weight = activations[p] / Mathf.Max(1, groupTotals[poseGroups[p]]) * (1 - t*t*(3-2*t));
+            float weight = activations[p] / Mathf.Max(1, groupTotals[poseGroups[p]]);
             if (anchor.followArm)
             {
                 Quaternion rotation = Quaternion.Slerp(copy.rotation, target.rotation * anchor.rotation, weight);
+                Transform root = gripBones[0];
+                if (anchor.rotateAtWrist)
+                {
+                    root.position += weight * (position - copy.position);
+                    copy.rotation = rotation;
+                    continue;
+                }
                 Quaternion delta = rotation * Quaternion.Inverse(copy.rotation);
                 Vector3 translation = Vector3.Lerp(copy.position, position, weight) - delta * copy.position;
-                Transform root = gripBones[0];
                 root.SetPositionAndRotation(delta * root.position + translation, delta * root.rotation);
                 continue;
             }
+            weight *= handleContacts[p];
             copy.SetPositionAndRotation(Vector3.Lerp(source.position, position, weight),
                 Quaternion.Slerp(source.rotation, target.rotation * anchor.rotation, weight));
         }
-        if (wrist != null && gripBones.Length > 3 && gripBones[3] != null) wrist.UpdatePose(gripBones[3]);
+        if (wrist != null && gripBones.Length > 3 && gripBones[3] != null)
+            wrist.UpdatePose(gripBones[3], gripBones[1]);
         // Reattach after OnDisable, or an ordinary renderer rebind. The native
         // animation transforms themselves are never modified.
         BindGripBones();
@@ -366,7 +395,21 @@ internal sealed class ModelPoseCorrections : MonoBehaviour
         {
             PoseShapeEdit pose = state.Correction.poses[i];
             string weapon = string.IsNullOrEmpty(pose.weapon) ? state.Correction.weapon : pose.weapon;
-            activations[i] = MatchesWeapon(weapon) ? Activation(pose, bones) : 0;
+            bool equipped = MatchesWeapon(weapon);
+            activations[i] = equipped ? Activation(pose, bones) : 0;
+            // Sample the animated handle once for the palm and contact-specific finger rotations.
+            var anchor = pose.gripAnchor;
+            if (anchor != null && equipped && (activations[i] > 0 || anchor.sustainOnContact))
+            {
+                // An equipped weapon can recreate its handle under the same weapon root.
+                if (weaponRoot != null && anchorTargets[i] == null)
+                    anchorTargets[i] = weaponRoot.Find(anchor.path);
+                handleContacts[i] = HandleContact(anchor, anchorTargets?[i]);
+                if (anchor.sustainOnContact)
+                    activations[i] = Mathf.Lerp(activations[i], 1f, handleContacts[i]);
+                else if (anchor.followArm || anchor.weightOnly)
+                    activations[i] *= anchor.releaseOnly ? 1f - handleContacts[i] : handleContacts[i];
+            }
             groupTotals[poseGroups[i]] += activations[i];
         }
         UpdateGripBones();

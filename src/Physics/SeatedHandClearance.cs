@@ -135,13 +135,21 @@ internal sealed class SeatedHandClearance
     internal void BindSleeves(Transform[] bones, Mesh source, SleevePoseRig sleeves)
         => palmContact?.BindSleeves(bones, source, sleeves.Mesh, sleeves.Bones, sleeves.UpdatePose);
 
+    internal void ResetContact()
+    {
+        for (int side = 0; side < lifts.Length; side++)
+        {
+            lifts[side] = 0;
+            elbowAngles[side] = 0;
+            palmContact?.Release(side);
+        }
+    }
+
     internal void Apply(Transform reference, float seated, float deltaTime)
     {
         if (seated < .15f)
         {
-            lifts[0] = lifts[1] = 0;
-            elbowAngles[0] = elbowAngles[1] = 0;
-            palmContact?.Reset(0); palmContact?.Reset(1);
+            ResetContact();
             return;
         }
         float scale = reference.lossyScale.x;
@@ -193,7 +201,7 @@ internal sealed class SeatedHandClearance
             Transform wrist = arms[side, 2];
             if (wrist == null || arms[side, 0] == null || arms[side, 1] == null) continue;
             Vector3 local = reference.InverseTransformPoint(wrist.position);
-            if (local.z < .1f) { lifts[side] = elbowAngles[side] = 0; palmContact?.Reset(side); continue; }
+            if (local.z < .1f) { lifts[side] = elbowAngles[side] = 0; palmContact?.Release(side); continue; }
             for (int joint = 0; joint < 3; joint++) original[side, joint] = arms[side, joint].localRotation;
             if (palmContact != null && palmContact.Apply(side, reference, seated, deltaTime, lifts[side]))
             {
@@ -354,21 +362,68 @@ internal sealed class SeatedHandClearance
             int x1 = Mathf.Min(GridSize - 1, Mathf.FloorToInt((box.maxX - gridX) / gridStep));
             int z0 = Mathf.Max(0, Mathf.FloorToInt((box.minZ - gridZ) / gridStep));
             int z1 = Mathf.Min(GridSize - 1, Mathf.FloorToInt((box.maxZ - gridZ) / gridStep));
-            for (int z = z0; z <= z1; z++) for (int x = x0; x <= x1; x++)
+            if (x0 > x1 || z0 > z1) continue;
+            var edgeAB = new RasterEdge(a, b, gridX, gridZ, gridStep, sign);
+            var edgeBC = new RasterEdge(b, c, gridX, gridZ, gridStep, sign);
+            var edgeCA = new RasterEdge(c, a, gridX, gridZ, gridStep, sign);
+            for (int z = z0; z <= z1; z++)
             {
-                float px = gridX + (x + .5f) * gridStep, pz = gridZ + (z + .5f) * gridStep;
-                if (OutsideCell(a, b, px, pz, half, sign) || OutsideCell(b, c, px, pz, half, sign) || OutsideCell(c, a, px, pz, half, sign)) continue;
-                int cell = z * GridSize + x;
-                heightGrid[cell] = Mathf.Max(heightGrid[cell], Mathf.Min(top, a.y + dx * (px - a.x) + dz * (pz - a.z) + margin));
+                int left = x0, right = x1;
+                edgeAB.Clip(z, ref left, ref right);
+                edgeBC.Clip(z, ref left, ref right);
+                edgeCA.Clip(z, ref left, ref right);
+                float pz = (gridZ - a.z) + (z + .5f) * gridStep;
+                float px = (gridX - a.x) + (left + .5f) * gridStep;
+                float y = a.y + dx * px + dz * pz + margin;
+                float stepY = dx * gridStep;
+                for (int cell = z * GridSize + left, end = z * GridSize + right; cell <= end; cell++, y += stepY)
+                {
+                    float upper = y < top ? y : top;
+                    if (upper > heightGrid[cell]) heightGrid[cell] = upper;
+                }
             }
         }
     }
 
-    private static bool OutsideCell(Vector3 a, Vector3 b, float x, float z, float half, float sign)
-        => sign * ((b.x - a.x) * (z - a.z) - (b.z - a.z) * (x - a.x)) < -half * (Mathf.Abs(b.x - a.x) + Mathf.Abs(b.z - a.z));
+    // Each edge clips the row to cells whose square reaches the triangle.
+    // Work in cell coordinates to retain the half-cell allowance on thin folds.
+    private readonly struct RasterEdge
+    {
+        private readonly float x, z, origin;
+
+        internal RasterEdge(Vector3 a, Vector3 b, float gridX, float gridZ, float step, float sign)
+        {
+            x = (a.z - b.z) * sign;
+            z = (b.x - a.x) * sign;
+            origin = x * ((gridX - a.x) / step + .5f) + z * ((gridZ - a.z) / step + .5f)
+                + .5f * (Mathf.Abs(x) + Mathf.Abs(z));
+        }
+
+        internal void Clip(int row, ref int left, ref int right)
+        {
+            float value = origin + z * row;
+            if (x > 0)
+            {
+                if (value + x * right < 0) { left = right + 1; return; }
+                if (value + x * left < 0) left = Mathf.CeilToInt(-value / x);
+            }
+            else if (x < 0)
+            {
+                if (value + x * left < 0) { right = left - 1; return; }
+                if (value + x * right < 0) right = Mathf.FloorToInt(-value / x);
+            }
+            else if (value < 0) right = left - 1;
+        }
+    }
 
     private float PalmHeight(Vector3 point, float radius)
     {
+        if (radius == 0)
+        {
+            int x = Mathf.FloorToInt((point.x - gridX) / gridStep);
+            int z = Mathf.FloorToInt((point.z - gridZ) / gridStep);
+            return (uint)x < GridSize && (uint)z < GridSize ? heightGrid[z * GridSize + x] : float.NegativeInfinity;
+        }
         int x0 = Mathf.Max(0, Mathf.FloorToInt((point.x - radius - gridX) / gridStep));
         int x1 = Mathf.Min(GridSize - 1, Mathf.FloorToInt((point.x + radius - gridX) / gridStep));
         int z0 = Mathf.Max(0, Mathf.FloorToInt((point.z - radius - gridZ) / gridStep));

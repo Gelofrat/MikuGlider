@@ -38,12 +38,15 @@ internal sealed class PoseGarmentRig : IDisposable
         restSkirt = skirt;
         if (!body.HasLegs || body.Pelvis == null)
             throw new InvalidOperationException("Garment rig requires pelvis and both legs.");
+        Matrix4x4[] skirtBindposes = skirt.bindposes;
+        if (bones.Length > skirtBindposes.Length || Array.Exists(bones, bone => bone == null))
+            throw new InvalidOperationException("Cannot bind the garment: a body bone is missing or has no skirt bind pose.");
         pelvis = Array.IndexOf(bones, body.Pelvis);
         firstSector = bones.Length;
         Bones = new Transform[firstSector + Sectors * 2];
         Array.Copy(bones, Bones, bones.Length);
         bindposes = new Matrix4x4[Bones.Length];
-        Array.Copy(skirt.bindposes, bindposes, bones.Length);
+        Array.Copy(skirtBindposes, bindposes, bones.Length);
         top = float.NegativeInfinity;
         bottom = float.PositiveInfinity;
         Vector3[] skirtVertices = skirt.vertices;

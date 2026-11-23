@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace MikuGlider;
@@ -11,8 +12,9 @@ internal sealed class SkinModelDefinition
     public int coatCullMode = 0;
     public bool coatEnvelope = false;
     public bool preserveSourceGarmentShape = false;
-    public bool preserveSeatedHandHeading = false;
+    public bool preserveSeatedHandHeading = true;
     public bool standingArmClearance = false;
+    public InventoryWaistPoseDefinition inventoryWaistPose = null;
     public bool standingHipClearance = false;
     public float firstPersonWristTwistLength = 0f;
     public Vector3 torsoHoldPosition = Vector3.zero;
@@ -22,7 +24,8 @@ internal sealed class SkinModelDefinition
 
     internal static SkinModelDefinition Parse(string json)
     {
-        var definition = JsonUtility.FromJson<SkinModelDefinition>(json);
+        // In the Mono player JsonUtility drops nested mod-defined classes from dynamically loaded assemblies.
+        var definition = JsonConvert.DeserializeObject<SkinModelDefinition>(json);
         if (definition == null || definition.schemaVersion != 1)
             throw new InvalidDataException("Unsupported skin definition; expected schemaVersion 1.");
         if (definition.coatCullMode < 0 || definition.coatCullMode > 2)
@@ -35,6 +38,27 @@ internal sealed class SkinModelDefinition
         SkinMeshValidator.ValidateVector(definition.torsoHoldRotation);
         SkinMeshValidator.ValidateVector(definition.legsHoldPosition);
         SkinMeshValidator.ValidateVector(definition.legsHoldRotation);
+        definition.inventoryWaistPose?.Validate();
         return definition;
+    }
+}
+
+[Serializable]
+internal sealed class InventoryWaistPoseDefinition
+{
+    public Vector3 wristPosition = Vector3.zero;
+    public Vector3 middleTipPosition = Vector3.zero;
+    // Local rotation vectors. Direction is the axis and magnitude is degrees.
+    public Vector3 shoulderDegrees = Vector3.zero;
+    public Vector3 elbowDegrees = Vector3.zero;
+    public Vector3 wristDegrees = Vector3.zero;
+
+    internal void Validate()
+    {
+        SkinMeshValidator.ValidateVector(wristPosition);
+        SkinMeshValidator.ValidateVector(middleTipPosition);
+        SkinMeshValidator.ValidateVector(shoulderDegrees);
+        SkinMeshValidator.ValidateVector(elbowDegrees);
+        SkinMeshValidator.ValidateVector(wristDegrees);
     }
 }
