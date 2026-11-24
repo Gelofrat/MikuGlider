@@ -32,14 +32,20 @@ entries = {
     'README.md': PACKAGE / 'README.md',
     'icon.png': PACKAGE / 'icon.png',
     'CHANGELOG.md': PACKAGE / 'CHANGELOG.md',
+    'LICENSE': ROOT / 'LICENSE',
+    'ATTRIBUTION.md': ROOT / 'ATTRIBUTION.md',
     dll_entry: ROOT / 'bin/Release/dist' / dll_name,
 }
 release = ROOT / 'release'
 release.mkdir(exist_ok=True)
 target = release / f'MikuGlider-{version}-Thunderstore.zip'
-with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+with zipfile.ZipFile(target, 'w') as archive:
     for name, source in entries.items():
-        archive.write(source, name)
+        # A fixed timestamp and regular-file permissions keep local filesystem metadata out of the package.
+        entry = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+        entry.create_system = 3
+        entry.external_attr = 0o100644 << 16
+        archive.writestr(entry, source.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
 with zipfile.ZipFile(target) as archive:
     assert archive.testzip() is None
     assert set(archive.namelist()) == set(entries)

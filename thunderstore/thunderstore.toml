@@ -25,6 +25,14 @@ target = "BepInEx/plugins/Gelofrat-MikuGlider-0.12.66.dll"
 source = "CHANGELOG.md"
 target = "CHANGELOG.md"
 
+[[build.copy]]
+source = "../LICENSE"
+target = "LICENSE"
+
+[[build.copy]]
+source = "../ATTRIBUTION.md"
+target = "ATTRIBUTION.md"
+
 [publish]
 repository = "https://thunderstore.io"
 communities = ["mycopunk"]
